@@ -1,0 +1,17 @@
+<svg width="384" height="384" viewBox="320 320 384 384" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Sporetrust Icon</title>
+  <desc id="desc">3x3 dot grid icon mark without wordmark.</desc>
+
+  <!-- Dot grid -->
+  <circle cx="384" cy="376" r="45.36" fill="#2A2B2D"/>
+  <circle cx="512" cy="376" r="45.36" fill="#3D7355"/>
+  <circle cx="640" cy="376" r="45.36" fill="#2A2B2D"/>
+
+  <circle cx="384" cy="512" r="45.36" fill="#3D7355"/>
+  <circle cx="512" cy="512" r="45.36" fill="#3D7355"/>
+  <circle cx="640" cy="512" r="45.36" fill="#3D7355"/>
+
+  <circle cx="384" cy="648" r="45.36" fill="#2A2B2D"/>
+  <circle cx="512" cy="648" r="45.36" fill="#3D7355"/>
+  <circle cx="640" cy="648" r="45.36" fill="#2A2B2D"/>
+</svg>

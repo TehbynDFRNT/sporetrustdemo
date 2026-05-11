@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sporetrust Financial Model - Conservative Medium Case</title>
+  <style>
+    :root {
+      --bg: #f4f4f2;
+      --paper: #ffffff;
+      --ink: #101010;
+      --muted: #5d5d5d;
+      --line: #d6d6d2;
+      --soft: #eeeeeb;
+      --soft2: #f8f8f6;
+      --dark: #1d1d1d;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.42;
+      letter-spacing: 0;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+    header {
+      padding: 42px 46px 38px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 36px;
+      align-items: end;
+    }
+    .kicker {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      max-width: 880px;
+      font-size: clamp(38px, 5vw, 70px);
+      line-height: .94;
+      letter-spacing: -.04em;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.16;
+      letter-spacing: -.01em;
+    }
+    p { margin: 0; }
+    .meta {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 16px;
+      display: grid;
+      gap: 9px;
+      font-size: 13px;
+    }
+    .meta div {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .meta div:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+    .meta span:first-child { color: var(--muted); }
+    .meta span:last-child { font-weight: 750; text-align: right; }
+    section {
+      padding: 34px 46px;
+      border-bottom: 1px solid var(--line);
+    }
+    section:last-child { border-bottom: 0; }
+    .lede {
+      max-width: 920px;
+      color: #303030;
+      font-size: 19px;
+      line-height: 1.35;
+      letter-spacing: -.01em;
+    }
+    .grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .grid.four { grid-template-columns: repeat(4, 1fr); }
+    .metric {
+      border: 1px solid var(--line);
+      background: var(--soft2);
+      padding: 18px;
+      min-height: 118px;
+    }
+    .metric span {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .metric strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+    .metric small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 16px;
+      min-height: 116px;
+    }
+    .card p,
+    li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .advantage-list {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      counter-reset: advantage;
+    }
+    .advantage-list li {
+      min-height: 148px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: var(--soft2);
+      counter-increment: advantage;
+    }
+    .advantage-list li::before {
+      content: counter(advantage, decimal-leading-zero);
+      display: block;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font: 750 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+    }
+    .advantage-list strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.18;
+    }
+    .callout {
+      margin-top: 16px;
+      padding: 18px 20px;
+      background: var(--dark);
+      color: #ffffff;
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+    .callout .kicker {
+      color: #bdbdbd;
+      margin: 0;
+    }
+    .callout p {
+      font-size: 21px;
+      line-height: 1.28;
+      letter-spacing: -.015em;
+    }
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 13px 14px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th:last-child, td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+    th {
+      background: var(--soft);
+      color: var(--muted);
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    td.strong {
+      color: var(--ink);
+      font-weight: 850;
+    }
+    td.note,
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: .42fr .58fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .timeline {
+      margin-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+    .timeline-step {
+      display: grid;
+      grid-template-columns: 92px 1fr 1fr 1fr;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      align-items: start;
+    }
+    .timeline-index {
+      color: var(--muted);
+      font: 800 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .timeline-step strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+      line-height: 1.16;
+    }
+    .timeline-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .timeline-chips {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .chip {
+      border: 1px solid transparent;
+      color: var(--ink);
+      padding: 3px 6px;
+      font: 750 10px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0;
+    }
+    .chip.revenue {
+      background: #edf7f0;
+      border-color: #b8d8c2;
+    }
+    .chip.cogs {
+      background: #f8efeb;
+      border-color: #dfc3b8;
+    }
+    .chip.margin {
+      background: #eef2fb;
+      border-color: #bdc9e4;
+    }
+    .chip.contribution {
+      background: #f5f1e6;
+      border-color: #d9cda9;
+    }
+    .chip b {
+      color: inherit;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+    .timeline-subrows {
+      grid-column: 1 / -1;
+      display: grid;
+      margin-top: 2px;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      background: #ffffff;
+    }
+    .timeline-subrow {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+    .timeline-subrow span {
+      display: block;
+      padding: 7px 9px;
+      border-right: 1px solid var(--line);
+      color: var(--ink);
+      font: 750 11px/1.25 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .timeline-subrow span:last-child {
+      border-right: 0;
+    }
+    .timeline-subrow .label {
+      background: var(--soft2);
+      color: var(--ink);
+    }
+    .timeline-subrow .revenue { background: #edf7f0; }
+    .timeline-subrow .cogs { background: #f8efeb; }
+    .timeline-subrow .margin { background: #eef2fb; }
+    ol, ul {
+      margin: 12px 0 0;
+      padding-left: 22px;
+    }
+    li + li { margin-top: 8px; }
+    footer {
+      padding: 26px 46px 34px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+    }
+    @media (max-width: 920px) {
+      main { width: calc(100% - 20px); margin: 10px auto; }
+      header,
+      .grid.two,
+      .grid.three,
+      .grid.four,
+      .advantage-list,
+      .callout,
+      .split,
+      .timeline-step { grid-template-columns: 1fr; }
+      .timeline-chips { grid-column: auto; }
+      .timeline-subrows { grid-column: auto; }
+      .timeline-subrow { grid-template-columns: 1fr; }
+      .timeline-subrow span {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .timeline-subrow span:last-child { border-bottom: 0; }
+      header, section, footer { padding: 24px 20px; }
+      table { font-size: 12px; }
+      th, td { padding: 10px; }
+    }
+    @media print {
+      html, body { background: #ffffff; }
+      main { width: 100%; margin: 0; border: 0; }
+      header, section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="kicker">Sporetrust / Financial Model</p>
+        <h1>Conservative medium-case economics</h1>
+      </div>
+      <aside class="meta" aria-label="Model metadata">
+        <div><span>Version</span><span>Clean financials v2</span></div>
+        <div><span>Date</span><span>2026-05-11</span></div>
+        <div><span>Planning base</span><span>15 field reps</span></div>
+        <div><span>Status</span><span>Working model</span></div>
+      </aside>
+    </header>
+
+    <section>
+      <h2>Executive Financial View</h2>
+      <p class="lede">The medium-term case is built around a 15-field-rep operating base, conservative downstream attachment rates, and annual monitoring as the recurring revenue layer. The model should be underwritten on diagnostic contribution plus monitoring, with downstream revenue modelled separately until proven and compliant.</p>
+      <div class="grid four">
+        <div class="metric"><span>Diagnostics / Year</span><strong>19,800</strong><small>15 reps x 6 jobs/day x 220 days</small></div>
+        <div class="metric"><span>Year-5 Revenue</span><strong>$37.6m</strong><small>Diagnostics + downstream + monitoring</small></div>
+        <div class="metric"><span>Contribution Before Opex</span><strong>$27.6m-$32.0m</strong><small>CAC high-low sensitivity</small></div>
+        <div class="metric"><span>Booked CAC</span><strong>$75-$300</strong><small>$15-$30 lead cost / 10%-20% sale conversion</small></div>
+      </div>
+      <div class="callout">
+        <p class="kicker">Planning decision</p>
+        <p>Use the 15-rep case as the operating model. Additional hiring should follow measured utilisation, booked CAC, report quality, and renewal conversion.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Strategic Business Model Advantages</h2>
+      <ol class="advantage-list">
+        <li><strong>No remediation or builder works.</strong> Own the customer journey and peace of mind without taking delivery conflict or construction liability.</li>
+        <li><strong>Offshore sample testing.</strong> Move testing and report workflow offshore with comparable lab-report SLA to reduce COGS per test.</li>
+        <li><strong>Non-visible demand.</strong> Sell to mould-anxious customers without visible remediation demand, expanding beyond emergency works and obvious damage.</li>
+        <li><strong>Recurring peace of mind.</strong> Treat monitoring as a repeat prevention purchase, comparable to termite checks, rather than a one-off inspection.</li>
+        <li><strong>Sporecyte AI in house.</strong> Bring the Sporecyte offshore-testing AI model in house to reduce repeat COGS to $20 labour plus $5 consumables.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Customer Timeline: Revenue And COGS</h2>
+      <p class="lede">The model monetises one customer across seven moments: acquisition, diagnostic, optional evidence, annual monitoring, downstream pathway, clearance/prevention, and renewal. CAC is the largest variable cost; in-house AI only appears where it reduces repeat-service COGS.</p>
+      <div class="timeline" aria-label="Customer journey matched to revenue and COGS">
+        <article class="timeline-step">
+          <div class="timeline-index">Step 01</div>
+          <div><strong>Paid lead converts to booking</strong><span>Customer enters through problem-aware search, social, referral, or property-risk content.</span></div>
+          <div><strong>Revenue opportunity</strong><span>No customer revenue until booked diagnostic; required volume is 99,000-198,000 leads for 19,800 sales.</span></div>
+          <div><strong>Cost / COGS</strong><span>$15-$30 lead cost; 10%-20% lead-to-sale conversion; $75-$300 booked CAC.</span></div>
+          <div class="timeline-chips">
+            <span class="chip revenue"><b>Revenue</b> $0 pre-sale</span>
+            <span class="chip cogs"><b>COGS/CAC</b> $75-$300 booked CAC</span>
+            <span class="chip margin"><b>Gross margin</b> N/A until sale</span>
+          </div>
+        </article>
+        <article class="timeline-step">
+          <div class="timeline-index">Step 02</div>
+          <div><strong>Initial diagnostic visit</strong><span>Field rep completes moisture mapping, thermal review, visual inspection, sampling decision, and report inputs.</span></div>
+          <div><strong>Revenue opportunity</strong><span>$995 diagnostic revenue; 19,800 annual diagnostics produce $19.7m revenue.</span></div>
+          <div><strong>Cost / COGS</strong><span>$100 delivery COGS plus $75-$300 CAC; contribution is $595-$820 per diagnostic.</span></div>
+          <div class="timeline-chips">
+            <span class="chip revenue"><b>Revenue</b> $995</span>
+            <span class="chip cogs"><b>COGS</b> $100 delivery + $75-$300 CAC</span>
+            <span class="chip margin"><b>Gross margin</b> $895 / 90% before CAC</span>
+            <span class="chip contribution"><b>Contribution</b> $595-$820 after CAC</span>
+          </div>
+        </article>
+        <article class="timeline-step">
+          <div class="timeline-index">Step 03</div>
+          <div><strong>Optional evidence add-on</strong><span>Customer needs extra sample depth, lab confidence, or claim/dispute evidence.</span></div>
+          <div><strong>Revenue opportunity</strong><span>Extra sample at $120/event; planning attach 17.5%.</span></div>
+          <div><strong>Cost / COGS</strong><span>Approx. $40/event COGS; annual contribution about $0.28m.</span></div>
+          <div class="timeline-chips">
+            <span class="chip revenue"><b>Revenue</b> $120/event</span>
+            <span class="chip cogs"><b>COGS</b> ~$40/event</span>
+            <span class="chip margin"><b>Gross margin</b> ~$80 / 67%</span>
+          </div>
+        </article>
+        <article class="timeline-step">
+          <div class="timeline-index">Step 04</div>
+          <div><strong>Report handoff and monitoring offer</strong><span>The first report creates the property baseline and the customer is offered annual onsite monitoring.</span></div>
+          <div><strong>Revenue opportunity</strong><span>$695 annual monitoring; planning conversion 30%; 5,940 new subscribers/year.</span></div>
+          <div><strong>Cost / COGS</strong><span>$100 Year-1 monitoring COGS, falling to $25 repeat COGS with in-house workflow and AI-assisted analysis.</span></div>
+          <div class="timeline-chips">
+            <span class="chip revenue"><b>Revenue</b> $695/year</span>
+            <span class="chip cogs"><b>COGS</b> $100 Y1, $25 repeat</span>
+            <span class="chip margin"><b>Gross margin</b> $595-$670 / 86%-96%</span>
+          </div>
+        </article>
+        <article class="timeline-step">
+          <div class="timeline-index">Step 05</div>
+          <div><strong>Remediation or builder pathway</strong><span>If works are required, the customer needs vetted remediation, repair, or trade handoff.</span></div>
+          <div><strong>Revenue opportunity</strong><span>Remediation referral $350/event at 17.5% attach; builder referral $250/event at 10% attach.</span></div>
+          <div><strong>Cost / COGS</strong><span>Assumed 95% margin implies about $17.50 remediation COGS and $12.50 builder COGS per event; compliance gate required.</span></div>
+          <div class="timeline-chips">
+            <span class="chip revenue"><b>Revenue</b> $350 / $250 event</span>
+            <span class="chip cogs"><b>COGS</b> ~$17.50 / ~$12.50</span>
+            <span class="chip margin"><b>Gross margin</b> ~95%</span>
+          </div>
+        </article>
+        <article class="timeline-step">
+          <div class="timeline-index">Step 06</div>
+          <div><strong>Clearance, prevention, products</strong><span>After works or low-risk findings, customer may need verification, prevention clean, or products.</span></div>
+          <div><strong>Revenue opportunity</strong><span>Clearance $550 at 12.5% attach; prevention clean $650 at 10%; products $180 at 15%.</span></div>
+          <div><strong>Cost / COGS</strong><span>Clearance COGS about $100/event; prevention and products use 60% COGS, or $390 and $108 per event.</span></div>
+          <div class="timeline-subrows">
+            <div class="timeline-subrow">
+              <span class="label">Clearance diagnostics</span>
+              <span class="revenue">Revenue $550</span>
+              <span class="cogs">COGS ~$100</span>
+              <span class="margin">Gross margin ~$450 / 82%</span>
+            </div>
+            <div class="timeline-subrow">
+              <span class="label">Prevention clean</span>
+              <span class="revenue">Revenue $650</span>
+              <span class="cogs">COGS ~$390</span>
+              <span class="margin">Gross margin ~$260 / 40%</span>
+            </div>
+            <div class="timeline-subrow">
+              <span class="label">Products</span>
+              <span class="revenue">Revenue $180</span>
+              <span class="cogs">COGS ~$108</span>
+              <span class="margin">Gross margin ~$72 / 40%</span>
+            </div>
+          </div>
+        </article>
+        <article class="timeline-step">
+          <div class="timeline-index">Step 07</div>
+          <div><strong>Annual renewal</strong><span>Subscriber receives annual onsite check, comparison against baseline, and report history.</span></div>
+          <div><strong>Revenue opportunity</strong><span>Year-5 active equivalents: 18,122; monitoring revenue: $12.6m at 30% conversion and 25% churn.</span></div>
+          <div><strong>Cost / COGS</strong><span>Repeat COGS target is $25/active subscription; Year-5 monitoring contribution is $12.1m.</span></div>
+          <div class="timeline-chips">
+            <span class="chip revenue"><b>Revenue</b> $12.6m Y5</span>
+            <span class="chip cogs"><b>COGS</b> $0.45m Y5</span>
+            <span class="chip margin"><b>Gross margin</b> $12.1m / 96%</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Operating Base</h2>
+      <table aria-label="Operating base assumptions">
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>Planning Case</th>
+            <th>Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Field reps</td>
+            <td class="strong">15</td>
+            <td class="note">Enough capacity for a meaningful medium-case model without overbuilding field labour.</td>
+          </tr>
+          <tr>
+            <td>Jobs per rep per day</td>
+            <td class="strong">6</td>
+            <td class="note">Quality, routing density, and 48-hour report delivery must remain intact at this cadence.</td>
+          </tr>
+          <tr>
+            <td>Working days</td>
+            <td class="strong">220</td>
+            <td class="note">Annual production basis for field-rep capacity.</td>
+          </tr>
+          <tr>
+            <td>Annual diagnostics</td>
+            <td class="strong">19,800</td>
+            <td class="note">15 reps x 6 jobs/day x 220 working days.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Diagnostic Unit Economics</h2>
+      <div class="grid four">
+        <div class="metric"><span>Price</span><strong>$995</strong><small>Initial diagnostic</small></div>
+        <div class="metric"><span>Delivery COGS</span><strong>$100</strong><small>Lab/sample/report allocation</small></div>
+        <div class="metric"><span>Lead Cost</span><strong>$15-$30</strong><small>Paid lead cost range</small></div>
+        <div class="metric"><span>Lead-To-Sale</span><strong>10%-20%</strong><small>Initial diagnostic conversion range</small></div>
+      </div>
+      <table aria-label="CAC breakdown">
+        <thead>
+          <tr>
+            <th>CAC Case</th>
+            <th>Lead Cost</th>
+            <th>Lead-To-Sale Conversion</th>
+            <th>Leads Required</th>
+            <th>Booked CAC</th>
+            <th>Annual Acquisition Spend</th>
+            <th>Contribution / Diagnostic</th>
+            <th>Annual Diagnostic Contribution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Low cost</td>
+            <td>$15</td>
+            <td>20%</td>
+            <td>99,000</td>
+            <td class="strong">$75</td>
+            <td>$1.5m</td>
+            <td>$820</td>
+            <td class="strong">$16.2m</td>
+          </tr>
+          <tr>
+            <td>Midpoint</td>
+            <td>$22.50</td>
+            <td>15%</td>
+            <td>132,000</td>
+            <td class="strong">$150</td>
+            <td>$3.0m</td>
+            <td>$745</td>
+            <td class="strong">$14.8m</td>
+          </tr>
+          <tr>
+            <td>High cost</td>
+            <td>$30</td>
+            <td>10%</td>
+            <td>198,000</td>
+            <td class="strong">$300</td>
+            <td>$5.9m</td>
+            <td>$595</td>
+            <td class="strong">$11.8m</td>
+          </tr>
+        </tbody>
+      </table>
+      <table aria-label="Annual diagnostic economics">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Volume</th>
+            <th>Revenue / Unit</th>
+            <th>CAC Range / Unit</th>
+            <th>Contribution / Unit Range</th>
+            <th>Annual Revenue</th>
+            <th>Annual Contribution Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Initial diagnostic</td>
+            <td>19,800</td>
+            <td>$995</td>
+            <td>$75-$300</td>
+            <td>$595-$820</td>
+            <td class="strong">$19.7m</td>
+            <td class="strong">$11.8m-$16.2m</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Downstream Revenue - Planning Case</h2>
+      <p class="lede">Downstream revenue is modelled with conservative planning attach rates. The current case assumes $268 of blended downstream revenue per diagnostic and roughly $189 of blended downstream contribution per diagnostic. At 19,800 diagnostics, this produces about $5.3m revenue and $3.7m contribution.</p>
+      <table aria-label="Downstream planning revenue">
+        <thead>
+          <tr>
+            <th>Revenue Stream</th>
+            <th>Planning Attach</th>
+            <th>Revenue / Event</th>
+            <th>Revenue / Diagnostic</th>
+            <th>Contribution / Diagnostic</th>
+            <th>Annual Contribution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Extra sample</td>
+            <td>17.5%</td>
+            <td>$120</td>
+            <td>$21.00</td>
+            <td>$14.00</td>
+            <td>$0.28m</td>
+          </tr>
+          <tr>
+            <td>Remediation referral</td>
+            <td>17.5%</td>
+            <td>$350</td>
+            <td>$61.25</td>
+            <td>$58.00</td>
+            <td>$1.15m</td>
+          </tr>
+          <tr>
+            <td>Builder referral</td>
+            <td>10.0%</td>
+            <td>$250</td>
+            <td>$25.00</td>
+            <td>$23.75</td>
+            <td>$0.47m</td>
+          </tr>
+          <tr>
+            <td>Clearance / recheck</td>
+            <td>12.5%</td>
+            <td>$550</td>
+            <td>$68.75</td>
+            <td>$56.25</td>
+            <td>$1.11m</td>
+          </tr>
+          <tr>
+            <td>Prevention clean</td>
+            <td>10.0%</td>
+            <td>$650</td>
+            <td>$65.00</td>
+            <td>$26.00</td>
+            <td>$0.51m</td>
+          </tr>
+          <tr>
+            <td>Products</td>
+            <td>15.0%</td>
+            <td>$180</td>
+            <td>$27.00</td>
+            <td>$10.80</td>
+            <td>$0.21m</td>
+          </tr>
+          <tr>
+            <td class="strong">Total downstream</td>
+            <td>Planning rates</td>
+            <td></td>
+            <td class="strong">$268.00</td>
+            <td class="strong">~$189.00</td>
+            <td class="strong">$3.7m</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">Referral revenue should remain excluded from any committed base case until independence claims, customer disclosure, consent, and partner controls are documented.</p>
+    </section>
+
+    <section>
+      <h2>Annual Monitoring Layer</h2>
+      <div class="split">
+        <div>
+          <p class="lede">The recurring layer is the strategic financial engine. The planning case uses 30% conversion from diagnostic customers, $695 annual plan revenue, 25% churn, and COGS falling from $100 to $25 once in-house workflow and AI-assisted analysis reduce repeat-service cost.</p>
+        </div>
+        <div class="grid two" style="margin-top:0">
+          <div class="metric"><span>New Subscribers / Year</span><strong>5,940</strong><small>19,800 diagnostics x 30%</small></div>
+          <div class="metric"><span>Year-5 Active Equivalents</span><strong>18,122</strong><small>25% annual churn assumption</small></div>
+        </div>
+      </div>
+      <table aria-label="Annual monitoring run out">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Active Subscription Equivalents</th>
+            <th>Subscription Revenue</th>
+            <th>COGS Rate</th>
+            <th>Subscription COGS</th>
+            <th>Subscription Contribution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Year 1</td>
+            <td>5,940</td>
+            <td>$4.1m</td>
+            <td>$100</td>
+            <td>$0.59m</td>
+            <td class="strong">$3.5m</td>
+          </tr>
+          <tr>
+            <td>Year 2</td>
+            <td>10,395</td>
+            <td>$7.2m</td>
+            <td>$25</td>
+            <td>$0.26m</td>
+            <td class="strong">$7.0m</td>
+          </tr>
+          <tr>
+            <td>Year 3</td>
+            <td>13,736</td>
+            <td>$9.5m</td>
+            <td>$25</td>
+            <td>$0.34m</td>
+            <td class="strong">$9.2m</td>
+          </tr>
+          <tr>
+            <td>Year 4</td>
+            <td>16,242</td>
+            <td>$11.3m</td>
+            <td>$25</td>
+            <td>$0.41m</td>
+            <td class="strong">$10.9m</td>
+          </tr>
+          <tr>
+            <td>Year 5</td>
+            <td>18,122</td>
+            <td class="strong">$12.6m</td>
+            <td>$25</td>
+            <td>$0.45m</td>
+            <td class="strong">$12.1m</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>In-House AI as COGS Reduction</h2>
+      <p class="lede">In-house AI is treated as an operating margin lever, not the product thesis. The financial use case is lower repeat-service COGS through faster analysis, report drafting, sample triage, and QA support. Demand, trust, and recurring monitoring must stand on their own before any technology premium is assumed.</p>
+      <table aria-label="AI COGS reduction opportunity">
+        <thead>
+          <tr>
+            <th>COGS Lever</th>
+            <th>Before In-House AI</th>
+            <th>Target After In-House AI</th>
+            <th>Per Active Subscriber Saving</th>
+            <th>Year-5 Contribution Uplift</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Annual monitoring repeat COGS</td>
+            <td>$100 / active subscription</td>
+            <td>$25 / active subscription</td>
+            <td class="strong">$75</td>
+            <td class="strong">~$1.4m</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">Year-5 uplift uses 18,122 active subscription equivalents x $75 saving. Target repeat COGS is $20 labour plus $5 consumables, not a validated AI revenue line.</p>
+    </section>
+
+    <section>
+      <h2>Year-5 P&L Shape</h2>
+      <table aria-label="Year five P&L">
+        <thead>
+          <tr>
+            <th>Revenue Layer</th>
+            <th>Year-5 Revenue</th>
+            <th>Year-5 Contribution Before Fixed Opex</th>
+            <th>Planning Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Initial diagnostics</td>
+            <td>$19.7m</td>
+            <td class="strong">$11.8m-$16.2m</td>
+            <td class="note">Primary acquisition and contribution layer; CAC is the largest variable cost.</td>
+          </tr>
+          <tr>
+            <td>Downstream take-rate stack</td>
+            <td>$5.3m</td>
+            <td class="strong">$3.7m</td>
+            <td class="note">Planning rates; subject to compliance gate.</td>
+          </tr>
+          <tr>
+            <td>Annual monitoring</td>
+            <td>$12.6m</td>
+            <td class="strong">$12.1m</td>
+            <td class="note">30% conversion, 25% churn, $25 repeat COGS.</td>
+          </tr>
+          <tr>
+            <td class="strong">Total before fixed opex</td>
+            <td class="strong">$37.6m</td>
+            <td class="strong">$27.6m-$32.0m</td>
+            <td class="note">CAC high-low sensitivity.</td>
+          </tr>
+        </tbody>
+      </table>
+      <table aria-label="Fixed opex sensitivity">
+        <thead>
+          <tr>
+            <th>Fixed Opex Scenario</th>
+            <th>Assumption</th>
+            <th>Opex / Revenue</th>
+            <th>Estimated EBITDA</th>
+            <th>Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Small central team</td>
+            <td>$0.75m</td>
+            <td>2.0%</td>
+            <td class="strong">$26.9m-$31.3m</td>
+            <td class="note">Founder-led ops, accounting/admin, software, insurance, Stripe/tooling, and 2-3 customer service/admin seats; fulfilment stays in COGS.</td>
+          </tr>
+          <tr>
+            <td>Scaled small team</td>
+            <td>$1.13m</td>
+            <td>3.0%</td>
+            <td class="strong">$26.5m-$30.9m</td>
+            <td class="note">4-5 customer service/admin seats, scheduling escalation, accounting, core software, insurance, and light QA oversight.</td>
+          </tr>
+          <tr>
+            <td>Small-team ceiling</td>
+            <td>$1.50m</td>
+            <td>4.0%</td>
+            <td class="strong">$26.1m-$30.5m</td>
+            <td class="note">6-7 support, ops, QA, and admin seats with higher insurance, accounting, software, and management buffer.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>LTV Per Acquired Diagnostic Customer</h2>
+      <table aria-label="Customer value stack">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Revenue / Customer</th>
+            <th>Contribution / Customer</th>
+            <th>Model Treatment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Initial diagnostic</td>
+            <td>$995</td>
+            <td>$595-$820</td>
+            <td class="note">Includes booked CAC range of $75-$300.</td>
+          </tr>
+          <tr>
+            <td>Downstream planning case</td>
+            <td>$268</td>
+            <td>~$189</td>
+            <td class="note">Conservative downstream planning case.</td>
+          </tr>
+          <tr>
+            <td>Annual monitoring at 30% conversion</td>
+            <td>~$636</td>
+            <td>~$591</td>
+            <td class="note">Five-year blended value per diagnostic customer.</td>
+          </tr>
+          <tr>
+            <td class="strong">Total five-year value</td>
+            <td class="strong">~$1,899</td>
+            <td class="strong">~$1,375-$1,600</td>
+            <td class="note">~4.6x-21.3x contribution-to-CAC across the $75-$300 booked CAC range.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Multiple Framing</h2>
+      <div class="grid three">
+        <article class="card">
+          <h3>Recurring Revenue</h3>
+          <p>Annual monitoring converts a one-off diagnostic into repeat peace-of-mind revenue, giving the business a stronger multiple narrative than project-only services.</p>
+        </article>
+        <article class="card">
+          <h3>AI Tech Advantage</h3>
+          <p>In-house Sporecyte AI reduces repeat testing COGS to $20 labour plus $5 consumables, increasing monitoring gross margin while keeping the core offer service-led.</p>
+        </article>
+        <article class="card">
+          <h3>Property Data Advantage</h3>
+          <p>Each inspection builds a longitudinal property record: baseline report, renewal history, clearance outcomes, prevention activity, and comparable risk data.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Proof Gates Before Scale</h2>
+      <ul>
+        <li><strong>CAC:</strong> lead cost between $15 and $30, lead-to-sale conversion between 10% and 20%, and booked diagnostic CAC between $75 and $300 across problem-aware channels.</li>
+        <li><strong>Conversion:</strong> at least 30% of diagnostic customers take annual monitoring or pay a deposit for renewal monitoring.</li>
+        <li><strong>COGS:</strong> diagnostic COGS held near $100-$150 and monitoring repeat COGS proven near $25-$100.</li>
+        <li><strong>Utilisation:</strong> hire only when trailing lead volume supports at least 4 booked jobs per field rep per day without degrading report quality.</li>
+        <li><strong>Compliance:</strong> no referral-fee reliance until independence, disclosure, consent, partner vetting, and liability controls are documented.</li>
+        <li><strong>Opex:</strong> keep fixed opex at 2%-4% of revenue, or about $0.75m-$1.50m at the Year-5 revenue case, unless customer-service load, insurance, QA, or management span proves otherwise.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <strong>Working note:</strong> This is a cleaned financial model, not a forecast. It uses the financial report supplied by the user, revised to a 15-rep operating case, conservative downstream attachment economics, CAC high-low sensitivity, and a COGS-first treatment of in-house AI.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sporetrust — Independent Mould &amp; Moisture Diagnostics</title>
+  <meta name="description" content="If you suspect mould, get a definitive answer. Independent testing, damage assessment and repair cost estimate. Plain-English report in 48 hours." />
+  <meta property="og:title" content="Sporetrust — If you suspect mould, you're probably right" />
+  <meta property="og:description" content="Most mould problems are bigger and older than what's visible. We test, locate it, document the damage and price the fix. Plain-English report in 48 hours." />
+  <meta name="theme-color" content="#F1F0EE" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Montserrat:wght@400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="brand" aria-label="Sporetrust home">
+        <img class="brand-mark" src="sporetrace-icon.svg?v=2" alt="" aria-hidden="true" />
+        <span>Sporetrust</span>
+      </a>
+      <div class="nav-right">
+        <a class="nav-link hide-sm" href="#report">The report</a>
+        <a class="nav-link hide-sm" href="#pricing">Pricing</a>
+        <a class="nav-link hide-sm" href="#faq">FAQ</a>
+        <a class="nav-cta" href="#book">Book inspection</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO (subtle mould creeping in from bottom-right corner) -->
+  <section class="hero"
+           data-mould
+           data-mould-mode="corner-bloom"
+           data-mould-source="bottom-right"
+           data-mould-intensity="0.42"
+           data-mould-speckle="0.85"
+           data-mould-stain="0.22"
+           data-mould-edge-bias="0.25"
+           data-mould-seed="hero-bottom-right-v8mz">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">[ Independent Mould Diagnostics and Reporting ]</span>
+          <h1>If you suspect mould, you're <span class="accent">probably right</span>.</h1>
+          <p class="lede">
+            Independent inspection, moisture mapping and reporting for tenants, homeowners and property managers. We document the cause, extent and likely repair pathway before anyone starts selling you the fix.
+          </p>
+
+          <form class="hero-form" onsubmit="event.preventDefault(); document.getElementById('book').scrollIntoView({behavior:'smooth'});">
+            <div class="hero-form-row">
+              <input type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Your postcode" aria-label="Your postcode" required />
+              <button type="submit">Check availability</button>
+            </div>
+          </form>
+
+          <div class="hero-trust">
+            <span>60-min on-site</span>
+            <span>48-hour report</span>
+            <span>Fixed price, no callout fees</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem-bg mould-strong">
+    <div class="wrap">
+      <span class="eyebrow">[ evidence before argument ]</span>
+      <h2 style="margin-top: 28px; max-width: 20ch;">Mould gets expensive when nobody can prove what caused it.</h2>
+      <p class="lede problem-lede">One in two Australians reported mould or dampness at home in the previous year. In Queensland rentals, damp and mould can also become a minimum housing standards issue. A Sporetrust report turns stains, odour, moisture and damage into a record people can act on.</p>
+
+      <div class="audience-tabs" aria-label="Evidence pathways by customer type">
+        <input class="audience-toggle" type="radio" name="audience" id="audience-tenants" checked />
+        <input class="audience-toggle" type="radio" name="audience" id="audience-homeowners" />
+        <input class="audience-toggle" type="radio" name="audience" id="audience-managers" />
+
+        <div class="audience-tab-list" role="tablist" aria-label="Customer type">
+          <label for="audience-tenants">Tenants</label>
+          <label for="audience-homeowners">Homeowners</label>
+          <label for="audience-managers">Managers</label>
+        </div>
+
+        <div class="audience-panels">
+          <article class="audience-panel tenants">
+            <span class="panel-kicker">Repairs, rent relief, break lease, tribunal</span>
+            <h3>Evidence that can leave the group chat.</h3>
+            <p>Photos of black marks rarely settle a dispute. We document moisture, likely cause, affected materials and liveability concerns so your request lands as a report, not a complaint.</p>
+          </article>
+          <article class="audience-panel homeowners">
+            <span class="panel-kicker">Insurance, repair scope, cost control</span>
+            <h3>Know what you are paying for before work starts.</h3>
+            <p>Insurers and builders need causation, damage extent and timing. We separate leak, condensation, ventilation and historical damage so you can choose the next step with evidence.</p>
+          </article>
+          <article class="audience-panel managers">
+            <span class="panel-kicker">Owner advice, tenant care, contractor scope</span>
+            <h3>A neutral record for a high-friction issue.</h3>
+            <p>When mould is reported, speed and clarity matter. We give owners and tenants the same independent picture: what is present, what caused it, and what needs to happen next.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="problem-grid">
+        <div class="pcard"
+             data-mould
+             data-mould-mode="corner-bloom"
+             data-mould-source="top-left"
+             data-mould-intensity="0.52"
+             data-mould-speckle="0.78"
+             data-mould-stain="0.3"
+             data-mould-seed="pcard-1-9k2x">
+          <span class="num">01 / Hidden</span>
+          <h3>Not all contamination is visible.</h3>
+          <p>Odour, damp materials and elevated indoor spores can show a problem before a wall turns black. We look past the surface without turning the home into a demolition site.</p>
+        </div>
+        <div class="pcard"
+             data-mould
+             data-mould-mode="bottom-edge"
+             data-mould-source="bottom"
+             data-mould-intensity="0.5"
+             data-mould-speckle="0.82"
+             data-mould-stain="0.28"
+             data-mould-seed="pcard-2-m4qv">
+          <span class="num">02 / Liveability</span>
+          <h3>In rentals, mould can become a standards issue.</h3>
+          <p>Queensland rental properties must meet minimum housing standards throughout the tenancy, including being free from damp and mould unless tenant-caused. Evidence matters.</p>
+        </div>
+        <div class="pcard"
+             data-mould
+             data-mould-mode="corner-bloom"
+             data-mould-source="top-right"
+             data-mould-intensity="0.54"
+             data-mould-speckle="0.75"
+             data-mould-stain="0.32"
+             data-mould-seed="pcard-3-r8dt">
+          <span class="num">03 / Leverage</span>
+          <h3>The right report changes the conversation.</h3>
+          <p>Landlords, insurers and builders respond to cause, extent and documentation. We give you that before remediation, repair quotes or claim decisions start shaping the facts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNS OF CONTAMINATION (mould blooms up) -->
+  <section class="problem-bg mould-strong"
+           data-mould
+           data-mould-mode="bottom-edge"
+           data-mould-source="bottom"
+           data-mould-intensity="0.46"
+           data-mould-edge-bias="0.28"
+           data-mould-speckle="0.72"
+           data-mould-stain="0.32"
+           data-mould-seed="find-section-2-c1be">
+    <div class="wrap">
+      <div class="find-head">
+        <div class="copy">
+          <span class="eyebrow">[ signs of contamination ]</span>
+          <h2>The clues usually show up before the full problem does.</h2>
+          <p class="lede">Visible mould is only one signal. We document moisture patterns, material damage, odour and air movement so hidden contamination has somewhere to show itself.</p>
+        </div>
+      </div>
+
+      <div class="find-grid">
+
+        <div class="find-card"
+             data-mould
+             data-mould-mode="corner-bloom"
+             data-mould-source="top-left"
+             data-mould-intensity="0.66"
+             data-mould-speckle="0.8"
+             data-mould-stain="0.38"
+             data-mould-seed="find-1-bathroom-h3jq">
+          <div class="find-meta">
+            <span class="num">01</span>
+            <span class="tag">Visible</span>
+          </div>
+          <h3>Water staining on walls or ceilings</h3>
+          <p>Brown rings, tide marks, swollen paint and shadowing can point to roof leaks, plumbing failures, condensation or historical wetting. The cause changes the response.</p>
+          <div class="find-foot">
+            <span class="l">Documents</span>
+            <span class="r">Moisture path</span>
+          </div>
+        </div>
+
+        <div class="find-card"
+             data-mould
+             data-mould-mode="bottom-edge"
+             data-mould-source="bottom"
+             data-mould-intensity="0.64"
+             data-mould-speckle="0.85"
+             data-mould-stain="0.36"
+             data-mould-seed="find-2-wardrobe-p7nm">
+          <div class="find-meta">
+            <span class="num">02</span>
+            <span class="tag">Hidden</span>
+          </div>
+          <h3>Musty odour without visible growth</h3>
+          <p>A persistent smell can come from wall cavities, cabinetry, underlay, HVAC or damp contents. We pair odour notes with readings instead of guessing.</p>
+          <div class="find-foot">
+            <span class="l">Documents</span>
+            <span class="r">Likely reservoir</span>
+          </div>
+        </div>
+
+        <div class="find-card"
+             data-mould
+             data-mould-mode="corner-bloom"
+             data-mould-source="top-right"
+             data-mould-intensity="0.68"
+             data-mould-speckle="0.75"
+             data-mould-stain="0.4"
+             data-mould-seed="find-3-window-x4kw">
+          <div class="find-meta">
+            <span class="num">03</span>
+            <span class="tag">Moisture</span>
+          </div>
+          <h3>Condensation, humidity and cold surfaces</h3>
+          <p>Wet windows, cold external walls and damp cupboards can create mould without a pipe leak. Dew-point risk is measurable, not a matter of opinion.</p>
+          <div class="find-foot">
+            <span class="l">Documents</span>
+            <span class="r">Dew-point risk</span>
+          </div>
+        </div>
+
+        <div class="find-card"
+             data-mould
+             data-mould-mode="patch-bloom"
+             data-mould-source="center"
+             data-mould-intensity="0.64"
+             data-mould-speckle="0.72"
+             data-mould-stain="0.42"
+             data-mould-seed="find-4-undersink-w9bz">
+          <div class="find-meta">
+            <span class="num">04</span>
+            <span class="tag">Materials</span>
+          </div>
+          <h3>Soft plaster, lifted paint, swollen timber</h3>
+          <p>Material failure tells us how long moisture has been present and whether cleaning is enough. Sometimes the affected material has already lost the argument.</p>
+          <div class="find-foot">
+            <span class="l">Documents</span>
+            <span class="r">Damage extent</span>
+          </div>
+        </div>
+
+        <div class="find-card"
+             data-mould
+             data-mould-mode="top-edge"
+             data-mould-source="top"
+             data-mould-intensity="0.7"
+             data-mould-speckle="0.78"
+             data-mould-stain="0.42"
+             data-mould-seed="find-5-roof-t2gh">
+          <div class="find-meta">
+            <span class="num">05</span>
+            <span class="tag">Recurring</span>
+          </div>
+          <h3>Mould that returns after cleaning</h3>
+          <p>Regrowth usually means the moisture source is still active or the contaminated material was never properly dealt with. Surface cleaning is not a diagnosis.</p>
+          <div class="find-foot">
+            <span class="l">Documents</span>
+            <span class="r">Root cause</span>
+          </div>
+        </div>
+
+        <div class="find-card"
+             data-mould
+             data-mould-mode="corner-bloom"
+             data-mould-source="bottom-right"
+             data-mould-intensity="0.66"
+             data-mould-speckle="0.82"
+             data-mould-stain="0.38"
+             data-mould-seed="find-6-aircon-y6lp">
+          <div class="find-meta">
+            <span class="num">06</span>
+            <span class="tag">Airflow</span>
+          </div>
+          <h3>Dust, HVAC and indoor-air symptoms</h3>
+          <p>Air movement can carry spores away from the source. We check the room, the system and the surrounding moisture conditions before pointing at the obvious patch.</p>
+          <div class="find-foot">
+            <span class="l">Documents</span>
+            <span class="r">Exposure pathway</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW WE DIAGNOSE (SOLUTION — STARK WHITE) — testing methodology -->
+  <section class="solution">
+    <div class="wrap">
+      <span class="eyebrow">[ how we diagnose ]</span>
+      <h2 style="margin-top: 28px; max-width: 22ch;">A four-method assessment, every time.</h2>
+      <p class="lede" style="margin-top: 22px;">Every Sporetrust inspection runs the same protocol — so the diagnosis is consistent, defensible and complete. Here's what we measure, and what each method actually reveals.</p>
+
+      <div class="methodology-grid">
+        <article class="method">
+          <div class="method-meta">
+            <span class="num">M.01</span>
+            <span class="tag">Thermal</span>
+          </div>
+          <h3>Thermal mapping</h3>
+          <p class="m-measure">Surface temperature differentials across walls, ceilings, floors, plumbing lines and HVAC penetrations.</p>
+          <div class="m-divider"></div>
+          <p class="m-reveals"><strong>Reveals</strong>Hidden moisture, cold bridges, condensation zones, leak paths concealed behind finishes.</p>
+        </article>
+
+        <article class="method">
+          <div class="method-meta">
+            <span class="num">M.02</span>
+            <span class="tag">Moisture</span>
+          </div>
+          <h3>Moisture metering</h3>
+          <p class="m-measure">Pin and pinless readings at surface and depth across timber, gypsum, masonry, tile substrates and skirting cavities.</p>
+          <div class="m-divider"></div>
+          <p class="m-reveals"><strong>Reveals</strong>Active versus historical wetting, moisture migration paths, salt-affected substrates.</p>
+        </article>
+
+        <article class="method">
+          <div class="method-meta">
+            <span class="num">M.03</span>
+            <span class="tag">Air &amp; spore</span>
+          </div>
+          <h3>Air &amp; spore sampling</h3>
+          <p class="m-measure">Continuous hygrometer logging on-site, plus optional indoor and outdoor control air samples to an accredited lab.</p>
+          <div class="m-divider"></div>
+          <p class="m-reveals"><strong>Reveals</strong>Ambient humidity load, airborne spore counts, indoor versus outdoor ratios, species identification.</p>
+        </article>
+
+        <article class="method">
+          <div class="method-meta">
+            <span class="num">M.04</span>
+            <span class="tag">Damage &amp; cost</span>
+          </div>
+          <h3>Damage &amp; cost assessment</h3>
+          <p class="m-measure">Affected materials surveyed and quantified — gypsum, paint, timber, cabinetry, insulation — with current SEQ trade rates applied.</p>
+          <div class="m-divider"></div>
+          <p class="m-reveals"><strong>Reveals</strong>What's affected, what's salvageable, and a defensible repair cost range per area and overall.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET (SOLUTION — STARK WHITE) -->
+  <section class="solution" id="report">
+    <div class="wrap">
+      <span class="eyebrow">[ what's in your report ]</span>
+      <h2 style="margin-top: 28px; max-width: 22ch;">Official evidence for the people who need to act.</h2>
+      <div class="what-grid">
+        <ul class="what-list">
+          <li>
+            <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Where moisture, damage and mould indicators were found</strong><span class="copy">Mapped against rooms and surfaces with photos, readings and thermal images.</span></div>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>The likely cause</strong><span class="copy">Leak, condensation, ventilation, roof, waterproofing, slab moisture or building defect.</span></div>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Liveability and urgency notes</strong><span class="copy">Clear language for tenants, owners, managers, insurers and contractors.</span></div>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Damage extent &amp; affected materials</strong><span class="copy">What's wet, contaminated, salvageable, or likely to need removal.</span></div>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Defensible repair cost range</strong><span class="copy">Independent cost bands based on current South-East Queensland trade rates.</span></div>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Sharable PDF + portal access</strong><span class="copy">Ready for landlords, property managers, insurers, builders and remediation providers.</span></div>
+          </li>
+        </ul>
+
+        <div class="report" aria-hidden="true">
+          <div class="report-head">
+            <div>
+              <div class="rh-title">Diagnostic Report</div>
+              <div class="rh-sub">Single-dwelling residential</div>
+            </div>
+            <div class="rh-meta">
+              REF · <b>TR-2614</b><br/>
+              06 May 2026<br/>
+              4 areas
+            </div>
+          </div>
+          <div class="report-areas">
+            <div class="area-row">
+              <div class="area-main">
+                <span class="name">Bedroom 2</span>
+                <span class="bar high"><span></span></span>
+                <span class="tag high">High</span>
+              </div>
+              <div class="area-sub">
+                <span class="dmg">Gypsum saturation, paint failure</span>
+                <span class="cost">$1,800–$2,400</span>
+              </div>
+            </div>
+            <div class="area-row">
+              <div class="area-main">
+                <span class="name">Ensuite ceiling</span>
+                <span class="bar mod"><span></span></span>
+                <span class="tag mod">Moderate</span>
+              </div>
+              <div class="area-sub">
+                <span class="dmg">Surface staining, no substrate compromise</span>
+                <span class="cost">$400–$700</span>
+              </div>
+            </div>
+            <div class="area-row">
+              <div class="area-main">
+                <span class="name">Living — west wall</span>
+                <span class="bar low"><span></span></span>
+                <span class="tag low">Low</span>
+              </div>
+              <div class="area-sub">
+                <span class="dmg">Surface dust only</span>
+                <span class="cost">$0</span>
+              </div>
+            </div>
+            <div class="area-row">
+              <div class="area-main">
+                <span class="name">Wardrobe (master)</span>
+                <span class="bar mod"><span></span></span>
+                <span class="tag mod">Moderate</span>
+              </div>
+              <div class="area-sub">
+                <span class="dmg">Concealed mould, painted plaster</span>
+                <span class="cost">$600–$1,100</span>
+              </div>
+            </div>
+          </div>
+          <div class="report-total">
+            <span class="l">Total estimated repair</span>
+            <span class="r">$2,800 – $4,200</span>
+          </div>
+          <div class="report-finding">
+            <div class="ftitle">Primary finding</div>
+            <p>Elevated wall moisture and dew-point margin in Bedroom 2 indicate persistent condensation on the north wall, consistent with insufficient ventilation rather than an active leak. Recommend ventilation review before any cosmetic works. Total budget guidance overleaf.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS (SOLUTION — STARK WHITE) -->
+  <section class="solution">
+    <div class="wrap">
+      <span class="eyebrow">[ how it works ]</span>
+      <h2 style="margin-top: 28px; max-width: 20ch;">Four steps. No upsell.</h2>
+      <p class="lede how-lede">From the moment you book, you'll know what's coming and what it costs.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">Step 01</div>
+          <h4>Book online.</h4>
+          <p>Tell us what changed: stains, smell, leaks, symptoms, disputes, claims or prior cleanup.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Step 02</div>
+          <h4>Technician visits.</h4>
+          <p>Moisture readings, thermal imaging, photos, odour notes, ventilation checks and optional sampling.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Step 03</div>
+          <h4>Get your report.</h4>
+          <p>Cause, extent, evidence, images, recommended next step and repair-cost guidance within 48 hours.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Step 04</div>
+          <h4>Decide what's next.</h4>
+          <p>No treatment pitch. Use the report with your landlord, insurer, builder or a contractor you already trust.</p>
+        </div>
+      </div>
+
+      <div class="tools-strip">
+        <div class="ts-label">In the kit</div>
+        <div class="ts-icons">
+          <div class="ts-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="6" width="17" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="10.5" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="16" y="3" width="5" height="3" rx="0.5" stroke="currentColor" stroke-width="1.4"/>
+            </svg>
+            <span>Thermal camera</span>
+          </div>
+          <div class="ts-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="8" y="3" width="8" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 7H14M10 10H14M12 17V21M10 21H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Moisture meter</span>
+          </div>
+          <div class="ts-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 5V12L16 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Hygrometer</span>
+          </div>
+          <div class="ts-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="6" y="10" width="12" height="11" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M9 10V7C9 5.34 10.34 4 12 4C13.66 4 15 5.34 15 7V10" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>Air sampler</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO IT'S FOR (SOLUTION — STARK WHITE) -->
+  <section class="solution" id="who">
+    <div class="wrap">
+      <span class="eyebrow">[ who books a Sporetrust inspection ]</span>
+      <h2 style="margin-top: 28px; max-width: 22ch;">For anyone who needs an answer, not a sales pitch.</h2>
+      <div class="who-grid">
+        <div class="persona">
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 11L12 4L21 11V20A1 1 0 0120 21H4A1 1 0 013 20V11Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Homeowners</h3>
+          <p>Worried about a stain that won't go away. Post-flood, post-storm or post-renovation. You want a clear answer before throwing money at the wrong trade.</p>
+        </div>
+        <div class="persona">
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7H20M4 12H20M4 17H14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Tenants</h3>
+          <p>You need documented evidence to send to your property manager — for repairs, rental relief, break-lease applications or tribunal proceedings.</p>
+        </div>
+        <div class="persona">
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 21H21M5 21V7L12 3L19 7V21M9 21V13H15V21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Landlords &amp; property managers</h3>
+          <p>Independent assessments for disputes, insurance claims, end-of-lease handovers or pre-letting peace of mind. One report you can defend.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="wrap">
+      <span class="eyebrow">[ fixed pricing ]</span>
+      <h2 style="margin-top: 28px; max-width: 20ch;">No hourly rates. No surprises.</h2>
+      <div class="price-grid">
+        <div class="tier">
+          <h3>Standard Diagnostic</h3>
+          <div class="tag">For most homes &amp; apartments</div>
+          <div class="price">$695</div>
+          <div class="price-sub">ONCE-OFF · GST INC</div>
+          <ul>
+            <li>On-site thermal, moisture &amp; humidity testing</li>
+            <li>Up to 3 areas of concern + whole-of-home walkthrough</li>
+            <li>Severity rating &amp; likely cause per area</li>
+            <li>Damage extent &amp; affected materials, quantified</li>
+            <li>Defensible repair cost range per area + total</li>
+            <li>48-hour digital report, sharable PDF</li>
+          </ul>
+          <a class="btn" href="#book">Book Standard <svg viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+
+        <div class="tier featured">
+          <span class="badge">Most booked</span>
+          <h3>Lab-Backed Diagnostic</h3>
+          <div class="tag">When you need defensible evidence</div>
+          <div class="price">$945</div>
+          <div class="price-sub">ONCE-OFF · GST INC</div>
+          <ul>
+            <li>Everything in the Standard Diagnostic</li>
+            <li>Indoor air sample (room of your choice)</li>
+            <li>Outdoor control sample for comparison</li>
+            <li>Lab-analysed spore count &amp; species</li>
+            <li>Health risk indicator from air results</li>
+            <li>Suitable for insurance &amp; tribunal submissions</li>
+          </ul>
+          <a class="btn btn-light" href="#book">Book Lab-Backed <svg viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div class="price-foot">Larger homes, multiple buildings, commercial sites or specialist insurance reports — <a href="#book">request a custom quote</a>.</div>
+    </div>
+  </section>
+
+  <!-- INDEPENDENCE (SOLUTION — STARK WHITE) -->
+  <section class="independence">
+    <div class="wrap">
+      <span class="eyebrow">[ a note on independence ]</span>
+      <p class="quote">
+        We don't sell mould treatments, fogging, encapsulants or repairs. In an uneven remediation market, your first document should come from someone who isn't quoting the cleanup.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <div class="faq-grid">
+        <div>
+          <span class="eyebrow">[ common questions ]</span>
+          <h2 style="margin-top: 28px;">Before you book.</h2>
+          <p class="lede" style="margin-top: 22px;">Still unsure? Send us a quick note in the booking form — we'll come back the same business day.</p>
+        </div>
+        <div>
+          <details class="qa" open>
+            <summary>Are you a remediation company?</summary>
+            <p>No. We inspect, document and report. If remediation or building work is needed, we can point you toward vetted providers with the right speciality, but we do not clip the ticket on the cleanup.</p>
+          </details>
+          <details class="qa">
+            <summary>Why not call a remediation company first?</summary>
+            <p>Some remediation providers are excellent. Others overscope, underscope or sell surface treatments that miss the moisture source. There is no single mould-remediation licence that guarantees the scope is right, so diagnosis should come before the quote.</p>
+          </details>
+          <details class="qa">
+            <summary>How long does the on-site assessment take?</summary>
+            <p>Most homes take 60–90 minutes. Larger homes, multiple buildings or sites with complex history can take longer — we'll let you know in advance once we've reviewed your booking notes.</p>
+          </details>
+          <details class="qa">
+            <summary>When do I get the report?</summary>
+            <p>Standard Diagnostic reports are delivered to your portal within 48 hours of the on-site visit. Lab-Backed addendums arrive 5–7 days after sampling, depending on lab turnaround.</p>
+          </details>
+          <details class="qa">
+            <summary>What if you don't find anything serious?</summary>
+            <p>That's still a useful answer — and you'll get it documented. A "low risk, no remediation required" report with prevention guidance is one of the most valuable things you can have on file, especially as a tenant, owner or buyer.</p>
+          </details>
+          <details class="qa">
+            <summary>How accurate are your repair cost estimates?</summary>
+            <p>Our cost ranges are defensible bands based on current South-East Queensland trade rates, the materials affected and the scope of work indicated by the diagnosis. They're not fixed quotes — only the contractor doing the work can give you that — but they let you budget with confidence and benchmark every quote you receive against an independent estimate. If a quote comes back well above our band, you'll know to ask why.</p>
+          </details>
+          <details class="qa">
+            <summary>Can I share the report with my landlord, builder or insurer?</summary>
+            <p>Yes. The report is built for that handoff: landlord, property manager, insurer, builder, remediation provider or tribunal support file.</p>
+          </details>
+          <details class="qa">
+            <summary>Do you service my area?</summary>
+            <p>We currently service Brisbane and South-East Queensland. Use the postcode check at the top of the page — if we don't yet service your area, we'll let you know when we do.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOK -->
+  <section class="book" id="book">
+    <div class="wrap">
+      <div class="book-grid">
+        <div class="book-side">
+          <span class="eyebrow">[ book a diagnostic ]</span>
+          <h2 style="margin-top: 28px; max-width: 14ch;">Stop guessing. Get a real answer.</h2>
+          <p class="lede" style="margin-top: 22px;">Send us a few details and we'll come back within the business day with availability, a confirmed quote and a booking link.</p>
+          <ul>
+            <li>We'll confirm service availability for your postcode</li>
+            <li>We'll suggest 2–3 inspection times that suit you</li>
+            <li>You'll get a fixed quote, no callout fees, no markup</li>
+            <li>You can cancel free up to 24 hours before</li>
+          </ul>
+        </div>
+
+        <form class="book-form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Sent — we\\'ll be in touch'; this.querySelector('button').disabled=true;">
+          <div class="field-row">
+            <div class="field">
+              <label for="f-name">Your name</label>
+              <input id="f-name" name="name" type="text" required placeholder="Jane Doe" />
+            </div>
+            <div class="field">
+              <label for="f-phone">Phone</label>
+              <input id="f-phone" name="phone" type="tel" required placeholder="04xx xxx xxx" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" required placeholder="jane@email.com" />
+            </div>
+            <div class="field">
+              <label for="f-postcode">Postcode</label>
+              <input id="f-postcode" name="postcode" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="4000" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-role">I'm a…</label>
+            <select id="f-role" name="role" required>
+              <option value="">Select one</option>
+              <option>Homeowner</option>
+              <option>Tenant / renter</option>
+              <option>Landlord</option>
+              <option>Property manager</option>
+              <option>Buyer (pre-purchase)</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg">What are you seeing? (optional)</label>
+            <textarea id="f-msg" name="message" placeholder="e.g. recurring mould on bedroom wall after recent storm, smell in the wardrobe, tenant complaint…"></textarea>
+          </div>
+          <div class="submit-row">
+            <button type="submit" class="btn">Request a booking <svg viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <small>Usually back within the business day.</small>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap foot-grid">
+      <a href="#" class="brand" aria-label="Sporetrust home">
+        <img class="brand-mark" src="sporetrace-icon.svg?v=2" alt="" aria-hidden="true" />
+        <span>Sporetrust</span>
+      </a>
+      <div class="foot-links">
+        <a href="#report">The report</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#book">Book</a>
+      </div>
+      <div class="foot-meta">© 2026 Sporetrust Diagnostics · Brisbane &amp; SEQ · ABN 00 000 000 000</div>
+    </div>
+  </footer>
+
+  <a class="sticky-cta" href="#book">Book inspection →</a>
+
+  <script src="mould-contamination.js"></script>
+
+</body>
+</html>

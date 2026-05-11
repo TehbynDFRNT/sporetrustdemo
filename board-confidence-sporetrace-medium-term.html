@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Board Vote of Confidence - Sporetrust Medium-Term Case</title>
+  <style>
+    :root {
+      --paper: #ffffff;
+      --bg: #f5f5f3;
+      --ink: #111111;
+      --muted: #5e5e5e;
+      --line: #d8d8d5;
+      --soft: #eeeeeb;
+      --dark: #1b1b1b;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.42;
+      letter-spacing: 0;
+    }
+    main {
+      width: min(1160px, calc(100% - 32px));
+      margin: 32px auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+    header {
+      padding: 40px 44px 36px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 34px;
+      align-items: end;
+    }
+    .kicker {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 5vw, 68px);
+      line-height: .95;
+      letter-spacing: -.04em;
+      max-width: 860px;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 25px;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.16;
+      letter-spacing: -.01em;
+    }
+    p { margin: 0; }
+    .meta {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 16px;
+      display: grid;
+      gap: 9px;
+      font-size: 13px;
+    }
+    .meta div {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    .meta div:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+    .meta span:first-child { color: var(--muted); }
+    .meta span:last-child { font-weight: 750; text-align: right; }
+    section {
+      padding: 34px 44px;
+      border-bottom: 1px solid var(--line);
+    }
+    section:last-child { border-bottom: 0; }
+    .opening {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+    }
+    .verdict {
+      background: var(--dark);
+      color: #ffffff;
+      padding: 22px;
+      min-height: 168px;
+      display: grid;
+      align-content: center;
+    }
+    .verdict strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 35px;
+      line-height: .94;
+      letter-spacing: -.03em;
+    }
+    .motion {
+      border: 1px solid var(--line);
+      background: #fafafa;
+      padding: 22px;
+    }
+    .motion p {
+      font-size: 22px;
+      line-height: 1.28;
+      letter-spacing: -.015em;
+    }
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 16px;
+      min-height: 126px;
+    }
+    .card p,
+    li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      padding: 18px;
+      background: #ffffff;
+      min-height: 110px;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 31px;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      background: #ffffff;
+      margin-top: 16px;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 13px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th:last-child, td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+    th {
+      background: var(--soft);
+      color: var(--muted);
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .vote {
+      font-weight: 850;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .ruling {
+      border-left: 6px solid var(--ink);
+      background: #fafafa;
+      padding: 18px 20px;
+    }
+    .ruling p {
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    ol, ul {
+      margin: 12px 0 0;
+      padding-left: 22px;
+    }
+    li + li { margin-top: 8px; }
+    .tight td { font-size: 13px; }
+    @media (max-width: 900px) {
+      main { width: calc(100% - 20px); margin: 10px auto; }
+      header,
+      .opening,
+      .grid,
+      .metrics { grid-template-columns: 1fr; }
+      header, section { padding: 24px 20px; }
+      table { font-size: 12px; }
+      th, td { padding: 10px; }
+    }
+    @media print {
+      html, body { background: #ffffff; }
+      main { width: 100%; margin: 0; border: 0; }
+      header, section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="kicker">Virtual Board of Directors / Vote of Confidence</p>
+        <h1>Medium-term confidence in Sporetrust propositions</h1>
+      </div>
+      <aside class="meta" aria-label="Report metadata">
+        <div><span>Date</span><span>2026-05-11</span></div>
+        <div><span>Chair</span><span>CEO</span></div>
+        <div><span>Source</span><span>Financials HTML + app</span></div>
+        <div><span>Decision</span><span>Confidence vote</span></div>
+      </aside>
+    </header>
+
+    <section class="opening">
+      <div class="verdict">
+        <span class="kicker">CEO Ruling</span>
+        <strong>RATIFIED</strong>
+      </div>
+      <div class="motion">
+        <h2>Motion</h2>
+        <p><strong>RESOLVED:</strong> The Board has confidence in the medium-term Sporetrust/SporeTrace business propositions as directionally investable, provided the financial case is re-underwritten with lower attachment rates, a 10-tech/6-jobs-per-day operating case, and gated proof before scaling beyond validated demand.</p>
+        <p class="note">This is not a vote to accept the exact 30-staff, high-attachment, or 8-jobs-per-day upside case. It is a vote that the propositions remain commercially valid after normalising scale and attachment assumptions.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>CEO Reframe</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Question Being Answered</h3>
+          <p>Are the medium-term propositions still credible after haircutting attachment rates and using a lower staffing case?</p>
+        </article>
+        <article class="card">
+          <h3>Question Not Being Answered</h3>
+          <p>Does the Board believe the exact Year-5 national upside model, 30 staff at 8 jobs/day, or every downstream attach assumption?</p>
+        </article>
+        <article class="card">
+          <h3>CEO Position</h3>
+          <p>Yes on proposition validity. No on using the top-end scenario as a planning base. The operating model is easy to over-scale because each technician produces high annual volume.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Normalised Numerical Case</h2>
+      <p>The financial report's 30-tech base case uses 30 technicians, 5 jobs per technician per day, 220 working days, and 33,000 diagnostics per year. The user caveat correctly shifts planning to a smaller operating case. All figures below are mechanical sensitivities from the provided report, not independently verified forecasts [UNVERIFIED].</p>
+      <div class="metrics">
+        <div class="metric"><span>Planning Techs</span><strong>10</strong></div>
+        <div class="metric"><span>Jobs / Tech / Day</span><strong>6</strong></div>
+        <div class="metric"><span>Diagnostics / Year</span><strong>13,200</strong></div>
+        <div class="metric"><span>Scale vs 30 x 5</span><strong>40%</strong></div>
+      </div>
+      <table class="tight" aria-label="Normalised model sensitivity">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>30-tech report case</th>
+            <th>Normalised treatment</th>
+            <th>10-tech planning case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Diagnostics</td>
+            <td>$32.8m revenue / $24.6m contribution</td>
+            <td>Scale to 40% volume</td>
+            <td>$13.1m revenue / $9.8m contribution [UNVERIFIED]</td>
+          </tr>
+          <tr>
+            <td>Downstream take-rate stack</td>
+            <td>$17.7m revenue / $12.5m contribution</td>
+            <td>Scale to 40% volume and haircut attachment economics by 50%</td>
+            <td>$3.5m revenue / $2.5m contribution [UNVERIFIED]</td>
+          </tr>
+          <tr>
+            <td>Annual monitoring</td>
+            <td>$35.0m revenue / $33.0m contribution at 50% conversion</td>
+            <td>Scale to 40% volume; use 30% subscription conversion sensitivity for planning</td>
+            <td>$8.4m revenue / $7.9m contribution [UNVERIFIED]</td>
+          </tr>
+          <tr>
+            <td class="vote">Total before fixed opex</td>
+            <td>$85.5m revenue / $70.1m contribution</td>
+            <td>Lower staff count, lower downstream attach, lower subscription conversion</td>
+            <td class="vote">$25.1m revenue / $20.3m contribution [UNVERIFIED]</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">Interpretation: the exact upside case is not required for model validity. A smaller operating base still leaves a material medium-term business if CAC, delivery cost, report quality, and subscription conversion are proven.</p>
+    </section>
+
+    <section>
+      <h2>Vote Table</h2>
+      <table aria-label="Board vote table">
+        <thead>
+          <tr>
+            <th>Director</th>
+            <th>Domain</th>
+            <th>Vote</th>
+            <th>Justification</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CTO</td>
+            <td>Architecture, code, performance</td>
+            <td class="vote">YES</td>
+            <td>Directionally investable if treated as staged validation, not capacity-first scaling. The 10-tech/6-jobs case preserves plausible diagnostic throughput, app scope can support one-off demand first, and gated proof plus lower attachment underwriting reduces product-market and operational scaling risk before adding monitoring or headcount.</td>
+          </tr>
+          <tr>
+            <td>CIO</td>
+            <td>Research, profiling, security</td>
+            <td class="vote">YES</td>
+            <td>Directionally investable only with gates: current assumptions are unverified, attachment/output risk overscaling, and security/privacy plus lab evidence-chain reliability require validation. Lower 10-tech/6-day case still suggests material contribution, but scale should wait for substantiated CAC, churn, demand, COGS, measurement, and compliance proof.</td>
+          </tr>
+          <tr>
+            <td>GC</td>
+            <td>Contracts, risk, compliance</td>
+            <td class="vote">YES</td>
+            <td>Directionally supportable if expressly conditional: re-underwrite economics to remove/limit cleanup-ticket clipping, validate demand at 10-tech/6-jobs/day, and gate scale. Legal/compliance risk remains around referral monetisation, report use in disputes, and health/legal claims, requiring substantiation, disclosures, and controls before expansion.</td>
+          </tr>
+          <tr>
+            <td>CMO</td>
+            <td>Campaigns, ads, performance</td>
+            <td class="vote">YES</td>
+            <td>Demand proposition is credible: health-risk anxiety, insurer/landlord disputes, and lab-backed independence support CAC-efficient intent capture. But marketing confidence depends on re-underwritten attachment, validated annual-monitoring conversion, and gated scale so paid acquisition does not outrun proven SEQ demand or technician throughput.</td>
+          </tr>
+          <tr>
+            <td>CoS</td>
+            <td>Projects, meetings, tasks</td>
+            <td class="vote">YES</td>
+            <td>Directionally investable only with execution gates. A 10-tech/6-jobs-per-day case limits burn and exposes real routing, QA, protocol adherence, renewals, and support load before scaling. Re-underwriting lower attachment rates prevents false confidence from 30-tech demand assumptions while preserving a testable operating path.</td>
+          </tr>
+          <tr>
+            <td>CEO</td>
+            <td>Strategy, prioritisation, resource allocation</td>
+            <td class="vote">YES</td>
+            <td>I vote YES because the propositions survive conservative normalisation. The business should be underwritten on diagnostics plus monitoring, with referrals treated as optional upside. The 10-tech case is the planning model; the 30-tech/8-job case is an upside scenario, not a board-approved base.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="metrics">
+        <div class="metric"><span>YES</span><strong>6</strong></div>
+        <div class="metric"><span>NO</span><strong>0</strong></div>
+        <div class="metric"><span>Abstentions</span><strong>0</strong></div>
+        <div class="metric"><span>Tally</span><strong>6-0</strong></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>CEO Ruling</h2>
+      <div class="ruling">
+        <p><strong>RATIFIED:</strong> majority stands. The Board has confidence in the medium-term propositions, with the binding constraint that the financial model must be revised downward before it is used for capital allocation, hiring, partnership commitments, or paid media scale.</p>
+      </div>
+      <p class="note">Accepted risk: haircutting attachment rates and staffing scale may understate upside. Rejected risk: treating an easy-to-over-scale technician model as if market penetration, subscription conversion, and referral economics are already proven.</p>
+    </section>
+
+    <section>
+      <h2>Binding Outcome</h2>
+      <ul>
+        <li><strong>Confidence granted:</strong> independent diagnostics, annual monitoring, evidence-grade reports, and a controlled downstream pathway are valid medium-term propositions.</li>
+        <li><strong>Base model revised:</strong> use 10 technicians, 6 jobs per technician per day, 13,200 diagnostics per year, 30% annual monitoring conversion, and a 50% haircut to downstream attachment economics until data proves otherwise [UNVERIFIED].</li>
+        <li><strong>Upside demoted:</strong> 30 technicians at 8 jobs per day remains a sensitivity case only. It is not the planning case and should not drive hiring, spend, or valuation language.</li>
+        <li><strong>Referral revenue capped:</strong> do not rely on remediation or builder referral fees until the independence claim, disclosures, consent, and legal controls are reconciled.</li>
+        <li><strong>Scaling gate:</strong> expand beyond 10 technicians only after utilisation, booked CAC, churn, subscription conversion, COGS, report QA, and complaint rates pass two consecutive operating periods.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Next Action</h2>
+      <ol>
+        <li>Revise the financials HTML into a conservative board case with three tabs or sections: 5-tech pilot, 10-tech medium case, and 30-tech upside sensitivity.</li>
+        <li>Replace current downstream attachment assumptions with a haircut table: low, medium, and proven-rate cases by revenue stream.</li>
+        <li>Separate annual monitoring from other attachment rates; it is the strategic recurring layer and needs its own conversion, churn, gross margin, and renewal proof.</li>
+        <li>Add a hiring rule: no technician added unless trailing utilisation and lead volume support at least 4 booked jobs per technician per day without degrading 48-hour report delivery.</li>
+        <li>Prepare a re-vote pack when the revised model shows contribution after realistic fixed opex, not only contribution before fixed opex.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Audit</h2>
+      <table aria-label="Audit table">
+        <thead>
+          <tr>
+            <th>Check</th>
+            <th>Result</th>
+            <th>Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Motion starts with RESOLVED</td>
+            <td class="vote">PASS</td>
+            <td>The motion begins with <strong>RESOLVED:</strong> and is written as one decision sentence.</td>
+          </tr>
+          <tr>
+            <td>3-5 voting directors before CEO</td>
+            <td class="vote">PASS</td>
+            <td>CTO, CIO, GC, CMO, and CoS voted before the CEO.</td>
+          </tr>
+          <tr>
+            <td>No abstentions</td>
+            <td class="vote">PASS</td>
+            <td>All six votes are binary YES/NO; the tally is 6 YES, 0 NO.</td>
+          </tr>
+          <tr>
+            <td>User caveat incorporated</td>
+            <td class="vote">PASS</td>
+            <td>Attachment rates are haircut, 10-tech/6-jobs/day is the planning case, and 30-tech/8-jobs/day is demoted to upside sensitivity.</td>
+          </tr>
+          <tr>
+            <td>Unverified data marked</td>
+            <td class="vote">PASS</td>
+            <td>Mechanical financial sensitivities and assumptions are marked [UNVERIFIED]. No external citations are invented.</td>
+          </tr>
+          <tr>
+            <td>Binding outcome and next action stated</td>
+            <td class="vote">PASS</td>
+            <td>The report states the confidence outcome, revised planning model, scale gate, and five next actions.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
