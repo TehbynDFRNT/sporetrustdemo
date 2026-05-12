@@ -1,10 +1,17 @@
-import Brand from "../components/Brand";
 import BookingTakeover from "../components/BookingTakeover";
+import Eyebrow from "../components/Eyebrow";
 import FaqAccordion from "../components/FaqAccordion";
-import HeroAvailabilityForm from "../components/HeroAvailabilityForm";
-import ThermalReveal from "../components/ThermalReveal";
+import Footer from "../components/Footer";
+import Hero from "../components/Hero";
+import MegaNav from "../components/MegaNav";
+import Reveal from "../components/Reveal";
+import SectionHeader from "../components/SectionHeader";
+import Sentinel from "../components/Sentinel";
+import StatRow from "../components/StatRow";
+import Timeline from "../components/Timeline";
+import TrustBadge from "../components/TrustBadge";
+import TrustBar from "../components/TrustBar";
 import ArrowIcon from "../components/icons/ArrowIcon";
-import Script from "next/script";
 
 function mouldAttrs({
   mode,
@@ -360,30 +367,61 @@ const reportItems = [
   ],
 ];
 
-const steps = [
+const timelineItems = [
   {
-    num: "Step 01",
     title: "Book online.",
+    meta: "Day 0 · 2 min",
     copy:
-      "Tell us what changed: stains, smell, leaks, symptoms, disputes, claims or prior cleanup.",
+      "Tell us what changed: stains, smell, leaks, symptoms, disputes, claims or prior cleanup. We confirm fit and schedule the visit.",
+    signals: ["Suburb check", "Brief intake", "Fixed price"],
   },
   {
-    num: "Step 02",
     title: "Technician visits.",
+    meta: "Day 1 to 5 · 45 min",
     copy:
-      "Moisture readings, thermal imaging, photos, odour notes, ventilation checks and optional sampling.",
+      "Moisture readings, thermal imaging, photos, odour notes, ventilation checks and optional air or surface sampling — all on-site, one visit.",
+    signals: ["Thermal", "Moisture meter", "Hygrometer", "Air sampler"],
   },
   {
-    num: "Step 03",
-    title: "Get your report.",
+    title: "Report delivered.",
+    meta: "Within 48 hours",
     copy:
-      "Cause, extent, evidence, images, recommended next step and repair-cost guidance within 48 hours.",
+      "Plain-English findings: cause, extent, photos, thermal images, moisture record and a defensible repair-cost range — sharable PDF and portal access.",
+    signals: ["Cause", "Damage extent", "Cost range", "Shareable PDF"],
   },
   {
-    num: "Step 04",
-    title: "Decide what's next.",
+    title: "Act on the evidence.",
+    meta: "When you are ready",
     copy:
-      "No treatment pitch. Use the report with your landlord, insurer, builder or a contractor you already trust.",
+      "No treatment pitch. Use the report with your landlord, insurer, builder or a contractor you trust. We can introduce vetted partners if you want.",
+    signals: ["Tenant", "Insurer", "Builder", "Remediator"],
+  },
+];
+
+const engagementStats = [
+  {
+    tag: "Prevalence",
+    figure: "1 in 2",
+    label: "Queensland homes show signs of dampness or mould within any 12-month window.",
+    source: "ABS / AIHW housing data",
+    diagram: "donut",
+    diagramProps: { percent: 50 },
+  },
+  {
+    tag: "On-site",
+    figure: "45 minutes",
+    label: "One technician visit covers thermal, moisture, humidity and ventilation across the home.",
+    source: "Per Sporetrust diagnostic protocol",
+    diagram: "clock",
+    diagramProps: { minutes: 45, max: 60 },
+  },
+  {
+    tag: "Turnaround",
+    figure: "48 hours",
+    label: "Plain-English digital report with cause, extent, evidence and a defensible repair-cost range.",
+    source: "Standard diagnostic SLA",
+    diagram: "report",
+    diagramProps: { hours: 48 },
   },
 ];
 
@@ -499,7 +537,7 @@ const faqs = [
   ],
   [
     "How long does the on-site assessment take?",
-    "Most homes take 60-90 minutes. Larger homes, multiple buildings or sites with complex history can take longer. We'll let you know in advance once we've reviewed your booking notes.",
+    "Most homes take around 45 minutes. Larger homes, multiple buildings or sites with complex history can take longer. We'll let you know in advance once we've reviewed your booking notes.",
   ],
   [
     "When do I get the report?",
@@ -536,28 +574,6 @@ function CheckIcon() {
         />
       </svg>
     </span>
-  );
-}
-
-function ReviewStars() {
-  return (
-    <div className="review-stars" aria-label="Five star review style markers">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <svg key={index} viewBox="0 0 20 20" aria-hidden="true">
-          <path d="M10 1.6L12.4 6.7L18 7.5L14 11.5L14.9 17.1L10 14.4L5.1 17.1L6 11.5L2 7.5L7.6 6.7L10 1.6Z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
-function TrustBadge({ quote, meta, className = "" }) {
-  return (
-    <aside className={`trust-badge${className ? ` ${className}` : ""}`}>
-      <ReviewStars />
-      <p>{quote}</p>
-      <span>{meta}</span>
-    </aside>
   );
 }
 
@@ -603,79 +619,20 @@ export default function Home() {
     <>
       <main>
         <div className="problem-theatre mould-strong">
-          <div className="problem-theatre-stage" aria-hidden="true" {...theatreMould}></div>
-          <nav className="nav">
-            <div className="nav-inner">
-              <Brand />
-              <div className="nav-right">
-                <a className="nav-link hide-sm" href="#report">
-                  The report
-                </a>
-                <a className="nav-link hide-sm" href="#pricing">
-                  Pricing
-                </a>
-                <a className="nav-link hide-sm" href="#faq">
-                  FAQ
-                </a>
-                <a className="nav-cta" href="#book">
-                  Book inspection
-                </a>
-              </div>
-            </div>
-          </nav>
-        <section className="hero">
-          <div className="wrap">
-            <div className="hero-grid">
-              <div className="hero-copy">
-                <span className="eyebrow">[ Independent Mould Diagnostics and Reporting ]</span>
-                <h1>
-                  Catch hidden mould with lab verified testing
-                </h1>
-                <p className="lede">
-                  Independent inspection, moisture mapping and reporting for tenants, homeowners and property managers. We document the cause, extent and likely repair pathway before anyone starts selling you the fix.
-                </p>
-                <HeroAvailabilityForm />
-                <div className="hero-trust">
-                  <span>60-min on-site</span>
-                  <span>48-hour report</span>
-                  <span>Fixed price, no callout fees</span>
-                </div>
-                <TrustBadge
-                  className="hero-proof"
-                  quote={trustBadges[3].quote}
-                  meta={trustBadges[3].meta}
-                />
-              </div>
-              <aside className="hero-visual" aria-label="Visible light and thermal capture comparison">
-                <ThermalReveal />
+          {/* Mould contamination canvas disabled — restore by adding back:
+              <div className="problem-theatre-stage" aria-hidden="true" {...theatreMould} />
+              and the <Script src="/mould-contamination.js?v=37" /> tag at the bottom. */}
+          <MegaNav />
+        <Hero
+          trust={{
+            quote: trustBadges[3].quote,
+            meta: trustBadges[3].meta,
+          }}
+        />
 
-                <div className="thermal-proof-copy">
-                  <p className="lede">
-                    Thermal capture. Brisbane apartment, 2025. The occupant had been told it was "just condensation" for months. Our diagnostics captures hidden moisture, airborne spores, and early damage before mould is visible to the eye.
-                  </p>
-                </div>
-              </aside>
-            </div>
-          </div>
-        </section>
+        <TrustBar />
 
-        <section className="thermal-proof problem-bg">
-          <div className="wrap thermal-proof-wrap">
-            <div className="thermal-proof-head">
-              <h2>This is the same wall.</h2>
-            </div>
-
-            <ThermalReveal />
-
-            <div className="thermal-proof-copy">
-              <p className="lede">
-                Thermal capture. Brisbane apartment, 2025. The occupant had been told it was "just condensation" for months. Our diagnostics captures hidden moisture, airborne spores, and early damage before mould is visible to the eye.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="problem-bg mould-strong">
+        <section className="problem-bg mould-strong" id="contamination">
           <div className="wrap">
             <div className="find-head">
               <div className="copy">
@@ -685,12 +642,6 @@ export default function Home() {
                   Visible mould is only one signal. We document moisture patterns, material damage, odour and air movement so hidden contamination has somewhere to show itself.
                 </p>
               </div>
-              <figure className="find-head-media">
-                <img
-                  src="/images/elevated-mould-count.jpg"
-                  alt="Elevated mould count viewed through lab testing"
-                />
-              </figure>
             </div>
             <div className="find-grid" aria-label="Signs of contamination">
               {contaminationSigns.map((card) => (
@@ -763,21 +714,38 @@ export default function Home() {
         </section>
         </div>
 
-        <section className="solution">
+        <section className="stat-section">
           <div className="wrap">
-            <div className="section-intro split">
-              <div>
-                <span className="eyebrow">[ how we diagnose ]</span>
-                <h2>A complete analysis, every time.</h2>
-                <p className="lede">
-                  Every Sporetrust inspection runs the same protocol, so the diagnosis is consistent, defensible and complete.
-                </p>
-              </div>
-              <TrustBadge
-                quote={trustBadges[2].quote}
-                meta={trustBadges[2].meta}
+            <Reveal>
+              <SectionHeader
+                eyebrow="by the numbers"
+                title="What the engagement looks like."
+                ledeMax="58ch"
+                lede="One technician, one visit, one report. The shape of the work doesn't change — it just gets more thorough where the evidence demands it."
               />
-            </div>
+            </Reveal>
+            <Reveal delay={120}>
+              <StatRow stats={engagementStats} />
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="solution" id="methodology">
+          <div className="wrap">
+            <Reveal>
+              <SectionHeader
+                align="left"
+                className="section-header--split"
+                eyebrow="how we diagnose"
+                title="A complete analysis, every time."
+                lede="Every Sporetrust inspection runs the same protocol, so the diagnosis is consistent, defensible and complete."
+              >
+                <TrustBadge
+                  quote={trustBadges[2].quote}
+                  meta={trustBadges[2].meta}
+                />
+              </SectionHeader>
+            </Reveal>
             <div className="methodology-grid">
               {methods.map((method) => (
                 <article className="method" key={method.num}>
@@ -837,20 +805,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="solution">
+        <section className="solution" id="how-it-works">
           <div className="wrap">
-            <span className="eyebrow">[ how it works ]</span>
-            <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>Four steps to start. No upsell.</h2>
-            <p className="lede how-lede">From the moment you book, you'll know what's coming and what it costs.</p>
-            <div className="steps">
-              {steps.map((step) => (
-                <div className="step" key={step.num}>
-                  <div className="step-num">{step.num}</div>
-                  <h4>{step.title}</h4>
-                  <p>{step.copy}</p>
-                </div>
-              ))}
-            </div>
+            <Reveal>
+              <SectionHeader
+                eyebrow="how it works"
+                title="Four steps to a definitive answer."
+                lede="From the moment you book, you'll know what's coming, when it lands and what it costs. No upsell, no callout fees, no quote pressure."
+                titleMax="28ch"
+              />
+            </Reveal>
+
+            <Timeline items={timelineItems} />
+
             <div className="tools-strip">
               <div className="ts-label">In the kit</div>
               <div className="ts-icons">
@@ -866,6 +833,43 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        <Sentinel />
+
+        <section className="pricing" id="pricing">
+          <div className="wrap">
+            <span className="eyebrow">[ fixed pricing ]</span>
+            <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>No hourly rates. No surprises.</h2>
+            <div className="price-grid">
+              {pricingTiers.map((tier) => (
+                <div key={tier.title} className={tier.featured ? "tier featured" : "tier"}>
+                  {tier.featured ? <span className="badge">Most booked</span> : null}
+                  <h3>{tier.title}</h3>
+                  <div className="tag">{tier.tag}</div>
+                  <div className="price">{tier.price}</div>
+                  <div className="price-sub">{tier.sub}</div>
+                  <ul>
+                    {tier.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                  <a className={tier.featured ? "btn btn-light" : "btn"} href="#book">
+                    {tier.button} <ArrowIcon />
+                  </a>
+                </div>
+              ))}
+            </div>
+            <TrustBadge
+              className="pricing-proof"
+              quote={trustBadges[1].quote}
+              meta={trustBadges[1].meta}
+            />
+            <div className="price-foot">
+              Larger homes, multiple buildings, commercial sites or specialist insurance reports -{" "}
+              <a href="#book">request a custom quote</a>.
             </div>
           </div>
         </section>
@@ -919,41 +923,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="pricing" id="pricing">
-          <div className="wrap">
-            <span className="eyebrow">[ fixed pricing ]</span>
-            <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>No hourly rates. No surprises.</h2>
-            <div className="price-grid">
-              {pricingTiers.map((tier) => (
-                <div key={tier.title} className={tier.featured ? "tier featured" : "tier"}>
-                  {tier.featured ? <span className="badge">Most booked</span> : null}
-                  <h3>{tier.title}</h3>
-                  <div className="tag">{tier.tag}</div>
-                  <div className="price">{tier.price}</div>
-                  <div className="price-sub">{tier.sub}</div>
-                  <ul>
-                    {tier.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                  <a className={tier.featured ? "btn btn-light" : "btn"} href="#book">
-                    {tier.button} <ArrowIcon />
-                  </a>
-                </div>
-              ))}
-            </div>
-            <TrustBadge
-              className="pricing-proof"
-              quote={trustBadges[1].quote}
-              meta={trustBadges[1].meta}
-            />
-            <div className="price-foot">
-              Larger homes, multiple buildings, commercial sites or specialist insurance reports -{" "}
-              <a href="#book">request a custom quote</a>.
-            </div>
-          </div>
-        </section>
-
         <section className="independence">
           <div className="wrap">
             <span className="eyebrow">[ a note on independence ]</span>
@@ -983,29 +952,13 @@ export default function Home() {
 
       </main>
 
-      <footer>
-        <div className="wrap foot-grid">
-          <Brand />
-          <div className="foot-links">
-            <a href="#report">The report</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <a href="#book">Book</a>
-          </div>
-          <div className="foot-meta">&copy; 2026 Sporetrust Diagnostics - Brisbane & SEQ - ABN 00 000 000 000</div>
-        </div>
-      </footer>
+      <Footer />
 
       <a className="sticky-cta" href="#book">
         Book inspection -&gt;
       </a>
 
-      <a className="financial-napkin-cta" href="/financial-napkin-math.html" target="_blank" rel="noreferrer">
-        See financial napkin math
-      </a>
-
       <BookingTakeover />
-      <Script src="/mould-contamination.js?v=37" strategy="afterInteractive" />
     </>
   );
 }
