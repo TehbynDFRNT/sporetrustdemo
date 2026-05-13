@@ -9,46 +9,16 @@ const HOVER_OPEN_DELAY = 100;
 const HOVER_CLOSE_DELAY = 220;
 
 const NAV_ITEMS = [
+  { key: "how-it-works", label: "How it works", href: "/how-it-works" },
   { key: "diagnostics", label: "Diagnostics", panel: true },
   { key: "sentinel", label: "Sentinel", panel: true },
-  { key: "for", label: "For", panel: true },
-  { key: "pricing", label: "Pricing", href: "/#pricing" },
   { key: "about", label: "About", panel: true },
 ];
 
-const AUDIENCES = [
-  {
-    label: "Tenants",
-    desc: "Evidence for repair requests, liveability disputes and tribunal records.",
-    href: "#book",
-  },
-  {
-    label: "Homeowners",
-    desc: "Independent diagnosis before repair quotes or insurance claims.",
-    href: "#book",
-  },
-  {
-    label: "Property managers",
-    desc: "A neutral record at handover that both sides can act on.",
-    href: "#book",
-  },
-  {
-    label: "Pre-purchase buyers",
-    desc: "Know what's behind the wall before contracts are signed.",
-    href: "#book",
-  },
-];
-
-const FAQ_TEASER = [
-  { q: "Are you a remediation company?", a: "/#faq" },
-  { q: "How long is the on-site visit?", a: "/#faq" },
-  { q: "When do I get the report?", a: "/#faq" },
-  { q: "Do you service my area?", a: "/#faq" },
-];
-
-function PanelLink({ href, label, desc, kicker }) {
+function PanelLink({ href, label, desc, kicker, variant }) {
+  const className = `mega-link${variant ? ` mega-link--${variant}` : ""}`;
   return (
-    <a className="mega-link" href={href}>
+    <a className={className} href={href}>
       {kicker ? <span className="mega-link__kicker">{kicker}</span> : null}
       <span className="mega-link__label">
         {label}
@@ -59,72 +29,116 @@ function PanelLink({ href, label, desc, kicker }) {
   );
 }
 
+const DIAGNOSTIC_CARDS = [
+  {
+    href: "/diagnosing-mould/visible-mould",
+    image: "/images/sign-water-staining.png",
+    imageAlt: "Water staining and visible mould on a wall surface",
+    title: "I have mould already",
+    desc: "Document cause, damage and scope. Visible contamination still needs diagnosis.",
+  },
+  {
+    href: "/diagnosing-mould/suspected-mould",
+    image: "/images/thermal-before-after.jpg",
+    imageAlt: "Thermal capture revealing hidden moisture behind a visibly clean wall",
+    title: "I suspect mould",
+    desc: "Look behind the surface — thermal, moisture, odour and air sampling.",
+  },
+  {
+    href: "/diagnosing-mould/mould-prevention",
+    image: "/images/metal-ball-moisture-detector.jpg",
+    imageAlt: "Moisture detector used for proactive mould prevention",
+    title: "Mould prevention",
+    desc: "Reduce future risk through humidity control, ventilation and earlier detection.",
+  },
+];
+
 function DiagnosticsPanel() {
   return (
     <div className="mega-panel mega-panel--diagnostics">
-      <figure className="mega-panel__media">
-        <img
-          src="/images/thermal-before-after.jpg"
-          alt="Thermal capture comparison showing damp areas hidden behind a clean wall"
-          loading="lazy"
-        />
-        <figcaption>
-          <span className="mega-link__kicker">Visible vs thermal</span>
-          What you see vs what we measure.
-        </figcaption>
-      </figure>
+      {DIAGNOSTIC_CARDS.map((card) => (
+        <a key={card.href} className="mega-panel__card" href={card.href}>
+          <figure className="mega-panel__card-media">
+            <img src={card.image} alt={card.imageAlt} loading="lazy" />
+          </figure>
+          <div className="mega-panel__card-content">
+            <span className="mega-panel__card-title">
+              {card.title}
+              <ArrowIcon />
+            </span>
+            <span className="mega-panel__card-desc">{card.desc}</span>
+          </div>
+        </a>
+      ))}
 
-      <div className="mega-panel__col">
-        <span className="mega-panel__col-title">Diagnostics</span>
-        <PanelLink href="/diagnosing-mould" label="Diagnosing mould" desc="Visible vs hidden vs prevention — pick the pathway that matches your situation." />
-        <PanelLink href="/how-it-works" label="How it works" desc="Tenants, homeowners, managers — the same diagnostic, different evidence needs." />
-        <PanelLink href="/#methodology" label="Our methodology" desc="Thermal, moisture, humidity, lab. The same protocol, every visit." />
-      </div>
-
-      <div className="mega-panel__col">
-        <span className="mega-panel__col-title">The Report</span>
-        <PanelLink href="/#report" label="What's inside" desc="Cause, extent, evidence, repair-cost range — all in one shareable PDF." />
-        <PanelLink href="/#contamination" label="What we test for" desc="Seven signal categories — visible, hidden, weather, materials, airflow." />
+      <div className="mega-panel__col mega-panel__col--callout">
+        <a className="mega-link mega-link--callout" href="/diagnosing-mould">
+          <span className="mega-link__label">Do I have mould?</span>
+          <span className="mega-link__desc">
+            Take the test — a quick self-assessment to point you to the right diagnostic.
+          </span>
+          <span className="mega-link__btn">
+            Take the Test <ArrowIcon />
+          </span>
+        </a>
       </div>
     </div>
   );
 }
+
+const SENTINEL_INCLUSIONS = [
+  {
+    title: "Annual on-site inspection",
+    copy: "Full thermal, moisture and humidity sweep, every year.",
+  },
+  {
+    title: "Year-on-year report tracking",
+    copy: "See changes over time. Share with insurers, builders, landlords.",
+  },
+  {
+    title: "Member rates on add-ons",
+    copy: "Discounted re-inspections, lab sampling and clearance checks.",
+  },
+];
 
 function SentinelPanel() {
   return (
     <div className="mega-panel mega-panel--sentinel">
+      <ul className="mega-panel__inclusions-grid" role="list">
+        {SENTINEL_INCLUSIONS.map((item, index) => (
+          <li className="mega-panel__inclusion-tile" key={item.title}>
+            <span className="mega-panel__inclusion-index">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <strong>{item.title}</strong>
+            <span>{item.copy}</span>
+          </li>
+        ))}
+      </ul>
+
       <div className="mega-panel__feature">
-        <SentinelMark size={48} className="mega-panel__feature-mark" />
-        <span className="mega-panel__col-title">Sporetrust Sentinel</span>
+        <div className="mega-panel__feature-head">
+          <SentinelMark size={56} className="mega-panel__feature-mark" />
+          <div className="mega-panel__feature-titles">
+            <span className="mega-panel__feature-supertext">Year-round prevention</span>
+            <h3 className="mega-panel__feature-title">Sporetrust Sentinel</h3>
+          </div>
+        </div>
+
         <p className="mega-panel__feature-tagline">
           Industry-first annual mould prevention. One inspection a year, a fresh report, and the team you trust on speed dial.
         </p>
-        <div className="mega-panel__feature-price">
-          <span className="mega-panel__price-figure">$13.95</span>
-          <span className="mega-panel__price-meta">per week</span>
+
+        <div className="mega-panel__feature-foot">
+          <div className="mega-panel__feature-price">
+            <span className="mega-panel__price-figure">$13.95</span>
+            <span className="mega-panel__price-meta">per week</span>
+          </div>
+          <a className="mega-panel__feature-cta" href="/sporetrust-sentinel">
+            Learn more <ArrowIcon />
+          </a>
         </div>
-        <a className="btn mega-panel__cta" href="/sporetrust-sentinel">
-          See Sentinel <ArrowIcon />
-        </a>
       </div>
-
-      <div className="mega-panel__col">
-        <span className="mega-panel__col-title">What's included</span>
-        <PanelLink href="/sporetrust-sentinel" label="Annual on-site inspection" desc="Full thermal, moisture and humidity sweep, every year." />
-        <PanelLink href="/sporetrust-sentinel" label="Year-on-year report tracking" desc="See changes over time. Share with insurers, builders, landlords." />
-        <PanelLink href="/sporetrust-sentinel" label="Member rates on add-ons" desc="Discounted re-inspections, lab sampling and clearance checks." />
-        <PanelLink href="/sporetrust-sentinel" label="Priority booking" desc="Move to the front of the queue when a quick visit is needed." />
-      </div>
-    </div>
-  );
-}
-
-function AudiencePanel() {
-  return (
-    <div className="mega-panel mega-panel--audience">
-      {AUDIENCES.map((aud) => (
-        <PanelLink key={aud.label} href={aud.href} label={aud.label} desc={aud.desc} />
-      ))}
     </div>
   );
 }
@@ -134,25 +148,29 @@ function AboutPanel() {
     <div className="mega-panel mega-panel--about">
       <div className="mega-panel__col">
         <span className="mega-panel__col-title">Sporetrust</span>
-        <PanelLink href="/why-sporetrust" label="Why Sporetrust" desc="Independent by design. We don't sell the fix — the report is the product." />
-        <PanelLink href="/partners" label="Partners" desc="Vetted remediation and repair pathways without compromising independence." />
+        <PanelLink
+          href="/why-sporetrust"
+          label="Why Sporetrust"
+          desc="Independent by design. We don't sell the fix — the report is the product."
+        />
         <ul className="mega-panel__accreditation" aria-label="Accreditation">
-          <li><img src="/logos/iicrc.svg" alt="IICRC certified" /></li>
-          <li><img src="/logos/nata.png" alt="NATA accredited" /></li>
+          <li><img src="/logos/iicrc-dark.png" alt="IICRC certified" /></li>
+          <li><img src="/logos/nata-dark.png" alt="NATA accredited" /></li>
         </ul>
       </div>
 
       <div className="mega-panel__col">
-        <span className="mega-panel__col-title">Frequently asked</span>
-        {FAQ_TEASER.map((item) => (
-          <a key={item.q} className="mega-link mega-link--compact" href={item.a}>
-            <span className="mega-link__label">
-              {item.q}
-              <ArrowIcon />
-            </span>
-          </a>
-        ))}
-        <PanelLink href="/#faq" label="All questions" />
+        <span className="mega-panel__col-title">Partners</span>
+        <PanelLink
+          href="/partners/contractors"
+          label="Repair contractors"
+          desc="Builders, plastering, flooring, ventilation — for putting the home back together."
+        />
+        <PanelLink
+          href="/partners/remediation"
+          label="Remediation providers"
+          desc="Specialist decontamination teams who work from your report."
+        />
       </div>
     </div>
   );
@@ -161,7 +179,6 @@ function AboutPanel() {
 const PANELS = {
   diagnostics: DiagnosticsPanel,
   sentinel: SentinelPanel,
-  for: AudiencePanel,
   about: AboutPanel,
 };
 

@@ -107,10 +107,168 @@ function ReportDiagram({ hours = 48 }) {
   );
 }
 
+function WallSectionDiagram() {
+  return (
+    <svg viewBox="0 0 120 120" className="stat__diagram" aria-hidden="true">
+      {/* Outer wall outline */}
+      <rect
+        x="16"
+        y="22"
+        width="88"
+        height="76"
+        rx="3"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.25"
+        strokeWidth="1.6"
+      />
+      {/* Cavity layer (dashed inner border to suggest hidden) */}
+      <line x1="34" y1="22" x2="34" y2="98" stroke="currentColor" strokeOpacity="0.2" strokeWidth="1" strokeDasharray="2 3" />
+      <line x1="86" y1="22" x2="86" y2="98" stroke="currentColor" strokeOpacity="0.2" strokeWidth="1" strokeDasharray="2 3" />
+      {/* Surface tick marks (top/bottom edges) */}
+      <line x1="16" y1="22" x2="104" y2="22" stroke="currentColor" strokeOpacity="0.18" strokeWidth="1" />
+      <line x1="16" y1="98" x2="104" y2="98" stroke="currentColor" strokeOpacity="0.18" strokeWidth="1" />
+      {/* Hidden moisture droplets in the cavity */}
+      <circle cx="48" cy="42" r="3.5" fill="var(--green)" />
+      <circle cx="72" cy="58" r="2.8" fill="var(--green)" />
+      <circle cx="56" cy="78" r="3" fill="var(--green)" />
+      <text
+        x="60"
+        y="113"
+        textAnchor="middle"
+        className="stat__diagram-tick"
+      >
+        cavity
+      </text>
+    </svg>
+  );
+}
+
+function RootCauseDiagram() {
+  const cols = [20, 40, 60, 80, 100];
+  return (
+    <svg viewBox="0 0 120 120" className="stat__diagram" aria-hidden="true">
+      <text x="60" y="16" textAnchor="middle" className="stat__diagram-tick">patch</text>
+
+      {/* Two rows of grey circles — surface signs */}
+      <g fill="currentColor" fillOpacity="0.28">
+        {cols.map((x) => (
+          <circle key={`a-${x}`} cx={x} cy={30} r={5} />
+        ))}
+        {cols.map((x) => (
+          <circle key={`b-${x}`} cx={x} cy={48} r={5} />
+        ))}
+      </g>
+
+      {/* Dividing line */}
+      <line
+        x1="12"
+        y1="66"
+        x2="108"
+        y2="66"
+        stroke="currentColor"
+        strokeOpacity="0.32"
+        strokeWidth="1.2"
+        strokeDasharray="3 3"
+      />
+
+      {/* Three green circles — actual causes */}
+      <g fill="var(--green)">
+        <circle cx={36} cy={88} r={7} />
+        <circle cx={60} cy={88} r={7} />
+        <circle cx={84} cy={88} r={7} />
+      </g>
+
+      <text x="60" y="112" textAnchor="middle" className="stat__diagram-tick">source</text>
+    </svg>
+  );
+}
+
+function RecurrenceDiagram({ percent = 40 }) {
+  const r = 42;
+  return (
+    <svg viewBox="0 0 120 120" className="stat__diagram" aria-hidden="true">
+      <circle cx="60" cy="60" r={r} fill="none" stroke="currentColor" strokeOpacity="0.15" strokeWidth="2" />
+      <path
+        d={`M 60 ${60 - r} A ${r} ${r} 0 1 1 ${60 - r} 60`}
+        fill="none"
+        stroke="var(--green)"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <polygon points="18,52 11,64 25,64" fill="var(--green)" />
+      <text
+        x="60"
+        y="60"
+        textAnchor="middle"
+        dominantBaseline="central"
+        className="stat__diagram-figure"
+      >
+        {percent}%
+      </text>
+    </svg>
+  );
+}
+
+function CostBarsDiagram() {
+  const bars = [
+    { label: "Water", height: 78, accent: true },
+    { label: "Fire", height: 48, accent: false },
+    { label: "Burglary", height: 22, accent: false },
+  ];
+  const barWidth = 18;
+  const gap = 12;
+  const totalWidth = bars.length * barWidth + (bars.length - 1) * gap;
+  const startX = (120 - totalWidth) / 2;
+  const baseline = 92;
+
+  return (
+    <svg viewBox="0 0 120 120" className="stat__diagram" aria-hidden="true">
+      <line
+        x1="14"
+        y1={baseline}
+        x2="106"
+        y2={baseline}
+        stroke="currentColor"
+        strokeOpacity="0.18"
+        strokeWidth="1"
+      />
+      {bars.map((bar, i) => {
+        const x = startX + i * (barWidth + gap);
+        return (
+          <g key={bar.label}>
+            <rect
+              x={x}
+              y={baseline - bar.height}
+              width={barWidth}
+              height={bar.height}
+              fill={bar.accent ? "var(--green)" : "currentColor"}
+              fillOpacity={bar.accent ? 1 : 0.2}
+              rx="1.5"
+            />
+            <text
+              x={x + barWidth / 2}
+              y={baseline + 11}
+              textAnchor="middle"
+              className="stat__diagram-tick"
+            >
+              {bar.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 const DIAGRAMS = {
   donut: DonutDiagram,
   clock: ClockDiagram,
   report: ReportDiagram,
+  wallSection: WallSectionDiagram,
+  rootCause: RootCauseDiagram,
+  recurrence: RecurrenceDiagram,
+  costBars: CostBarsDiagram,
 };
 
 function StatCard({ stat, index }) {
@@ -131,9 +289,10 @@ function StatCard({ stat, index }) {
   );
 }
 
-export default function StatRow({ stats = [], className = "" }) {
+export default function StatRow({ stats = [], variant, className = "" }) {
+  const variantClass = variant ? ` stat-row--${variant}` : "";
   return (
-    <div className={`stat-row${className ? ` ${className}` : ""}`}>
+    <div className={`stat-row${variantClass}${className ? ` ${className}` : ""}`}>
       {stats.map((stat, index) => (
         <StatCard key={stat.label} stat={stat} index={index} />
       ))}

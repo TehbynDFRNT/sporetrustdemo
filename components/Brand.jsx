@@ -1,6 +1,6 @@
 export default function Brand() {
   return (
-    <a href="#" className="brand" aria-label="Sporetrust home">
+    <a href="/" className="brand" aria-label="Sporetrust home">
       <img
         className="brand-mark"
         src="/sporetrace-icon.svg?v=5"

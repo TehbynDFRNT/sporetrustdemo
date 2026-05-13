@@ -6,11 +6,12 @@ import Hero from "../components/Hero";
 import MegaNav from "../components/MegaNav";
 import Reveal from "../components/Reveal";
 import SectionHeader from "../components/SectionHeader";
-import Sentinel from "../components/Sentinel";
+import SentinelCard from "../components/SentinelCard";
 import StatRow from "../components/StatRow";
 import Timeline from "../components/Timeline";
 import TrustBadge from "../components/TrustBadge";
 import TrustBar from "../components/TrustBar";
+import UtilityBanner from "../components/UtilityBanner";
 import ArrowIcon from "../components/icons/ArrowIcon";
 
 function mouldAttrs({
@@ -622,6 +623,7 @@ export default function Home() {
           {/* Mould contamination canvas disabled — restore by adding back:
               <div className="problem-theatre-stage" aria-hidden="true" {...theatreMould} />
               and the <Script src="/mould-contamination.js?v=37" /> tag at the bottom. */}
+          <UtilityBanner />
           <MegaNav />
         <Hero
           trust={{
@@ -837,8 +839,6 @@ export default function Home() {
           </div>
         </section>
 
-        <Sentinel />
-
         <section className="pricing" id="pricing">
           <div className="wrap">
             <span className="eyebrow">[ fixed pricing ]</span>
@@ -862,6 +862,9 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+            <SentinelCard />
+
             <TrustBadge
               className="pricing-proof"
               quote={trustBadges[1].quote}

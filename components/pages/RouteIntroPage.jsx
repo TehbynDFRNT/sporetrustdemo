@@ -1,47 +1,58 @@
 import BookingTakeover from "../BookingTakeover";
 import Footer from "../Footer";
+import Hero from "../Hero";
 import MegaNav from "../MegaNav";
+import UtilityBanner from "../UtilityBanner";
 
 export default function RouteIntroPage({
   eyebrow,
   title,
   lede,
+  background,
+  backgroundAlt,
+  secondaryTags,
+  secondaryCta,
   cards = [],
   cta = "Book inspection",
+  ctaHref = "#book",
+  children,
 }) {
   return (
     <>
+      <UtilityBanner />
       <MegaNav />
       <main>
-        <section className="route-page-hero problem-bg">
-          <div className="wrap route-page-hero-inner">
-            <span className="eyebrow">{eyebrow}</span>
-            <h1>{title}</h1>
-            <p className="lede">{lede}</p>
-            <div className="route-page-actions">
-              <a className="btn" href="#book">
-                {cta} -&gt;
-              </a>
-              <a className="btn route-secondary" href="/">
-                Back to home
-              </a>
-            </div>
-          </div>
-        </section>
+        <Hero
+          eyebrow={eyebrow}
+          title={title}
+          lede={lede}
+          background={background}
+          backgroundAlt={backgroundAlt}
+          secondaryTags={secondaryTags}
+          secondaryCta={secondaryCta}
+          compact
+          cta={{ label: cta, href: ctaHref }}
+          trust={null}
+          availability={null}
+        />
 
-        <section className="solution route-page-body">
-          <div className="wrap">
-            <div className="home-pathway-grid route-card-grid">
-              {cards.map((card) => (
-                <article className="home-pathway-card" key={card.title}>
-                  <span>{card.eyebrow}</span>
-                  <h3>{card.title}</h3>
-                  <p>{card.copy}</p>
-                </article>
-              ))}
+        {cards.length > 0 ? (
+          <section className="solution route-page-body">
+            <div className="wrap">
+              <div className="home-pathway-grid route-card-grid">
+                {cards.map((card) => (
+                  <article className="home-pathway-card" key={card.title}>
+                    <span>{card.eyebrow}</span>
+                    <h3>{card.title}</h3>
+                    <p>{card.copy}</p>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
+
+        {children}
       </main>
 
       <Footer />
