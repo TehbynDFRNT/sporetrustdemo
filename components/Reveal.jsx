@@ -23,6 +23,17 @@ export default function Reveal({
       return undefined;
     }
 
+    // If the element is already in the viewport at mount time (common on
+    // back/forward nav where scroll position is restored), reveal immediately.
+    // This avoids the IntersectionObserver occasionally not firing for elements
+    // that are visible from the moment they observe().
+    const rect = node.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < viewportHeight && rect.bottom > 0) {
+      setShown(true);
+      return undefined;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
