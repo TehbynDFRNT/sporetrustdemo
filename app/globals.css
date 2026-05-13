@@ -3147,24 +3147,14 @@ footer {
 
 /* ---------- Reveal (scroll-into-view fade + slight rise) ---------- */
 .reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity var(--dur-reveal) var(--ease-out),
-    transform var(--dur-reveal) var(--ease-out);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
+  animation: reveal-in var(--dur-reveal) var(--ease-out) var(--reveal-delay, 0ms) both;
 }
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
-    transition: none;
-    opacity: 1;
-    transform: none;
-  }
+  .reveal { animation: none; }
 }
 
 /* ---------- Section header primitive ---------- */
