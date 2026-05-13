@@ -31,21 +31,21 @@ function PanelLink({ href, label, desc, kicker, variant }) {
 
 const DIAGNOSTIC_CARDS = [
   {
-    href: "/diagnosing-mould/visible-mould",
+    href: "/visible-mould",
     image: "/images/sign-water-staining.png",
     imageAlt: "Water staining and visible mould on a wall surface",
     title: "I have mould already",
     desc: "Document cause, damage and scope. Visible contamination still needs diagnosis.",
   },
   {
-    href: "/diagnosing-mould/suspected-mould",
+    href: "/suspected-mould",
     image: "/images/thermal-before-after.jpg",
     imageAlt: "Thermal capture revealing hidden moisture behind a visibly clean wall",
     title: "I suspect mould",
     desc: "Look behind the surface — thermal, moisture, odour and air sampling.",
   },
   {
-    href: "/diagnosing-mould/mould-prevention",
+    href: "/mould-prevention",
     image: "/images/metal-ball-moisture-detector.jpg",
     imageAlt: "Moisture detector used for proactive mould prevention",
     title: "Mould prevention",
@@ -72,7 +72,7 @@ function DiagnosticsPanel() {
       ))}
 
       <div className="mega-panel__col mega-panel__col--callout">
-        <a className="mega-link mega-link--callout" href="/diagnosing-mould">
+        <a className="mega-link mega-link--callout" href="#">
           <span className="mega-link__label">Do I have mould?</span>
           <span className="mega-link__desc">
             Take the test — a quick self-assessment to point you to the right diagnostic.

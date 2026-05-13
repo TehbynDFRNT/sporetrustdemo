@@ -1,10 +1,10 @@
-import FaqAccordion from "../../../components/FaqAccordion";
-import FeatureCard from "../../../components/FeatureCard";
-import RouteIntroPage from "../../../components/pages/RouteIntroPage";
-import Reveal from "../../../components/Reveal";
-import SectionHeader from "../../../components/SectionHeader";
-import Timeline from "../../../components/Timeline";
-import { routePages } from "../../../lib/routePageContent";
+import FaqAccordion from "../../components/FaqAccordion";
+import FeatureCard from "../../components/FeatureCard";
+import RouteIntroPage from "../../components/pages/RouteIntroPage";
+import Reveal from "../../components/Reveal";
+import SectionHeader from "../../components/SectionHeader";
+import Timeline from "../../components/Timeline";
+import { routePages } from "../../lib/routePageContent";
 
 const visibleTimeline = [
   {

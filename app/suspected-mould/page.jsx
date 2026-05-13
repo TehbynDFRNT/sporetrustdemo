@@ -1,11 +1,11 @@
-import ArrowIcon from "../../../components/icons/ArrowIcon";
-import FaqAccordion from "../../../components/FaqAccordion";
-import FeatureCard from "../../../components/FeatureCard";
-import RouteIntroPage from "../../../components/pages/RouteIntroPage";
-import Reveal from "../../../components/Reveal";
-import SectionHeader from "../../../components/SectionHeader";
-import StatRow from "../../../components/StatRow";
-import { routePages } from "../../../lib/routePageContent";
+import ArrowIcon from "../../components/icons/ArrowIcon";
+import FaqAccordion from "../../components/FaqAccordion";
+import FeatureCard from "../../components/FeatureCard";
+import RouteIntroPage from "../../components/pages/RouteIntroPage";
+import Reveal from "../../components/Reveal";
+import SectionHeader from "../../components/SectionHeader";
+import StatRow from "../../components/StatRow";
+import { routePages } from "../../lib/routePageContent";
 
 const problemStats = [
   {

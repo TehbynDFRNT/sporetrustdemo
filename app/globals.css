@@ -1615,6 +1615,26 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
 .btn-light { background: var(--white); color: var(--ink); }
 .btn-light:hover { background: var(--paper); color: var(--ink); }
 .btn svg { width: 14px; height: 14px; }
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14.5px;
+  letter-spacing: -0.005em;
+  border: 1px solid var(--line);
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+}
+.btn-ghost:hover {
+  background: var(--paper);
+  border-color: var(--ink);
+}
+.btn-ghost svg { width: 14px; height: 14px; }
 
 .price-foot { margin-top: 32px; text-align: center; font-size: 14px; color: var(--ink-soft); }
 .price-foot a { color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--green); text-underline-offset: 4px; }
@@ -3337,7 +3357,12 @@ footer {
 .problem-cta {
   display: flex;
   justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
   margin-top: var(--space-6);
+}
+.problem-cta--left {
+  justify-content: flex-start;
 }
 
 /* Stacked variant — diagram on top, content below, centered (moldco-style) */
@@ -4544,6 +4569,63 @@ footer {
 }
 .sentinel-card__cta:hover {
   background: var(--white);
+}
+.sentinel-card__cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--r-pill);
+  background: rgba(241, 240, 238, 0.06);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(241, 240, 238, 0.22);
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+}
+.sentinel-card__cta-ghost:hover {
+  background: rgba(241, 240, 238, 0.12);
+  border-color: rgba(241, 240, 238, 0.36);
+}
+.sentinel-card__cta-ghost svg { width: 12px; height: 12px; }
+
+/* ---------- SentinelCard with feature image background ---------- */
+.sentinel-card--has-image::before {
+  display: none;
+}
+.sentinel-card__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+}
+.sentinel-card__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(102deg,
+      rgba(15, 17, 18, 0.94) 0%,
+      rgba(15, 17, 18, 0.86) 35%,
+      rgba(15, 17, 18, 0.62) 65%,
+      rgba(15, 17, 18, 0.42) 100%),
+    linear-gradient(180deg,
+      rgba(15, 17, 18, 0.20) 0%,
+      rgba(15, 17, 18, 0) 30%,
+      rgba(15, 17, 18, 0) 70%,
+      rgba(15, 17, 18, 0.45) 100%);
+}
+.sentinel-card--has-image > *:not(.sentinel-card__media):not(.sentinel-card__veil) {
+  position: relative;
+  z-index: 2;
+}
+.sentinel-card__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 /* Sentinel mark icon — also used in nav/footer if needed */

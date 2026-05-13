@@ -29,10 +29,26 @@ export default function SentinelCard({
   inclusions = DEFAULT_INCLUSIONS,
   pricing = { figure: "$13.95", meta: "per week" },
   cta = { label: "Join Sentinel", href: "#book" },
+  secondaryCta,
+  image,
+  imageAlt = "",
+  tagline = "Industry-first mould prevention and pre-contamination diagnostics subscription. Prevent building damage and protect your family through wet weather seasons.",
 }) {
+  const className = `sentinel-card${image ? " sentinel-card--has-image" : ""}`;
   return (
     <Reveal>
-      <article className="sentinel-card" aria-labelledby="sentinel-card-title">
+      <article className={className} aria-labelledby="sentinel-card-title">
+        {image ? (
+          <>
+            <div
+              className="sentinel-card__media"
+              role="img"
+              aria-label={imageAlt}
+              style={{ backgroundImage: `url("${image}")` }}
+            />
+            <div className="sentinel-card__veil" aria-hidden="true" />
+          </>
+        ) : null}
         <div className="sentinel-card__head">
           <div className="sentinel-card__mark">
             <SentinelMark size={98} />
@@ -42,9 +58,7 @@ export default function SentinelCard({
             <h3 className="sentinel-card__title" id="sentinel-card-title">
               Sporetrust Sentinel
             </h3>
-            <p className="sentinel-card__tagline">
-              Industry-first mould prevention and pre-contamination diagnostics subscription. Prevent building damage and protect your family through wet weather seasons.
-            </p>
+            <p className="sentinel-card__tagline">{tagline}</p>
           </div>
           {pricing ? (
             <div className="sentinel-card__price">
@@ -72,6 +86,11 @@ export default function SentinelCard({
           <a className="btn sentinel-card__cta" href={cta.href}>
             {cta.label} <ArrowIcon />
           </a>
+          {secondaryCta ? (
+            <a className="sentinel-card__cta-ghost" href={secondaryCta.href}>
+              {secondaryCta.label} <ArrowIcon />
+            </a>
+          ) : null}
         </div>
       </article>
     </Reveal>

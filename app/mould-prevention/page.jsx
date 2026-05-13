@@ -1,12 +1,12 @@
-import ArrowIcon from "../../../components/icons/ArrowIcon";
-import FaqAccordion from "../../../components/FaqAccordion";
-import FeatureCard from "../../../components/FeatureCard";
-import RouteIntroPage from "../../../components/pages/RouteIntroPage";
-import Reveal from "../../../components/Reveal";
-import SectionHeader from "../../../components/SectionHeader";
-import StatRow from "../../../components/StatRow";
-import Timeline from "../../../components/Timeline";
-import { routePages } from "../../../lib/routePageContent";
+import ArrowIcon from "../../components/icons/ArrowIcon";
+import FaqAccordion from "../../components/FaqAccordion";
+import RouteIntroPage from "../../components/pages/RouteIntroPage";
+import Reveal from "../../components/Reveal";
+import SectionHeader from "../../components/SectionHeader";
+import SentinelCard from "../../components/SentinelCard";
+import StatRow from "../../components/StatRow";
+import Timeline from "../../components/Timeline";
+import { routePages } from "../../lib/routePageContent";
 
 function CompareCellValue({ text }) {
   const yesMatch = text.match(/^Yes(?:\s*[—-]\s*(.+))?$/);
@@ -201,7 +201,7 @@ export default function MouldPreventionPage() {
             <SectionHeader
               align="center"
               eyebrow="pest vs mould"
-              title="Pests are a building defect. Mould is too."
+              title="Pests are a building defect, so is mould."
               lede="We inspect homes for pests as a matter of course, yet more common defects — moisture, damp and mould — get treated as an occupant hygiene problem. Mould is a symptom of hidden water damage, not your shameful reminder."
               titleMax="40ch"
               ledeMax="64ch"
@@ -235,6 +235,14 @@ export default function MouldPreventionPage() {
             />
           </Reveal>
           <Timeline items={preventionTimeline} />
+          <div className="problem-cta problem-cta--left">
+            <a className="btn" href="#book">
+              Book a diagnostic <ArrowIcon />
+            </a>
+            <a className="btn-ghost" href="/sporetrust-sentinel">
+              Learn About Sentinel <ArrowIcon />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -273,22 +281,9 @@ export default function MouldPreventionPage() {
 
       <section className="route-page-banner">
         <div className="wrap">
-          <FeatureCard
-            eyebrow="Sporetrust Sentinel"
-            title="Keep the answer current with year round monitoring."
-            stats={[
-              {
-                figure: "$13.95 / week",
-                label: "GST inc · cancel anytime · members move to the front of the queue.",
-              },
-              {
-                figure: "1 visit / year",
-                label: "Annual on-site sweep, year-on-year report tracking, member rates on add-ons.",
-              },
-            ]}
-            primaryCta={{ label: "Join Sentinel", href: "#book" }}
+          <SentinelCard
+            cta={{ label: "Join Sentinel", href: "#book" }}
             secondaryCta={{ label: "How Sentinel works", href: "/sporetrust-sentinel" }}
-            footnote="Industry-first annual mould prevention and pre-contamination diagnostics subscription."
             image="/images/thermal-imaging.jpg"
             imageAlt="Sporetrust inspector using thermal imaging equipment in a Queenslander interior"
           />
