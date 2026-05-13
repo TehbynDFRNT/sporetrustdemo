@@ -68,7 +68,7 @@ const preventionStats = [
 
 const preventionTimeline = [
   {
-    title: "Catch water damage before it claims.",
+    title: "Find water damage before the claim.",
     meta: "Mitigation",
     copy:
       "Hidden roof, plumbing, AC and waterproofing failures often run for months before they show. Annual testing finds them before water damage becomes a $30k insurance claim.",
@@ -179,9 +179,9 @@ export default function MouldPreventionPage() {
             <SectionHeader
               align="center"
               eyebrow="the case for prevention"
-              title="[Replace with prevention thesis title.]"
+              title="Catch mould before it becomes remediation."
               ledeMax="60ch"
-              lede="[Replace with prevention thesis lede — the user-supplied framing for these three stats.]"
+              lede="The earlier the diagnostic, the smaller the fix. Three numbers explain why prevention pays off."
             />
           </Reveal>
           <div className="problem-cta">
