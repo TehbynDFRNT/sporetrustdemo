@@ -15,60 +15,21 @@ export default function Reveal({
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
-    const node = ref.current;
-    if (!node) return undefined;
-
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setShown(true);
       return undefined;
     }
 
-    // Multi-layered visibility check to handle every mount scenario reliably:
-    //
-    // 1. Sync check on mount — handles fresh page loads where scroll is at 0.
-    // 2. requestAnimationFrame check — handles back/forward navigation where
-    //    the browser restores scroll position AFTER React renders and the
-    //    effect fires. At sync time the element may appear below the fold,
-    //    but one frame later it's in view.
-    // 3. IntersectionObserver — handles the user actively scrolling to it.
-    //
-    // "Visible" here means in-viewport OR already scrolled past — both cases
-    // should be revealed on re-mount since the user has effectively seen them.
-
-    const inOrPastViewport = () => {
-      const rect = node.getBoundingClientRect();
-      const vh = window.innerHeight || document.documentElement.clientHeight;
-      return rect.top < vh;
-    };
-
-    if (inOrPastViewport()) {
-      setShown(true);
-      return undefined;
-    }
-
-    let raf = requestAnimationFrame(() => {
-      raf = 0;
-      if (inOrPastViewport()) {
-        setShown(true);
-      }
-    });
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        setShown(true);
-        observer.disconnect();
-      },
-      { threshold, rootMargin },
-    );
-
-    observer.observe(node);
-
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      observer.disconnect();
-    };
-  }, [threshold, rootMargin]);
+    // Reveal on mount. We previously used IntersectionObserver to trigger
+    // reveals as the user scrolled to each element, but it failed unpredictably
+    // on client-side back/forward navigation — the observer wouldn't reliably
+    // fire for elements whose visibility changed during scroll restoration,
+    // leaving sections stuck at opacity:0 until a hard reload. Mounting-as-
+    // reveal is reliable across every navigation mode; the CSS transition
+    // (opacity 0 → 1) still animates because the class flips on the next frame.
+    const raf = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   const classes = ["reveal", shown ? "is-in" : "", className].filter(Boolean).join(" ");
   const style = delay ? { ...(rest.style || {}), "--reveal-delay": `${delay}ms` } : rest.style;
