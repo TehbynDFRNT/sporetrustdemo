@@ -69,5 +69,20 @@ Client-side:
 
 - React components are `.jsx`. Client components must start with `"use client";`. Server components are the default.
 - Section data (cards, lists, FAQs) lives as local `const` arrays inside `page.jsx`. Edits to marketing copy = edits to that file. Cross-check `copywriting-map.md` if you're adjusting tone/structure.
-- Brand styling: tokens are CSS variables in `app/globals.css` under `:root`. Section backgrounds alternate between `--paper` (problem) and `--white` (solution) — the `.problem-bg` / `.solution` classes drive that and the mould effect's intensity.
+- Brand styling: tokens are CSS variables in `app/globals.css` under `:root`. See "Section background convention" below for the load-bearing colour rules.
 - Australian English in copy ("mould", not "mold"; suburbs not zipcodes).
+
+## Section background convention (load-bearing)
+
+Three tiers, applied consistently across the site. The background colour communicates the section's intent before any copy is read — pick the tier that matches the section's purpose, don't reach for a one-off colour.
+
+- **Cream (`--bone` / `--paper`)** = problem awareness, education, framing.
+  Surfaces: `.problem-bg`, `.stat-section`, `.signs-section`, `.diy-section`, `.sources-section`, `.comparison-section`, default `.faq`.
+
+- **White (`--white`)** = solution education, service communication, methodology.
+  Surfaces: `.solution`, `.route-page-banner`, `.faq--white` modifier.
+
+- **Dark ink (`--ink`)** = direct CTA, product surfaces, "intent to proceed" moments where the goal is action.
+  Surfaces: hero (`.hero` / `.hero--cinematic`), `.sentinel-card` (and its image variant `.sentinel-card--has-image`), `.trust-bar`, mega-nav callouts (`.mega-link--callout`), the dark zone inside DIY cards (`.method--text .m-reveals`).
+
+When adding a new section, reuse one of the existing classes (or add a modifier on it) rather than introducing a new background. The mould-effect canvas attaches to `.problem-bg` cream sections by intent — keep it that way.
