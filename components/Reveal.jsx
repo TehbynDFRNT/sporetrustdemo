@@ -23,17 +23,35 @@ export default function Reveal({
       return undefined;
     }
 
-    // If the element is at or above the bottom of the viewport at mount time
-    // (common on back/forward nav where scroll position is restored), reveal
-    // immediately. Covers in-viewport AND already-scrolled-past elements —
-    // both cases the IntersectionObserver doesn't reliably catch on re-mount.
-    // Only elements below the viewport wait for the observer.
-    const rect = node.getBoundingClientRect();
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    if (rect.top < viewportHeight) {
+    // Multi-layered visibility check to handle every mount scenario reliably:
+    //
+    // 1. Sync check on mount — handles fresh page loads where scroll is at 0.
+    // 2. requestAnimationFrame check — handles back/forward navigation where
+    //    the browser restores scroll position AFTER React renders and the
+    //    effect fires. At sync time the element may appear below the fold,
+    //    but one frame later it's in view.
+    // 3. IntersectionObserver — handles the user actively scrolling to it.
+    //
+    // "Visible" here means in-viewport OR already scrolled past — both cases
+    // should be revealed on re-mount since the user has effectively seen them.
+
+    const inOrPastViewport = () => {
+      const rect = node.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      return rect.top < vh;
+    };
+
+    if (inOrPastViewport()) {
       setShown(true);
       return undefined;
     }
+
+    let raf = requestAnimationFrame(() => {
+      raf = 0;
+      if (inOrPastViewport()) {
+        setShown(true);
+      }
+    });
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -45,7 +63,11 @@ export default function Reveal({
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
   }, [threshold, rootMargin]);
 
   const classes = ["reveal", shown ? "is-in" : "", className].filter(Boolean).join(" ");
