@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Brand from "./Brand";
 import ArrowIcon from "./icons/ArrowIcon";
+import { useModalHistory } from "./useModalHistory";
 
 const OPEN_REPORT_DEMO_EVENT = "sporetrust:open-report-demo";
 const OPEN_BOOKING_EVENT = "sporetrust:open-booking";
@@ -15,14 +16,11 @@ const REPORT_META = {
   address: "Sample residence · Coorparoo, Brisbane QLD",
 };
 
-const LOCATIONS = [
-  { id: "bedroom-1", label: "Bedroom #1", tier: "Severe" },
-  { id: "ensuite", label: "Ensuite", tier: "Moderate" },
-  { id: "living", label: "Living", tier: "Normal" },
-  { id: "subfloor", label: "Subfloor", tier: "Severe" },
+const VIEW_TABS = [
+  { id: "report", label: "Bedroom #1" },
+  { id: "next-steps", label: "Next Steps" },
+  { id: "partners", label: "Connect with Partners" },
 ];
-
-const ACTIVE_LOCATION_ID = "bedroom-1";
 
 const RATING = {
   tier: "Severe",
@@ -55,11 +53,34 @@ const CAUSES = [
   },
 ];
 
-const RESOLUTION_STEPS = [
-  { kind: "Mechanical", copy: "Sub-floor ventilation upgrade + exhaust re-routing." },
-  { kind: "Structural", copy: "Lift skirting at affected corner, re-flash door sill." },
-  { kind: "Monitor", copy: "Week-4 moisture re-read before closing the wall." },
-  { kind: "Verify", copy: "Repeat air sample to confirm return to baseline." },
+const SCOPE_OF_WORKS = [
+  {
+    category: "Remediation",
+    scope: "Minor",
+    items: [
+      {
+        trade: "Mould cleanup",
+        cost: "$400 – $800",
+        detail: "Decontamination and surface treatment at the SE wall corner.",
+      },
+    ],
+  },
+  {
+    category: "Likely repairs",
+    scope: "Moderate",
+    items: [
+      {
+        trade: "Carpenter",
+        cost: "$900 – $1,800",
+        detail: "Lift skirting at SE corner, vapour-barrier check, re-flash door sill.",
+      },
+      {
+        trade: "Ventilation specialist",
+        cost: "$1,100 – $1,500",
+        detail: "Sub-floor ventilation upgrade + bathroom exhaust re-routing.",
+      },
+    ],
+  },
 ];
 
 const RESOLUTION_FOOT = [
@@ -67,11 +88,55 @@ const RESOLUTION_FOOT = [
   { label: "Timeframe", value: "2 – 4 weeks" },
 ];
 
+const NEXT_STEP_PATHWAYS = [
+  {
+    id: "diy",
+    number: "01",
+    title: "Handle it yourself",
+    copy: "Download the report and share it directly with your insurer, builder, landlord or property manager.",
+    cta: "Download report",
+  },
+  {
+    id: "match",
+    number: "02",
+    title: "Connect with our partners",
+    match: "Remediation · Contractor",
+    copy: "We'll introduce you to vetted partners across the two trade categories flagged in your scope of works.",
+    cta: "View matched partners",
+    recommended: true,
+  },
+];
+
+const PARTNERS = [
+  {
+    trade: "Remediation",
+    name: "DryRight Mould Remediation",
+    credentials: "IICRC S520-trained",
+    area: "Brisbane & SEQ",
+    tenure: "Partner since 2023",
+    rating: "4.9",
+    reviews: 84,
+    summary: "Specialists in containment, decontamination and post-event clearance for residential mould.",
+    scope: "Mould cleanup — $400 – $800",
+  },
+  {
+    trade: "Contractor",
+    name: "Bayside Building & Trades",
+    credentials: "QBCC licensed · BSA 1058219",
+    area: "Brisbane · Bayside · Redlands",
+    tenure: "Partner since 2022",
+    rating: "4.8",
+    reviews: 142,
+    summary: "Multi-trade repair crew — carpentry, vapour-barrier work, sub-floor ventilation upgrades and re-flashing.",
+    scope: "Likely repairs — $2,000 – $3,300",
+  },
+];
+
 function tierClass(tier) {
   const key = String(tier || "").toLowerCase();
-  if (key === "normal") return "report-demo__pill--ok";
+  if (key === "normal" || key === "minor") return "report-demo__pill--ok";
   if (key === "moderate") return "report-demo__pill--warn";
-  if (key === "severe") return "report-demo__pill--bad";
+  if (key === "severe" || key === "major") return "report-demo__pill--bad";
   return "";
 }
 
@@ -111,6 +176,7 @@ function MoistureMarkers({ activeId, onHover }) {
 
 export default function ReportDemoTakeover() {
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState("report");
   const [activeReading, setActiveReading] = useState(null);
   const returnFocusRef = useRef(null);
 
@@ -153,14 +219,30 @@ export default function ReportDemoTakeover() {
 
   function closeDemo() {
     setOpen(false);
+    setView("report");
     window.requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }
 
+  useModalHistory(open, closeDemo);
+
   function openBooking() {
     setOpen(false);
+    setView("report");
     window.requestAnimationFrame(() => {
       window.dispatchEvent(new CustomEvent(OPEN_BOOKING_EVENT, { detail: {} }));
     });
+  }
+
+  function showNextSteps() {
+    setView("next-steps");
+  }
+
+  function showPartners() {
+    setView("partners");
+  }
+
+  function showReport() {
+    setView("report");
   }
 
   if (!open) return null;
@@ -172,20 +254,20 @@ export default function ReportDemoTakeover() {
           <div className="report-demo__chrome-brand">
             <Brand />
           </div>
-          <nav className="report-demo__tabs" aria-label="Inspection locations">
+          <nav className="report-demo__tabs" aria-label="Demo views">
             <ul role="tablist">
-              {LOCATIONS.map((loc) => {
-                const isActive = loc.id === ACTIVE_LOCATION_ID;
+              {VIEW_TABS.map((tab) => {
+                const isActive = view === tab.id;
                 return (
-                  <li key={loc.id} role="presentation">
+                  <li key={tab.id} role="presentation">
                     <button
                       type="button"
                       role="tab"
                       aria-selected={isActive}
                       className={`report-demo__tab${isActive ? " is-active" : ""}`}
-                      disabled={!isActive}
+                      onClick={() => setView(tab.id)}
                     >
-                      <span className="report-demo__tab-label">{loc.label}</span>
+                      <span className="report-demo__tab-label">{tab.label}</span>
                     </button>
                   </li>
                 );
@@ -200,9 +282,23 @@ export default function ReportDemoTakeover() {
 
       <section className="report-demo__subhead">
         <div className="report-demo__subhead-left">
-          <h1>Bedroom #1</h1>
+          <h1>
+            {view === "partners"
+              ? "Connect with partners"
+              : view === "next-steps"
+              ? "Next steps"
+              : "Bedroom #1"}
+          </h1>
           <p className="report-demo__subhead-meta">
-            {REPORT_META.address} <span aria-hidden>·</span> {REPORT_META.id} <span aria-hidden>·</span> {REPORT_META.date} <span aria-hidden>·</span> {REPORT_META.inspector}
+            {view === "report" ? (
+              <>
+                {REPORT_META.address} <span aria-hidden>·</span> {REPORT_META.id} <span aria-hidden>·</span> {REPORT_META.date} <span aria-hidden>·</span> {REPORT_META.inspector}
+              </>
+            ) : (
+              <>
+                Bedroom #1 <span aria-hidden>·</span> {REPORT_META.address} <span aria-hidden>·</span> {REPORT_META.id}
+              </>
+            )}
           </p>
         </div>
         <div className="report-demo__subhead-right">
@@ -215,6 +311,7 @@ export default function ReportDemoTakeover() {
         </div>
       </section>
 
+      {view === "report" && (
       <main className="report-demo__pane">
         <div className="report-demo__zone report-demo__zone--evidence">
           <div className="report-demo__evidence-grid">
@@ -326,7 +423,7 @@ export default function ReportDemoTakeover() {
               <header className="report-demo__resolution-head">
                 <div>
                   <span className="report-demo__resolution-eyebrow">Recommended path</span>
-                  <h3>Best-path resolution</h3>
+                  <h3>Scope of works</h3>
                 </div>
                 <div className="report-demo__resolution-stats">
                   {RESOLUTION_FOOT.map((f) => (
@@ -337,27 +434,37 @@ export default function ReportDemoTakeover() {
                   ))}
                 </div>
               </header>
-              <ol className="report-demo__resolution">
-                {RESOLUTION_STEPS.map((s, i) => (
-                  <li key={s.kind}>
-                    <span className="report-demo__resolution-step">{i + 1}</span>
-                    <div>
-                      <strong>{s.kind}</strong>
-                      <p>{s.copy}</p>
+              <div className="report-demo__scope">
+                {SCOPE_OF_WORKS.map((group) => (
+                  <div key={group.category} className="report-demo__scope-group">
+                    <div className="report-demo__scope-group-head">
+                      <span className="report-demo__scope-category">{group.category}</span>
+                      <span className={`report-demo__pill ${tierClass(group.scope)}`}>{group.scope}</span>
                     </div>
-                  </li>
+                    <ul className="report-demo__scope-items">
+                      {group.items.map((item) => (
+                        <li key={item.trade}>
+                          <div className="report-demo__scope-item-head">
+                            <strong>{item.trade}</strong>
+                            <span className="report-demo__scope-item-cost">{item.cost}</span>
+                          </div>
+                          <span className="report-demo__scope-item-detail">{item.detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ol>
+              </div>
               <div className="report-demo__resolution-cta">
                 <span className="report-demo__resolution-cta-text">
-                  Ready to act? We'll coordinate the works with a vetted partner.
+                  Ready to act? We'll match you with the right specialist for the works.
                 </span>
                 <button
                   type="button"
                   className="report-demo__resolution-cta-btn"
-                  onClick={openBooking}
+                  onClick={showNextSteps}
                 >
-                  Schedule the works
+                  See your next-step options
                   <ArrowIcon />
                 </button>
               </div>
@@ -365,6 +472,93 @@ export default function ReportDemoTakeover() {
           </div>
         </div>
       </main>
+      )}
+
+      {view === "next-steps" && (
+      <main className="report-demo__pane report-demo__pane--next">
+        <header className="report-demo__next-intro">
+          <span className="report-demo__next-eyebrow">Where to from here</span>
+          <p>
+            Based on the findings for Bedroom #1, here's how to act on the evidence. Pick the
+            pathway that matches how you want to handle the works.
+          </p>
+        </header>
+        <div className="report-demo__next-grid">
+          {NEXT_STEP_PATHWAYS.map((p) => (
+            <article
+              key={p.id}
+              className={`report-demo__next-card${p.recommended ? " is-recommended" : ""}`}
+            >
+              <header className="report-demo__next-card-head">
+                <span className="report-demo__next-card-num">{p.number}</span>
+                {p.recommended && (
+                  <span className="report-demo__next-card-badge">Recommended</span>
+                )}
+              </header>
+              <h3>{p.title}</h3>
+              {p.match && (
+                <span className="report-demo__next-card-match">{p.match}</span>
+              )}
+              <p>{p.copy}</p>
+              <button
+                type="button"
+                className="report-demo__next-card-cta"
+                onClick={p.id === "match" ? showPartners : openBooking}
+              >
+                {p.cta}
+                <ArrowIcon />
+              </button>
+            </article>
+          ))}
+        </div>
+      </main>
+      )}
+
+      {view === "partners" && (
+      <main className="report-demo__pane report-demo__pane--next">
+        <header className="report-demo__next-intro">
+          <span className="report-demo__next-eyebrow">Vetted Sporetrust partners</span>
+          <p>
+            Partners matched to the scope of works flagged in your report. Pick either or both
+            and we'll forward the relevant findings and photos — they'll contact you directly to quote.
+          </p>
+        </header>
+        <div className="report-demo__partner-grid">
+          {PARTNERS.map((p) => (
+            <article key={p.name} className="report-demo__partner-card">
+              <header className="report-demo__partner-head">
+                <span className="report-demo__partner-trade">{p.trade}</span>
+                <span className="report-demo__partner-rating">
+                  <strong>{p.rating}</strong> <em>({p.reviews} reviews)</em>
+                </span>
+              </header>
+              <h3>{p.name}</h3>
+              <p className="report-demo__partner-creds">{p.credentials}</p>
+              <dl className="report-demo__partner-meta">
+                <div>
+                  <dt>Service area</dt>
+                  <dd>{p.area}</dd>
+                </div>
+                <div>
+                  <dt>Network</dt>
+                  <dd>{p.tenure}</dd>
+                </div>
+              </dl>
+              <p className="report-demo__partner-summary">{p.summary}</p>
+              <div className="report-demo__partner-scope">{p.scope}</div>
+              <button
+                type="button"
+                className="report-demo__partner-cta"
+                onClick={openBooking}
+              >
+                Request introduction
+                <ArrowIcon />
+              </button>
+            </article>
+          ))}
+        </div>
+      </main>
+      )}
 
       <div className="report-demo__cta-bar" role="region" aria-label="Book an assessment">
         <div className="report-demo__cta-text">

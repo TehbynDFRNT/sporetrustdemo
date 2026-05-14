@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import BookingForm from "./BookingForm";
 import Brand from "./Brand";
+import { useModalHistory } from "./useModalHistory";
 
 const OPEN_BOOKING_EVENT = "sporetrust:open-booking";
 
@@ -81,6 +82,8 @@ export default function BookingTakeover() {
     setOpen(false);
     window.requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }
+
+  useModalHistory(open, closeBooking);
 
   if (!open) return null;
 

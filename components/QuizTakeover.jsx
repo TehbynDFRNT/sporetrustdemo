@@ -11,6 +11,7 @@ import { trustBadges } from "../lib/landingContent";
 import { fetchWeatherSummary } from "../lib/weather";
 import { findNearestMouldRegion, locationRiskLevel } from "../lib/mouldIndex";
 import { scoreQuiz } from "../lib/quizScoring";
+import { useModalHistory } from "./useModalHistory";
 
 const OPEN_BOOKING_EVENT = "sporetrust:open-booking";
 
@@ -211,6 +212,8 @@ export default function QuizTakeover() {
     setWeatherStatus("idle");
     window.requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }
+
+  useModalHistory(open, closeQuiz);
 
   function advance() {
     setState((current) => ({ ...current, step: Math.min(current.step + 1, TOTAL_STEPS) }));
