@@ -1,18 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import BookingTakeover from "../../components/BookingTakeover";
-import QuizTakeover from "../../components/QuizTakeover";
-import ReportDemoTakeover from "../../components/ReportDemoTakeover";
+// UtilityBanner, MegaNav, Footer, and the takeovers live in app/layout.jsx now.
 import ReportPreviewCard from "../../components/ReportPreviewCard";
 import DiagnosticHero from "../../components/DiagnosticHero";
 import FaqAccordion from "../../components/FaqAccordion";
-import Footer from "../../components/Footer";
-import MegaNav from "../../components/MegaNav";
 import Reveal from "../../components/Reveal";
 import SectionHeader from "../../components/SectionHeader";
 import SentinelCard from "../../components/SentinelCard";
-import UtilityBanner from "../../components/UtilityBanner";
 import ArrowIcon from "../../components/icons/ArrowIcon";
 import CheckIcon from "../../components/icons/CheckIcon";
 
@@ -48,8 +43,7 @@ const audiences = {
         copy:
           "Insurance-grade evidence in your portal: cause, extent, timing, materials affected, and a defensible repair-cost range based on current South-East Queensland trade rates.",
         signals: ["Cause + timing", "Materials map", "Cost range", "Sharable PDF"],
-        image: "/images/sporetrace-report.jpg",
-        imageAlt: "Sample Sporetrust diagnostic report showing thermal evidence, moisture readings and summary",
+        image: "report-preview",
       },
       {
         title: "Act on the evidence.",
@@ -57,8 +51,8 @@ const audiences = {
         copy:
           "Forward the report to your insurer or claim advocate. Benchmark any remediation quotes against the documented scope. Decide what's urgent, what can wait — and what's worth a second opinion.",
         signals: ["Insurer brief", "Quote benchmark", "Decision phase", "Documented scope"],
-        image: "/images/sporetrace-report.jpg",
-        imageAlt: "Sporetrust report being reviewed for next-step decisions",
+        image: "/images/thermal-before-after.jpg",
+        imageAlt: "Visible vs thermal evidence side-by-side — the comparison that anchors decisions",
       },
       {
         title: "Connect with vetted partners.",
@@ -153,8 +147,7 @@ const audiences = {
         copy:
           "Tribunal-ready PDF with liveability notes, photographic and thermal evidence, cause attribution, and language you can paste straight into a repair request to your property manager.",
         signals: ["Liveability notes", "Repair-request copy", "QCAT format", "Sharable PDF"],
-        image: "/images/sporetrace-report.jpg",
-        imageAlt: "Sample Sporetrust diagnostic report formatted for landlord and tribunal handoff",
+        image: "report-preview",
       },
       {
         title: "Act on the evidence.",
@@ -162,8 +155,8 @@ const audiences = {
         copy:
           "Send to your property manager or landlord. Attach to a QCAT application. Use as grounds for a rent reduction request — or to break a lease. The document does the talking.",
         signals: ["Agent forward", "QCAT submit", "Rent reduction", "Lease support"],
-        image: "/images/hero-mould-prevention.jpg",
-        imageAlt: "Rental interior after the landlord has actioned the diagnostic report",
+        image: "/images/thermal-before-after.jpg",
+        imageAlt: "Visible vs thermal evidence side-by-side — the comparison your landlord can't argue with",
       },
     ],
     cards: [
@@ -240,8 +233,7 @@ const audiences = {
         copy:
           "One document with dual-stakeholder framing — owner-facing and tenant-facing language in the same report. Urgency triage, contractor brief, and an audit-trail timestamp for your records.",
         signals: ["Dual framing", "Urgency triage", "Contractor brief", "Audit trail"],
-        image: "/images/sporetrace-report.jpg",
-        imageAlt: "Sample Sporetrust diagnostic report framed for owner and tenant handoff",
+        image: "report-preview",
       },
       {
         title: "Act on the evidence.",
@@ -249,8 +241,8 @@ const audiences = {
         copy:
           "Forward the report to both parties. Confirm what's urgent, what can wait, and what needs builder vs remediation. One document keeps owner, tenant and trades aligned.",
         signals: ["Dual share", "Triage decisions", "Scope alignment", "Single source"],
-        image: "/images/sporetrace-report.jpg",
-        imageAlt: "Sporetrust report being reviewed by an owner and tenant in parallel",
+        image: "/images/thermal-before-after.jpg",
+        imageAlt: "Visible vs thermal evidence side-by-side — the comparison both sides act on",
       },
       {
         title: "Connect with vetted partners.",
@@ -471,10 +463,7 @@ export default function HowItWorksPage() {
   }, [audienceId]);
 
   return (
-    <>
-      <UtilityBanner />
-      <MegaNav />
-      <main>
+    <main>
         <DiagnosticHero />
 
         <div
@@ -536,7 +525,11 @@ export default function HowItWorksPage() {
                       </ul>
                     ) : null}
                   </div>
-                  {step.image ? (
+                  {step.image === "report-preview" ? (
+                    <div className="hiw-flow__panel-media hiw-flow__panel-media--report">
+                      <ReportPreviewCard />
+                    </div>
+                  ) : step.image ? (
                     <figure className="hiw-flow__panel-media">
                       <img
                         src={step.image}
@@ -752,11 +745,5 @@ export default function HowItWorksPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
-      <BookingTakeover />
-      <QuizTakeover />
-      <ReportDemoTakeover />
-    </>
   );
 }

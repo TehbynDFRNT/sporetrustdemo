@@ -1,13 +1,8 @@
-import BookingTakeover from "../../components/BookingTakeover";
+// UtilityBanner, MegaNav, Footer, and the takeovers live in app/layout.jsx now.
 import FaqAccordion from "../../components/FaqAccordion";
-import Footer from "../../components/Footer";
-import MegaNav from "../../components/MegaNav";
 import QuizCtaBanner from "../../components/QuizCtaBanner";
-import QuizTakeover from "../../components/QuizTakeover";
-import ReportDemoTakeover from "../../components/ReportDemoTakeover";
 import Reveal from "../../components/Reveal";
 import SectionHeader from "../../components/SectionHeader";
-import UtilityBanner from "../../components/UtilityBanner";
 import WhySporetrustHero from "../../components/WhySporetrustHero";
 import ArrowIcon from "../../components/icons/ArrowIcon";
 import Eyebrow from "../../components/Eyebrow";
@@ -194,10 +189,7 @@ const whyFaqs = [
 
 export default function WhySporetrustPage() {
   return (
-    <>
-      <UtilityBanner />
-      <MegaNav />
-      <main>
+    <main>
         <WhySporetrustHero />
 
         <section className="diagnosis-ground">
@@ -445,11 +437,5 @@ export default function WhySporetrustPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
-      <BookingTakeover />
-      <QuizTakeover />
-      <ReportDemoTakeover />
-    </>
   );
 }

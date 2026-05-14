@@ -1,17 +1,12 @@
-import BookingTakeover from "../../components/BookingTakeover";
-import QuizTakeover from "../../components/QuizTakeover";
-import ReportDemoTakeover from "../../components/ReportDemoTakeover";
+// UtilityBanner, MegaNav, Footer, and the takeovers live in app/layout.jsx now.
 import ReportPreviewCard from "../../components/ReportPreviewCard";
 import FaqAccordion from "../../components/FaqAccordion";
 import FeatureCard from "../../components/FeatureCard";
-import Footer from "../../components/Footer";
-import MegaNav from "../../components/MegaNav";
 import Reveal from "../../components/Reveal";
 import SectionHeader from "../../components/SectionHeader";
 import SentinelHero from "../../components/SentinelHero";
 import TrustBadge from "../../components/TrustBadge";
 import TrustBar from "../../components/TrustBar";
-import UtilityBanner from "../../components/UtilityBanner";
 import ArrowIcon from "../../components/icons/ArrowIcon";
 import CheckIcon from "../../components/icons/CheckIcon";
 
@@ -234,10 +229,7 @@ const sentinelFaqs = [
 
 export default function SporetrustSentinelPage() {
   return (
-    <>
-      <UtilityBanner />
-      <MegaNav />
-      <main>
+    <main>
         <SentinelHero />
 
         <TrustBar ratingLabel="IICRC certified · NATA-accredited lab partners · Independent of remediation" />
@@ -465,11 +457,5 @@ export default function SporetrustSentinelPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
-      <BookingTakeover />
-      <QuizTakeover />
-      <ReportDemoTakeover />
-    </>
   );
 }

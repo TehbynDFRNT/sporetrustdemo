@@ -1,5 +1,10 @@
 import { Geist, JetBrains_Mono, Montserrat } from "next/font/google";
-import ReloadOnHistoryNav from "../components/ReloadOnHistoryNav";
+import BookingTakeover from "../components/BookingTakeover";
+import Footer from "../components/Footer";
+import MegaNav from "../components/MegaNav";
+import QuizTakeover from "../components/QuizTakeover";
+import ReportDemoTakeover from "../components/ReportDemoTakeover";
+import UtilityBanner from "../components/UtilityBanner";
 import "./globals.css";
 
 const geist = Geist({
@@ -54,8 +59,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-AU" className={fontClasses}>
       <body>
-        <ReloadOnHistoryNav />
+        <UtilityBanner />
+        <MegaNav />
         {children}
+        <Footer />
+        <BookingTakeover />
+        <QuizTakeover />
+        <ReportDemoTakeover />
       </body>
     </html>
   );

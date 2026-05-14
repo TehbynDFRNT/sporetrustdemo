@@ -1,13 +1,9 @@
-import BookingTakeover from "../components/BookingTakeover";
+// UtilityBanner, MegaNav, Footer and the takeovers live in app/layout.jsx now.
 import QuizCtaBanner from "../components/QuizCtaBanner";
-import QuizTakeover from "../components/QuizTakeover";
-import ReportDemoTakeover from "../components/ReportDemoTakeover";
 import ReportPreviewCard from "../components/ReportPreviewCard";
 import Eyebrow from "../components/Eyebrow";
 import FaqAccordion from "../components/FaqAccordion";
-import Footer from "../components/Footer";
 import Hero from "../components/Hero";
-import MegaNav from "../components/MegaNav";
 import Reveal from "../components/Reveal";
 import SectionHeader from "../components/SectionHeader";
 import SentinelCard from "../components/SentinelCard";
@@ -15,7 +11,6 @@ import StatRow from "../components/StatRow";
 import Timeline from "../components/Timeline";
 import TrustBadge from "../components/TrustBadge";
 import TrustBar from "../components/TrustBar";
-import UtilityBanner from "../components/UtilityBanner";
 import ArrowIcon from "../components/icons/ArrowIcon";
 
 function mouldAttrs({
@@ -552,8 +547,6 @@ export default function Home() {
   return (
     <>
       <main>
-        <UtilityBanner />
-        <MegaNav />
         <Hero
           trust={{
             quote: trustBadges[3].quote,
@@ -855,15 +848,9 @@ export default function Home() {
 
       </main>
 
-      <Footer />
-
       <a className="sticky-cta" href="#book">
         Book inspection -&gt;
       </a>
-
-      <BookingTakeover />
-      <QuizTakeover />
-      <ReportDemoTakeover />
     </>
   );
 }
