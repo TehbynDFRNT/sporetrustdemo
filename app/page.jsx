@@ -563,7 +563,7 @@ export default function Home() {
 
         <TrustBar />
 
-        <section className="problem-bg mould-strong" id="contamination">
+        <section className="problem-bg" id="contamination">
           <div className="wrap">
             <div className="find-head">
               <div className="copy">
@@ -599,7 +599,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="problem-bg mould-strong">
+        <section className="problem-bg">
           <div className="wrap">
             <span className="eyebrow">[ evidence before argument ]</span>
             <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>
