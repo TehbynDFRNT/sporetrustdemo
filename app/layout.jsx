@@ -1,10 +1,8 @@
 import { Geist, JetBrains_Mono, Montserrat } from "next/font/google";
 import BookingTakeover from "../components/BookingTakeover";
-import Footer from "../components/Footer";
-import MegaNav from "../components/MegaNav";
 import QuizTakeover from "../components/QuizTakeover";
 import ReportDemoTakeover from "../components/ReportDemoTakeover";
-import UtilityBanner from "../components/UtilityBanner";
+import { SiteFooter, SiteHeader } from "../components/SiteChrome";
 import "./globals.css";
 
 const geist = Geist({
@@ -28,6 +26,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://sporetrust.com.au"),
   title: "Sporetrust - Independent Mould & Moisture Diagnostics",
   description:
     "If you suspect mould, get a definitive answer. Independent testing, damage assessment and repair cost estimate. Plain-English report in 48 hours.",
@@ -59,10 +58,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-AU" className={fontClasses}>
       <body>
-        <UtilityBanner />
-        <MegaNav />
+        <SiteHeader />
         {children}
-        <Footer />
+        <SiteFooter />
         <BookingTakeover />
         <QuizTakeover />
         <ReportDemoTakeover />

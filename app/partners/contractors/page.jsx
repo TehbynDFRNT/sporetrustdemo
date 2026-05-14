@@ -1,3 +1,4 @@
+import Eyebrow from "../../../components/Eyebrow";
 import FaqAccordion from "../../../components/FaqAccordion";
 import FeatureCard from "../../../components/FeatureCard";
 import RouteIntroPage from "../../../components/pages/RouteIntroPage";
@@ -40,6 +41,54 @@ const page = {
     },
   ],
 };
+
+const contractorTrades = [
+  {
+    num: "T.01",
+    tag: "Plumbing",
+    title: "Plumbing and pipework repair",
+    image: "/images/partner-plumber.jpg",
+    imageAlt: "Plumber replacing copper pipework inside an opened wall cavity behind a vanity",
+    copy: "Burst pipes, slow leaks, failed connections and slab-edge plumbing failures — replaced and pressure-tested before the wall closes back up.",
+    foot: "Walls, slab, wet areas",
+  },
+  {
+    num: "T.02",
+    tag: "Roofing",
+    title: "Roof and flashing repair",
+    image: "/images/partner-roofer.jpg",
+    imageAlt: "Roofer re-sealing a roof penetration on a colorbond metal roof",
+    copy: "Failed flashings, displaced tiles, ageing penetrations and box-gutter overflow — fixed at the entry point so the next storm doesn't put it back.",
+    foot: "Flashings, penetrations, gutters",
+  },
+  {
+    num: "T.03",
+    tag: "Carpentry",
+    title: "Framing and structural carpentry",
+    image: "/images/partner-carpenter.jpg",
+    imageAlt: "Carpenter installing replacement ceiling joists in an opened ceiling cavity",
+    copy: "Ceiling joists, wall framing, subfloor bearers and timber substrate replaced where structural members were damaged by prolonged wetting.",
+    foot: "Joists, framing, subfloor",
+  },
+  {
+    num: "T.04",
+    tag: "Glazing",
+    title: "Window and glazing replacement",
+    image: "/images/partner-glazier.jpg",
+    imageAlt: "Glazier carrying a glass panel into a window frame for replacement",
+    copy: "Failed window flashings, broken seals and rotted timber frames addressed — including reglaze and reframe where moisture damage took the joinery.",
+    foot: "Windows, frames, seals",
+  },
+  {
+    num: "T.05",
+    tag: "Plastering",
+    title: "Plastering and finishes",
+    image: "/images/partner-painter.jpg",
+    imageAlt: "Painter applying primer over patched and set plasterboard joins after remediation",
+    copy: "Plasterboard patching, joint setting, sealer and finish coats over remediated walls and ceilings — so the room reads finished, not just repaired.",
+    foot: "Plaster, paint, finishes",
+  },
+];
 
 const handoffTimeline = [
   {
@@ -96,6 +145,39 @@ export default function ContractorPartnersPage() {
     <RouteIntroPage {...page} cards={[]} cta="Book diagnosis">
       <section className="solution">
         <div className="wrap">
+          <div className="find-head">
+            <div className="copy">
+              <span className="eyebrow">[ the trades we coordinate ]</span>
+              <h2>The repair trades who put the home back together.</h2>
+              <p className="lede">
+                Once remediation is done, the home needs rebuilding. Our vetted trade network covers the full set of repair specialists — quoting from the same diagnostic, sequenced so works don't double up or miss scope.
+              </p>
+            </div>
+          </div>
+          <div className="find-grid" aria-label="Repair trades coordinated through partners">
+            {contractorTrades.map((trade) => (
+              <div key={trade.num} className="find-card">
+                <div className="find-meta">
+                  <span className="num">{trade.num}</span>
+                  <span className="tag">{trade.tag}</span>
+                </div>
+                <figure className="find-card-media">
+                  <img src={trade.image} alt={trade.imageAlt} loading="lazy" />
+                </figure>
+                <h3>{trade.title}</h3>
+                <p>{trade.copy}</p>
+                <div className="find-foot">
+                  <span className="l">Covers</span>
+                  <span className="r">{trade.foot}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="solution">
+        <div className="wrap">
           <Reveal>
             <SectionHeader
               eyebrow="the handoff"
@@ -105,6 +187,59 @@ export default function ContractorPartnersPage() {
             />
           </Reveal>
           <Timeline items={handoffTimeline} />
+        </div>
+      </section>
+
+      <section className="honesty-section">
+        <div className="wrap">
+          <div className="honesty-section__grid">
+            <div className="honesty-section__copy">
+              <Reveal>
+                <Eyebrow>how we vet</Eyebrow>
+                <h2 className="honesty-section__title">A vetted network, not a referral list.</h2>
+                <p className="lede honesty-section__lede">
+                  Anyone can recommend a contractor. The work is in checking — verified customer feedback, history in the industry, and the willingness to quote from evidence rather than over it.
+                </p>
+                <p className="honesty-section__body">
+                  The pledge against ourselves: Sporetrust doesn't sell remediation, repairs or treatment. The diagnostic stays diagnostic, the report is yours, and the trade you choose works from the same evidence — Sporetrust-vetted or not.
+                </p>
+              </Reveal>
+            </div>
+
+            <Reveal delay={120}>
+              <ul className="partner-badge-grid" role="list">
+                <li className="partner-badge">
+                  <span className="partner-badge__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M24 6L10 12v12c0 8 5.6 14 14 16 8.4-2 14-8 14-16V12L24 6z" />
+                      <path d="M17.5 24.5l4.5 4.5 9-9" />
+                    </svg>
+                  </span>
+                  <span className="partner-badge__label">Sporetrust Verified Partner</span>
+                  <span className="partner-badge__sublabel">Vetted by customer feedback and track record</span>
+                  <p className="partner-badge__desc">
+                    Every partner is reviewed on what actually matters — verified customer feedback from past Sporetrust jobs, plus their history in the industry. Reviewed regularly. Removed if standards drift.
+                  </p>
+                </li>
+                <li className="partner-badge">
+                  <span className="partner-badge__icon" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M24 8v32" />
+                      <path d="M14 40h20" />
+                      <path d="M9 14h30" />
+                      <path d="M14 14l-5 12c2.5 2 7.5 2 10 0L14 14z" />
+                      <path d="M34 14l-5 12c2.5 2 7.5 2 10 0L34 14z" />
+                    </svg>
+                  </span>
+                  <span className="partner-badge__label">Independence Pledge</span>
+                  <span className="partner-badge__sublabel">We don't sell the work</span>
+                  <p className="partner-badge__desc">
+                    Sporetrust doesn't sell remediation, repairs or treatment. The diagnostic stays diagnostic. The report is portable — hand it to a Sporetrust partner, or any qualified trade you already trust.
+                  </p>
+                </li>
+              </ul>
+            </Reveal>
+          </div>
         </div>
       </section>
 
