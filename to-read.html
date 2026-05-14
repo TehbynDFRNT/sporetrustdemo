@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Continuous Mould Growth Demo</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e8e1d4;
+      color: #171814;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: relative;
+      width: 100vw;
+      height: 100svh;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 16% 8%, rgba(255,255,255,0.45), transparent 26%),
+        radial-gradient(circle at 85% 16%, rgba(255,255,255,0.2), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.24), rgba(0,0,0,0.04)),
+        repeating-linear-gradient(
+          8deg,
+          rgba(0,0,0,0.012) 0,
+          rgba(0,0,0,0.012) 1px,
+          transparent 1px,
+          transparent 8px
+        ),
+        #e8e1d4;
+    }
+
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 46%, transparent 0 48%, rgba(0,0,0,0.055) 100%);
+    }
+
+    .card {
+      position: relative;
+      z-index: 3;
+      width: min(680px, calc(100vw - 44px));
+      min-height: 370px;
+      border-radius: 24px;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow:
+        0 28px 78px rgba(0,0,0,0.18),
+        0 2px 10px rgba(0,0,0,0.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.54)),
+        linear-gradient(135deg, rgba(255,255,255,0.3), rgba(0,0,0,0.025)),
+        #fbf8ef;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+      padding: clamp(24px, 4vw, 38px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      align-self: flex-start;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(23,24,20,0.06);
+      color: rgba(23,24,20,0.64);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(36px, 5vw, 60px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    p {
+      margin: 0;
+      max-width: 56ch;
+      color: rgba(23,24,20,0.75);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .meta {
+      padding: 14px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(0,0,0,0.065);
+    }
+
+    .meta span {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: rgba(23,24,20,0.5);
+    }
+
+    .meta strong {
+      display: block;
+      font-size: 21px;
+      letter-spacing: -0.035em;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .button.primary {
+      background: #1b2218;
+      color: #f4efe3;
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,0.58);
+      color: rgba(23,24,20,0.88);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .mould-growth-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      border-radius: inherit;
+    }
+
+    @media (max-width: 720px) {
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="scene" id="scene">
+    <article class="card" id="card">
+      <div class="card-content">
+        <span class="eyebrow">Hidden moisture</span>
+
+        <h1>Mould becomes visible late.</h1>
+
+        <p>
+          The first sign is usually subtle: a shadowed corner, a faint stain, a few dark specks.
+          Then the colonies connect, the surface discolours, and the affected area becomes difficult to ignore.
+        </p>
+
+        <div class="meta-grid">
+          <div class="meta">
+            <span>Origin</span>
+            <strong>Corner</strong>
+          </div>
+          <div class="meta">
+            <span>Pattern</span>
+            <strong>Spreading</strong>
+          </div>
+          <div class="meta">
+            <span>Risk</span>
+            <strong>Rising</strong>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="button primary">Book inspection</button>
+          <button class="button secondary">See report</button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    (() => {
+      const TAU = Math.PI * 2;
+
+      const clamp = (v, min = 0, max = 1) => Math.max(min, Math.min(max, v));
+      const lerp = (a, b, t) => a + (b - a) * t;
+
+      function smoothstep(a, b, x) {
+        const t = clamp((x - a) / (b - a));
+        return t * t * (3 - 2 * t);
+      }
+
+      function hashString(str) {
+        let h = 2166136261 >>> 0;
+        str = String(str || "");
+        for (let i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return h >>> 0;
+      }
+
+      function makeRng(seed) {
+        let t = hashString(seed) || 0x12345678;
+        return function rng() {
+          t = (t + 0x6D2B79F5) >>> 0;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function createNoise(seed) {
+        const salt = hashString(seed) || 1;
+
+        function h(ix, iy) {
+          let n = Math.imul(ix, 374761393) ^ Math.imul(iy, 668265263) ^ salt;
+          n = Math.imul(n ^ (n >>> 13), 1274126177);
+          return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+        }
+
+        function value(x, y) {
+          const ix = Math.floor(x);
+          const iy = Math.floor(y);
+          const fx = x - ix;
+          const fy = y - iy;
+          const u = fx * fx * (3 - 2 * fx);
+          const v = fy * fy * (3 - 2 * fy);
+
+          const a = h(ix, iy);
+          const b = h(ix + 1, iy);
+          const c = h(ix, iy + 1);
+          const d = h(ix + 1, iy + 1);
+
+          return lerp(lerp(a, b, u), lerp(c, d, u), v);
+        }
+
+        function fbm(x, y, octaves = 5, lacunarity = 2, gain = 0.52) {
+          let amp = 0.5;
+          let freq = 1;
+          let sum = 0;
+          let norm = 0;
+
+          for (let i = 0; i < octaves; i++) {
+            sum += amp * value(x * freq, y * freq);
+            norm += amp;
+            amp *= gain;
+            freq *= lacunarity;
+          }
+
+          return norm ? sum / norm : 0;
+        }
+
+        return { value, fbm };
+      }
+
+      function makeCanvas(w, h) {
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(w));
+        c.height = Math.max(1, Math.round(h));
+        return c;
+      }
+
+      function rgba(rgb, a) {
+        return `rgba(${rgb[0] | 0},${rgb[1] | 0},${rgb[2] | 0},${clamp(a)})`;
+      }
+
+      function edgeBand(x, y, edge, spread) {
+        switch (edge) {
+          case "top": return 1 - smoothstep(0, spread, y);
+          case "bottom": return 1 - smoothstep(0, spread, 1 - y);
+          case "left": return 1 - smoothstep(0, spread, x);
+          case "right": return 1 - smoothstep(0, spread, 1 - x);
+          default: return 0;
+        }
+      }
+
+      function drawRadial(ctx, x, y, r, rgb, alpha, mid = 0.58) {
+        if (r <= 0 || alpha <= 0) return;
+
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, rgba(rgb, alpha));
+        g.addColorStop(mid, rgba(rgb, alpha * 0.52));
+        g.addColorStop(1, rgba(rgb, 0));
+
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        ctx.fill();
+      }
+
+      function pickMouldColour(rng, warmth = 0.42, dark = false) {
+        const cold = [
+          [17, 23, 16],
+          [25, 31, 21],
+          [35, 40, 27],
+          [48, 48, 33]
+        ];
+
+        const warm = [
+          [41, 34, 22],
+          [59, 48, 31],
+          [76, 62, 41],
+          [32, 28, 18]
+        ];
+
+        const set = rng() < warmth ? warm : cold;
+        const c = set[Math.floor(rng() * set.length)];
+
+        if (!dark) return c;
+
+        return [
+          Math.max(8, c[0] * 0.55),
+          Math.max(8, c[1] * 0.55),
+          Math.max(7, c[2] * 0.55)
+        ];
+      }
+
+      function ensureHost(el) {
+        const cs = getComputedStyle(el);
+        if (cs.position === "static") el.style.position = "relative";
+        if (cs.overflow === "visible") el.style.overflow = "hidden";
+        if (cs.isolation !== "isolate") el.style.isolation = "isolate";
+      }
+
+      class ContinuousMould {
+        constructor(element, options = {}) {
+          this.el = element;
+          ensureHost(this.el);
+
+          this.options = {
+            seed: "continuous-mould",
+            intensity: 1,
+            density: 1,
+            warmth: 0.42,
+            opacity: 1,
+            zIndex: 1,
+            blendMode: "multiply",
+            maxDpr: 1.15,
+            sources: [
+              {
+                x: 0,
+                y: 0,
+                edges: ["top", "left"],
+                start: -0.04,
+                speed: 0.46,
+                strength: 1,
+                spreadX: 0.75,
+                spreadY: 0.75,
+                edgeSpread: 0.16
+              }
+            ],
+            ...options
+          };
+
+          this.progress = 0;
+          this.width = 0;
+          this.height = 0;
+
+          this.canvas = document.createElement("canvas");
+          this.canvas.className = "mould-growth-canvas";
+          this.canvas.setAttribute("aria-hidden", "true");
+
+          Object.assign(this.canvas.style, {
+            zIndex: String(this.options.zIndex),
+            mixBlendMode: this.options.blendMode,
+            opacity: String(this.options.opacity)
+          });
+
+          this.el.appendChild(this.canvas);
+          this.ctx = this.canvas.getContext("2d");
+
+          this.maskCanvas = makeCanvas(1, 1);
+          this.maskCtx = this.maskCanvas.getContext("2d");
+
+          this.tmpCanvas = makeCanvas(1, 1);
+          this.tmpCtx = this.tmpCanvas.getContext("2d");
+
+          this.resize();
+
+          if ("ResizeObserver" in window) {
+            this.ro = new ResizeObserver(() => this.resize());
+            this.ro.observe(this.el);
+          }
+        }
+
+        resize() {
+          const rect = this.el.getBoundingClientRect();
+          const w = Math.max(1, Math.round(rect.width));
+          const h = Math.max(1, Math.round(rect.height));
+
+          if (w === this.width && h === this.height) return;
+
+          this.width = w;
+          this.height = h;
+          this.aspect = w / Math.max(1, h);
+          this.dpr = Math.min(window.devicePixelRatio || 1, this.options.maxDpr);
+
+          this.canvas.width = Math.round(w * this.dpr);
+          this.canvas.height = Math.round(h * this.dpr);
+          this.canvas.style.width = w + "px";
+          this.canvas.style.height = h + "px";
+
+          const cs = getComputedStyle(this.el);
+          this.canvas.style.borderTopLeftRadius = cs.borderTopLeftRadius;
+          this.canvas.style.borderTopRightRadius = cs.borderTopRightRadius;
+          this.canvas.style.borderBottomRightRadius = cs.borderBottomRightRadius;
+          this.canvas.style.borderBottomLeftRadius = cs.borderBottomLeftRadius;
+
+          this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+          this.mapW = Math.max(72, Math.min(300, Math.round(w / 4)));
+          this.mapH = Math.max(72, Math.min(300, Math.round(h / 4)));
+
+          this.maskW = Math.max(80, Math.min(240, Math.round(w / 6)));
+          this.maskH = Math.max(80, Math.min(240, Math.round(h / 6)));
+
+          this.maskCanvas.width = this.maskW;
+          this.maskCanvas.height = this.maskH;
+          this.maskImage = this.maskCtx.createImageData(this.maskW, this.maskH);
+
+          this.tmpCanvas.width = w;
+          this.tmpCanvas.height = h;
+
+          this.noise = createNoise(this.options.seed + ":" + w + "x" + h);
+          this.rng = makeRng(this.options.seed + ":features:" + w + "x" + h);
+
+          this.buildMaps();
+          this.buildLayers();
+          this.render(this.progress);
+        }
+
+        sourceShape(nx, ny, src) {
+          const sx = src.x;
+          const sy = src.y;
+          const spreadX = src.spreadX ?? 0.55;
+          const spreadY = src.spreadY ?? 0.55;
+
+          const dx = (nx - sx) * this.aspect / spreadX;
+          const dy = (ny - sy) / spreadY;
+          const radial = Math.exp(-1.75 * (dx * dx + dy * dy));
+
+          let edge = 0;
+          for (const e of src.edges || []) {
+            edge = Math.max(edge, edgeBand(nx, ny, e, src.edgeSpread ?? 0.14));
+          }
+
+          const n = this.noise.fbm(
+            nx * (src.noiseFreq ?? 3.0) + (src.noiseX ?? 0),
+            ny * (src.noiseFreq ?? 3.0) + (src.noiseY ?? 0),
+            5
+          );
+
+          const directional =
+            sy <= 0.05
+              ? 0.66 + 0.54 * Math.exp(-ny / 0.38)
+              : sy >= 0.95
+                ? 0.66 + 0.54 * Math.exp(-(1 - ny) / 0.38)
+                : 1;
+
+          return clamp(
+            (radial * 0.86 + edge * 0.48) *
+            directional *
+            (0.48 + 0.78 * n) *
+            (src.strength ?? 1)
+          );
+        }
+
+        sourceArrival(nx, ny, src, shape) {
+          const spreadX = src.spreadX ?? 0.55;
+          const spreadY = src.spreadY ?? 0.55;
+
+          const dx = Math.abs(nx - src.x) * this.aspect / spreadX;
+          const dy = Math.abs(ny - src.y) / spreadY;
+          const dist = Math.pow(Math.sqrt(dx * dx + dy * dy), 0.92);
+
+          let edgeAdvantage = 0;
+          for (const e of src.edges || []) {
+            edgeAdvantage = Math.max(edgeAdvantage, edgeBand(nx, ny, e, src.edgeSpread ?? 0.14));
+          }
+
+          const resistance = this.noise.fbm(
+            nx * 4.1 + (src.arrivalX ?? 13.7),
+            ny * 4.1 + (src.arrivalY ?? 4.2),
+            4
+          );
+
+          return (
+            (src.start ?? 0) +
+            dist * (src.speed ?? 0.42) * (0.78 + 0.48 * (1 - resistance)) -
+            edgeAdvantage * 0.055 +
+            (1 - shape) * 0.12
+          );
+        }
+
+        buildMaps() {
+          const len = this.mapW * this.mapH;
+          this.field = new Float32Array(len);
+          this.arrival = new Float32Array(len);
+
+          for (let y = 0; y < this.mapH; y++) {
+            for (let x = 0; x < this.mapW; x++) {
+              const nx = (x + 0.5) / this.mapW;
+              const ny = (y + 0.5) / this.mapH;
+
+              let fieldSum = 0;
+              let firstArrival = 9;
+
+              for (const src of this.options.sources) {
+                const shape = this.sourceShape(nx, ny, src);
+                fieldSum += shape;
+
+                if (shape > 0.002) {
+                  firstArrival = Math.min(firstArrival, this.sourceArrival(nx, ny, src, shape));
+                }
+              }
+
+              const large = this.noise.fbm(nx * 2.4 + 1.7, ny * 2.4 - 4.2, 5);
+              const mid = this.noise.fbm(nx * 8.0 - 3.1, ny * 8.0 + 9.4, 4);
+              const raw = clamp(fieldSum * (0.50 + 0.80 * large) + fieldSum * Math.pow(mid, 1.6) * 0.22);
+
+              const i = y * this.mapW + x;
+              this.field[i] = raw;
+              this.arrival[i] = firstArrival < 9
+                ? clamp(firstArrival + (1 - raw) * 0.14, -0.12, 1.35)
+                : 1.4;
+            }
+          }
+        }
+
+        sample(arr, nx, ny) {
+          const x = clamp(Math.floor(nx * this.mapW), 0, this.mapW - 1);
+          const y = clamp(Math.floor(ny * this.mapH), 0, this.mapH - 1);
+          return arr[y * this.mapW + x];
+        }
+
+        sampleField(nx, ny) {
+          return this.sample(this.field, nx, ny);
+        }
+
+        weightedPoint(channel = "field", power = 1, tries = 60) {
+          let best = {
+            x: this.rng() * this.width,
+            y: this.rng() * this.height,
+            v: 0
+          };
+
+          for (let i = 0; i < tries; i++) {
+            const x = this.rng() * this.width;
+            const y = this.rng() * this.height;
+            const nx = x / this.width;
+            const ny = y / this.height;
+            const v = this.sampleField(nx, ny);
+
+            if (v > best.v) best = { x, y, v };
+            if (this.rng() < Math.pow(v, power)) return { x, y, v };
+          }
+
+          return best;
+        }
+
+        buildLayers() {
+          this.layers = {
+            stain: makeCanvas(this.width, this.height),
+            fuzz: makeCanvas(this.width, this.height),
+            edge: makeCanvas(this.width, this.height),
+            colonies: makeCanvas(this.width, this.height),
+            speckles: makeCanvas(this.width, this.height)
+          };
+
+          this.colonies = [];
+
+          this.paintStainLayer(this.layers.stain.getContext("2d"));
+          this.paintFuzzLayer(this.layers.fuzz.getContext("2d"));
+          this.paintEdgeLayer(this.layers.edge.getContext("2d"));
+          this.paintColoniesLayer(this.layers.colonies.getContext("2d"));
+          this.paintSpecklesLayer(this.layers.speckles.getContext("2d"));
+        }
+
+        paintStainLayer(ctx) {
+          const low = makeCanvas(this.mapW, this.mapH);
+          const lctx = low.getContext("2d");
+          const img = lctx.createImageData(this.mapW, this.mapH);
+
+          const cool = [86, 84, 67];
+          const warm = [122, 98, 70];
+          const dark = [42, 45, 31];
+
+          for (let i = 0; i < this.field.length; i++) {
+            const f = this.field[i];
+            const a = smoothstep(0.035, 0.86, f) * 0.46 * this.options.intensity;
+
+            const t = clamp(this.options.warmth + (f - 0.5) * 0.25);
+            const base = [
+              lerp(cool[0], warm[0], t),
+              lerp(cool[1], warm[1], t),
+              lerp(cool[2], warm[2], t)
+            ];
+
+            const rgb = [
+              lerp(base[0], dark[0], smoothstep(0.42, 1, f) * 0.34),
+              lerp(base[1], dark[1], smoothstep(0.42, 1, f) * 0.34),
+              lerp(base[2], dark[2], smoothstep(0.42, 1, f) * 0.34)
+            ];
+
+            const p = i * 4;
+            img.data[p] = rgb[0];
+            img.data[p + 1] = rgb[1];
+            img.data[p + 2] = rgb[2];
+            img.data[p + 3] = clamp(a) * 255;
+          }
+
+          lctx.putImageData(img, 0, 0);
+
+          ctx.save();
+          ctx.filter = `blur(${Math.max(2, Math.min(this.width, this.height) * 0.012)}px)`;
+          ctx.drawImage(low, 0, 0, this.width, this.height);
+          ctx.restore();
+        }
+
+        paintFuzzLayer(ctx) {
+          const area = this.width * this.height;
+          const count = Math.round(clamp(area / 16000, 12, 90) * this.options.intensity);
+
+          ctx.save();
+          ctx.filter = "blur(1.8px)";
+
+          for (let i = 0; i < count; i++) {
+            const p = this.weightedPoint("field", 1.05, 80);
+            if (p.v < 0.05) continue;
+
+            const r = lerp(18, Math.min(this.width, this.height) * 0.18, Math.pow(this.rng(), 0.42)) * (0.45 + p.v);
+            const colour = pickMouldColour(this.rng, this.options.warmth, false);
+            const alpha = (0.025 + 0.08 * this.rng()) * (0.55 + p.v) * this.options.intensity;
+
+            drawRadial(ctx, p.x, p.y, r, colour, alpha, 0.58);
+          }
+
+          ctx.restore();
+        }
+
+        pointOnEdge(edge, t, dist) {
+          if (edge === "top") return { x: t * this.width, y: dist };
+          if (edge === "bottom") return { x: t * this.width, y: this.height - dist };
+          if (edge === "left") return { x: dist, y: t * this.height };
+          return { x: this.width - dist, y: t * this.height };
+        }
+
+        paintEdgeLayer(ctx) {
+          ctx.save();
+          ctx.filter = "blur(0.65px)";
+
+          for (const src of this.options.sources) {
+            for (const edge of src.edges || []) {
+              const length = edge === "top" || edge === "bottom" ? this.width : this.height;
+              const count = Math.round(clamp(length / 8, 20, 220) * (src.strength ?? 1));
+
+              for (let i = 0; i < count; i++) {
+                const t = this.rng();
+                const dist = Math.pow(this.rng(), 2.2) * lerp(4, 32, this.options.intensity);
+                const p = this.pointOnEdge(edge, t, dist);
+                const f = this.sampleField(p.x / this.width, p.y / this.height);
+
+                if (this.rng() > f * 1.55 + 0.08) continue;
+
+                const along = lerp(4, 34, this.rng());
+                const thick = lerp(1.8, 13, this.rng()) * (0.35 + f);
+                const colour = pickMouldColour(this.rng, this.options.warmth, true);
+                const alpha = lerp(0.035, 0.18, this.rng()) * this.options.intensity;
+
+                ctx.fillStyle = rgba(colour, alpha);
+                ctx.beginPath();
+
+                if (edge === "top" || edge === "bottom") {
+                  ctx.ellipse(p.x, p.y, along, thick, 0, 0, TAU);
+                } else {
+                  ctx.ellipse(p.x, p.y, thick, along, 0, 0, TAU);
+                }
+
+                ctx.fill();
+              }
+            }
+          }
+
+          ctx.restore();
+        }
+
+        paintColoniesLayer(ctx) {
+          const area = this.width * this.height;
+          const count = Math.round(clamp(area / 15000, 8, 130) * this.options.density * this.options.intensity);
+          const minDim = Math.min(this.width, this.height);
+
+          ctx.save();
+
+          for (let i = 0; i < count; i++) {
+            const p = this.weightedPoint("field", 0.68, 90);
+            if (p.v < 0.08) continue;
+
+            const radius = lerp(
+              Math.max(4, minDim * 0.011),
+              minDim * 0.095,
+              Math.pow(this.rng(), 0.33)
+            ) * (0.72 + p.v);
+
+            const colony = {
+              x: p.x,
+              y: p.y,
+              r: radius,
+              v: p.v
+            };
+
+            this.colonies.push(colony);
+
+            const lobes = Math.round(lerp(7, 32, this.options.intensity) * (0.65 + this.rng() * 0.8));
+
+            drawRadial(
+              ctx,
+              colony.x,
+              colony.y,
+              radius * 0.78,
+              pickMouldColour(this.rng, this.options.warmth, true),
+              0.13 * (0.55 + p.v) * this.options.intensity,
+              0.46
+            );
+
+            for (let l = 0; l < lobes; l++) {
+              const a = this.rng() * TAU;
+              const d = radius * Math.pow(this.rng(), 0.78);
+              const x = colony.x + Math.cos(a) * d;
+              const y = colony.y + Math.sin(a) * d;
+              const r = radius * lerp(0.08, 0.42, Math.pow(this.rng(), 1.55));
+              const colour = pickMouldColour(this.rng, this.options.warmth, this.rng() < 0.75);
+              const alpha = lerp(0.035, 0.21, this.rng()) * (0.55 + p.v) * this.options.intensity;
+
+              drawRadial(ctx, x, y, r, colour, alpha, 0.58);
+            }
+          }
+
+          ctx.restore();
+        }
+
+        paintSpecklesLayer(ctx) {
+          const area = this.width * this.height;
+          const target = Math.round(clamp(area / 76, 900, 21000) * this.options.density * this.options.intensity);
+          const maxAttempts = target * 10;
+
+          let placed = 0;
+
+          ctx.save();
+
+          for (let i = 0; i < maxAttempts && placed < target; i++) {
+            const x = this.rng() * this.width;
+            const y = this.rng() * this.height;
+            const nx = x / this.width;
+            const ny = y / this.height;
+            const f = this.sampleField(nx, ny);
+
+            if (this.rng() > Math.pow(f, 0.72) * 1.18) continue;
+
+            let boost = 0;
+
+            for (const c of this.colonies) {
+              const dx = c.x - x;
+              const dy = c.y - y;
+              const rr = c.r * 2.7;
+              const d2 = dx * dx + dy * dy;
+
+              if (d2 < rr * rr) {
+                boost = Math.max(boost, 1 - Math.sqrt(d2) / rr);
+              }
+            }
+
+            if (this.rng() > 0.11 + boost * 0.89) continue;
+
+            const roll = this.rng();
+            let r;
+
+            if (roll > 0.985) {
+              r = lerp(3.2, 8.2, this.rng());
+            } else if (roll > 0.91) {
+              r = lerp(1.2, 3.1, this.rng());
+            } else {
+              r = lerp(0.28, 1.12, Math.pow(this.rng(), 1.8));
+            }
+
+            const colour = pickMouldColour(this.rng, this.options.warmth, this.rng() < 0.84);
+            const alpha = lerp(0.13, 0.82, this.rng()) * (0.38 + f * 0.86) * this.options.intensity;
+
+            if (r < 0.75) {
+              ctx.fillStyle = rgba(colour, alpha);
+              ctx.fillRect(x, y, Math.max(0.45, r), Math.max(0.45, r));
+            } else if (r < 2) {
+              ctx.fillStyle = rgba(colour, alpha);
+              ctx.beginPath();
+              ctx.arc(x, y, r, 0, TAU);
+              ctx.fill();
+            } else {
+              drawRadial(ctx, x, y, r, colour, alpha, 0.5);
+            }
+
+            placed++;
+          }
+
+          ctx.restore();
+        }
+
+        buildMask(t, options) {
+          const {
+            lead = 0,
+            span = 0.32,
+            floor = 0.04,
+            wetPower = 0.9,
+            maturityPower = 1.15
+          } = options;
+
+          const data = this.maskImage.data;
+
+          for (let y = 0; y < this.maskH; y++) {
+            for (let x = 0; x < this.maskW; x++) {
+              const nx = (x + 0.5) / this.maskW;
+              const ny = (y + 0.5) / this.maskH;
+
+              const field = this.sampleField(nx, ny);
+              const arrival = this.sample(this.arrival, nx, ny);
+
+              const maturity = smoothstep(arrival + lead, arrival + lead + span, t);
+              const wetness = smoothstep(floor, 0.82, field);
+
+              const alpha =
+                Math.pow(maturity, maturityPower) *
+                Math.pow(wetness, wetPower);
+
+              const p = (y * this.maskW + x) * 4;
+              data[p] = 0;
+              data[p + 1] = 0;
+              data[p + 2] = 0;
+              data[p + 3] = clamp(alpha) * 255;
+            }
+          }
+
+          this.maskCtx.putImageData(this.maskImage, 0, 0);
+        }
+
+        drawMaskedLayer(layer, t, maskOptions, alpha = 1) {
+          const tmp = this.tmpCtx;
+
+          tmp.setTransform(1, 0, 0, 1, 0, 0);
+          tmp.clearRect(0, 0, this.width, this.height);
+          tmp.globalAlpha = 1;
+          tmp.globalCompositeOperation = "source-over";
+          tmp.filter = "none";
+          tmp.drawImage(layer, 0, 0);
+
+          this.buildMask(t, maskOptions);
+
+          tmp.globalCompositeOperation = "destination-in";
+          tmp.imageSmoothingEnabled = true;
+          tmp.drawImage(this.maskCanvas, 0, 0, this.width, this.height);
+
+          tmp.globalCompositeOperation = "source-over";
+
+          this.ctx.save();
+          this.ctx.globalAlpha = alpha * this.options.opacity;
+          this.ctx.drawImage(this.tmpCanvas, 0, 0, this.width, this.height);
+          this.ctx.restore();
+        }
+
+        render(t) {
+          this.progress = clamp(t);
+
+          const ctx = this.ctx;
+          ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+          ctx.clearRect(0, 0, this.width, this.height);
+
+          /*
+            Important:
+            Nothing random is generated here.
+            The final texture already exists.
+            Each frame only changes the soft reveal mask.
+          */
+
+          this.drawMaskedLayer(this.layers.stain, this.progress, {
+            lead: -0.08,
+            span: 0.46,
+            floor: 0.025,
+            wetPower: 0.72,
+            maturityPower: 1.05
+          }, 1);
+
+          this.drawMaskedLayer(this.layers.fuzz, this.progress, {
+            lead: 0.015,
+            span: 0.42,
+            floor: 0.045,
+            wetPower: 0.82,
+            maturityPower: 1.18
+          }, 1);
+
+          this.drawMaskedLayer(this.layers.edge, this.progress, {
+            lead: 0.055,
+            span: 0.34,
+            floor: 0.035,
+            wetPower: 0.72,
+            maturityPower: 1.12
+          }, 1);
+
+          this.drawMaskedLayer(this.layers.colonies, this.progress, {
+            lead: 0.13,
+            span: 0.42,
+            floor: 0.07,
+            wetPower: 0.94,
+            maturityPower: 1.35
+          }, 1);
+
+          this.drawMaskedLayer(this.layers.speckles, this.progress, {
+            lead: 0.20,
+            span: 0.38,
+            floor: 0.06,
+            wetPower: 0.88,
+            maturityPower: 1.28
+          }, 1);
+        }
+      }
+
+      const duration = 30000;
+
+      const scene = document.getElementById("scene");
+      const card = document.getElementById("card");
+
+      const sceneMould = new ContinuousMould(scene, {
+        seed: "scene-continuous-growth-v2",
+        zIndex: 1,
+        intensity: 1,
+        density: 1,
+        warmth: 0.38,
+        opacity: 1,
+        sources: [
+          {
+            x: 0,
+            y: 0,
+            edges: ["top", "left"],
+            start: -0.045,
+            speed: 0.39,
+            strength: 1,
+            spreadX: 0.88,
+            spreadY: 0.86,
+            edgeSpread: 0.18,
+            noiseX: 3.2,
+            noiseY: 12.4,
+            arrivalX: 8.1,
+            arrivalY: 4.2
+          },
+          {
+            x: 1,
+            y: 0,
+            edges: ["top", "right"],
+            start: 0.23,
+            speed: 0.43,
+            strength: 0.36,
+            spreadX: 0.48,
+            spreadY: 0.54,
+            edgeSpread: 0.12,
+            noiseX: 25.2,
+            noiseY: 11.8,
+            arrivalX: 19.1,
+            arrivalY: 7.7
+          }
+        ]
+      });
+
+      const cardMould = new ContinuousMould(card, {
+        seed: "card-continuous-growth-v2",
+        zIndex: 5,
+        intensity: 0.96,
+        density: 0.96,
+        warmth: 0.44,
+        opacity: 1,
+        sources: [
+          {
+            x: 0,
+            y: 0,
+            edges: ["top", "left"],
+            start: 0.31,
+            speed: 0.41,
+            strength: 0.92,
+            spreadX: 0.57,
+            spreadY: 0.62,
+            edgeSpread: 0.14,
+            noiseX: 7.4,
+            noiseY: 16.1,
+            arrivalX: 4.8,
+            arrivalY: 9.5
+          },
+          {
+            x: 1,
+            y: 1,
+            edges: ["right", "bottom"],
+            start: 0.52,
+            speed: 0.45,
+            strength: 0.34,
+            spreadX: 0.36,
+            spreadY: 0.38,
+            edgeSpread: 0.10,
+            noiseX: 24.6,
+            noiseY: 5.3,
+            arrivalX: 14.4,
+            arrivalY: 22.8
+          }
+        ]
+      });
+
+      const start = performance.now();
+
+      function frame(now) {
+        const t = clamp((now - start) / duration);
+
+        sceneMould.render(t);
+        cardMould.render(t);
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>

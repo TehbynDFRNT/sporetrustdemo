@@ -2,6 +2,8 @@ import BookingTakeover from "../BookingTakeover";
 import Footer from "../Footer";
 import Hero from "../Hero";
 import MegaNav from "../MegaNav";
+import QuizTakeover from "../QuizTakeover";
+import ReportDemoTakeover from "../ReportDemoTakeover";
 import UtilityBanner from "../UtilityBanner";
 
 export default function RouteIntroPage({
@@ -57,6 +59,8 @@ export default function RouteIntroPage({
 
       <Footer />
       <BookingTakeover />
+      <QuizTakeover />
+      <ReportDemoTakeover />
     </>
   );
 }

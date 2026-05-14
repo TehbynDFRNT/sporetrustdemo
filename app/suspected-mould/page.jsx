@@ -247,7 +247,7 @@ const suspectedFaqs = [
   ],
   [
     "Should I get lab-backed sampling?",
-    "Worth it when you need claim-ready or tribunal-ready evidence, or when an inspection has revealed something the eye and meters alone can't characterise. Otherwise the Standard Diagnostic is enough for most prevention or repair-pathway needs.",
+    "Lab-Backed Diagnostic is the default for claim-ready or tribunal-ready evidence — and for any case where spore count, species profile or air analysis matters. If you only need on-site readings without lab analysis, Rapid Inspection covers the same protocol at a lower rate.",
   ],
   [
     "Can you tell if the smell is mould?",

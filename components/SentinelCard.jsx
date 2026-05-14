@@ -4,35 +4,35 @@ import SentinelMark from "./SentinelMark";
 
 const DEFAULT_INCLUSIONS = [
   {
-    title: "Annual on-site inspection",
+    title: "Two annual on-site diagnostics",
     copy:
-      "A full thermal, moisture and humidity sweep — same protocol, fresh evidence — at the cadence your home actually needs.",
+      "A full thermal, moisture and humidity sweep, twice a year — same Sporetrust protocol, scheduled in advance.",
   },
   {
-    title: "Updated digital report",
+    title: "Year-on-year property record",
     copy:
-      "Year-on-year tracking so changes are easy to see and share with insurers, builders, landlords or your future buyer.",
+      "Each visit stacks into a standing diagnostic history — defensible evidence for insurers, builders, tribunals or future buyers.",
   },
   {
-    title: "Member rates on add-ons",
+    title: "Member rate on re-checks & lab work",
     copy:
-      "Discounted re-inspections, lab-backed air sampling and post-remediation clearance checks — only if and when you need them.",
+      "Subscriber rate on follow-up re-inspections and lab-backed air sampling when something needs a closer look.",
   },
   {
-    title: "Priority booking",
+    title: "Priority booking & subscriber support",
     copy:
-      "Sentinel members move to the front of the queue when a quick reading or follow-up visit is needed.",
+      "Front-of-queue scheduling plus a subscriber line for moisture and mould questions between visits.",
   },
 ];
 
 export default function SentinelCard({
   inclusions = DEFAULT_INCLUSIONS,
-  pricing = { figure: "$13.95", meta: "per week" },
+  pricing = { figure: "$22.95", meta: "per week" },
   cta = { label: "Join Sentinel", href: "#book" },
   secondaryCta,
   image,
   imageAlt = "",
-  tagline = "Industry-first mould prevention and pre-contamination diagnostics subscription. Prevent building damage and protect your family through wet weather seasons.",
+  tagline = "Two diagnostic visits a year, a stacked record of your home, and reduced subscriber rates whenever something needs a closer look.",
 }) {
   const className = `sentinel-card${image ? " sentinel-card--has-image" : ""}`;
   return (

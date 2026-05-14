@@ -72,7 +72,7 @@ function DiagnosticsPanel() {
       ))}
 
       <div className="mega-panel__col mega-panel__col--callout">
-        <a className="mega-link mega-link--callout" href="#">
+        <a className="mega-link mega-link--callout" href="#quiz">
           <span className="mega-link__label">Do I have mould?</span>
           <span className="mega-link__desc">
             Take the test — a quick self-assessment to point you to the right diagnostic.
@@ -88,16 +88,16 @@ function DiagnosticsPanel() {
 
 const SENTINEL_INCLUSIONS = [
   {
-    title: "Annual on-site inspection",
-    copy: "Full thermal, moisture and humidity sweep, every year.",
+    title: "Two annual diagnostics",
+    copy: "A full thermal, moisture and humidity sweep, twice a year — scheduled in advance.",
   },
   {
-    title: "Year-on-year report tracking",
-    copy: "See changes over time. Share with insurers, builders, landlords.",
+    title: "Year-on-year property record",
+    copy: "Each visit stacks into a defensible history for insurers, builders, tribunals and buyers.",
   },
   {
-    title: "Member rates on add-ons",
-    copy: "Discounted re-inspections, lab sampling and clearance checks.",
+    title: "Member rate on re-checks & lab work",
+    copy: "Subscriber rate on follow-up re-inspections and lab-backed air sampling when needed.",
   },
 ];
 
@@ -126,12 +126,12 @@ function SentinelPanel() {
         </div>
 
         <p className="mega-panel__feature-tagline">
-          Industry-first annual mould prevention. One inspection a year, a fresh report, and the team you trust on speed dial.
+          Two diagnostic visits a year, a stacked property record, and subscriber rates when something needs a closer look.
         </p>
 
         <div className="mega-panel__feature-foot">
           <div className="mega-panel__feature-price">
-            <span className="mega-panel__price-figure">$13.95</span>
+            <span className="mega-panel__price-figure">$22.95</span>
             <span className="mega-panel__price-meta">per week</span>
           </div>
           <a className="mega-panel__feature-cta" href="/sporetrust-sentinel">

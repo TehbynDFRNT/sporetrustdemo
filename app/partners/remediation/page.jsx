@@ -9,6 +9,9 @@ const page = {
   title: "Remediation providers who work from evidence.",
   lede:
     "Sporetrust connects customers with remediation providers suited to the report findings, containment needs and clearance expectations.",
+  background: "/images/partner-remediation.jpg",
+  backgroundAlt:
+    "Remediation specialist in Tyvek suit and respirator using a HEPA-vacuumed sander to remove mould from a wall under containment",
   cards: [
     {
       eyebrow: "Containment",
@@ -153,8 +156,8 @@ export default function RemediationPartnersPage() {
             primaryCta={{ label: "Book diagnosis", href: "#book" }}
             secondaryCta={{ label: "See the report", href: "/#report" }}
             footnote="Brisbane & SEQ · IICRC certified · NATA-accredited lab analysis available."
-            image="/images/thermal-imaging.jpg"
-            imageAlt="Sporetrust inspector using thermal imaging equipment in a Queenslander interior"
+            image="/images/partner-remediation.jpg"
+            imageAlt="Remediation specialist removing mould under containment, with HEPA-vacuumed equipment and full PPE"
           />
         </div>
       </section>

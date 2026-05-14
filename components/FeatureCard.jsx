@@ -70,13 +70,21 @@ export default function FeatureCard({
             {primaryCta || secondaryCta ? (
               <div className="feature-card__actions">
                 {primaryCta ? (
-                  <a className="feature-card__cta feature-card__cta--primary" href={primaryCta.href}>
+                  <a
+                    className="feature-card__cta feature-card__cta--primary"
+                    href={primaryCta.href}
+                    onClick={primaryCta.onClick}
+                  >
                     <span>{primaryCta.label}</span>
                     <ArrowIcon />
                   </a>
                 ) : null}
                 {secondaryCta ? (
-                  <a className="feature-card__cta feature-card__cta--ghost" href={secondaryCta.href}>
+                  <a
+                    className="feature-card__cta feature-card__cta--ghost"
+                    href={secondaryCta.href}
+                    onClick={secondaryCta.onClick}
+                  >
                     <span>{secondaryCta.label}</span>
                     <ArrowIcon />
                   </a>

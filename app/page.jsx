@@ -1,4 +1,8 @@
 import BookingTakeover from "../components/BookingTakeover";
+import QuizCtaBanner from "../components/QuizCtaBanner";
+import QuizTakeover from "../components/QuizTakeover";
+import ReportDemoTakeover from "../components/ReportDemoTakeover";
+import ReportPreviewCard from "../components/ReportPreviewCard";
 import Eyebrow from "../components/Eyebrow";
 import FaqAccordion from "../components/FaqAccordion";
 import Footer from "../components/Footer";
@@ -399,73 +403,21 @@ const timelineItems = [
   },
 ];
 
-const engagementStats = [
+const diagnosticPathways = [
   {
-    tag: "Prevalence",
-    figure: "1 in 2",
-    label: "Queensland homes show signs of dampness or mould within any 12-month window.",
-    source: "ABS / AIHW housing data",
-    diagram: "donut",
-    diagramProps: { percent: 50 },
+    href: "/visible-mould",
+    title: "I have mould already",
+    desc: "Document cause, extent and a defensible cost range.",
   },
   {
-    tag: "On-site",
-    figure: "45 minutes",
-    label: "One technician visit covers thermal, moisture, humidity and ventilation across the home.",
-    source: "Per Sporetrust diagnostic protocol",
-    diagram: "clock",
-    diagramProps: { minutes: 45, max: 60 },
+    href: "/suspected-mould",
+    title: "I suspect mould",
+    desc: "Thermal, moisture and optional air sampling for what's behind the surface.",
   },
   {
-    tag: "Turnaround",
-    figure: "48 hours",
-    label: "Plain-English digital report with cause, extent, evidence and a defensible repair-cost range.",
-    source: "Standard diagnostic SLA",
-    diagram: "report",
-    diagramProps: { hours: 48 },
-  },
-];
-
-const journeyItems = [
-  {
-    num: "01",
-    title: "Diagnose",
-    heading: "Diagnose the contamination.",
-    copy:
-      "We inspect, test and document visible mould, hidden moisture, affected materials, likely cause and evidence needed for owners, tenants, managers, insurers or contractors.",
-    meta: "Report + evidence",
-  },
-  {
-    num: "02",
-    title: "Scope",
-    heading: "Understand the full pathway upfront.",
-    copy:
-      "If works are needed, we help identify whether the job is likely to involve remediation only, or remediation plus repair, rebuild, plumbing, roofing, ventilation or waterproofing.",
-    meta: "Remediation + repair pathway",
-  },
-  {
-    num: "03",
-    title: "Remediate",
-    heading: "Connect to trusted remediators.",
-    copy:
-      "We can introduce vetted remediation providers who take decontamination seriously, understand containment and removal requirements, and work from the evidence in your report.",
-    meta: "Specialist decontamination",
-  },
-  {
-    num: "04",
-    title: "Repair",
-    heading: "Plan home repairs before it's in pieces.",
-    copy:
-      "Many remediators remove affected materials but do not put them back. Where repair or rebuild is likely, we help connect you with suitable builders or trade contractors before remediation begins.",
-    meta: "Builder/trade handoff",
-  },
-  {
-    num: "05",
-    title: "Clear",
-    heading: "Verify, clean and close the loop.",
-    copy:
-      "Once remediation or repairs are complete, we can return for clearance checks and a post-remediation clean so you have documented evidence that the issue has been addressed.",
-    meta: "Clearance + prevention",
+    href: "/mould-prevention",
+    title: "Mould prevention",
+    desc: "Humidity, ventilation and earlier detection through Sentinel.",
   },
 ];
 
@@ -494,7 +446,7 @@ const trustBadges = [
 
 const pricingTiers = [
   {
-    title: "Standard Diagnostic",
+    title: "Rapid Inspection",
     tag: "For most homes & apartments",
     price: "$695",
     sub: "ONCE-OFF - GST INC",
@@ -517,7 +469,7 @@ const pricingTiers = [
     featured: true,
     button: "Book Lab-Backed",
     bullets: [
-      "Everything in the Standard Diagnostic",
+      "Everything in the Rapid Inspection",
       "Indoor air sample (room of your choice)",
       "Outdoor control sample for comparison",
       "Lab-analysed spore count & species",
@@ -542,7 +494,7 @@ const faqs = [
   ],
   [
     "When do I get the report?",
-    "Standard Diagnostic reports are delivered to your portal within 48 hours of the on-site visit. Lab-Backed addendums arrive 5-7 days after sampling, depending on lab turnaround.",
+    "Rapid Inspection reports are delivered to your portal within 48 hours of the on-site visit. Lab-Backed Diagnostic reports include the lab analysis appendix, which arrives 5-7 days after sampling depending on lab turnaround.",
   ],
   [
     "What if you don't find anything serious?",
@@ -716,19 +668,40 @@ export default function Home() {
         </section>
         </div>
 
-        <section className="stat-section">
+        <section className="diagnostics-lead" id="diagnostics">
           <div className="wrap">
-            <Reveal>
-              <SectionHeader
-                eyebrow="by the numbers"
-                title="What the engagement looks like."
-                ledeMax="58ch"
-                lede="One technician, one visit, one report. The shape of the work doesn't change — it just gets more thorough where the evidence demands it."
-              />
-            </Reveal>
-            <Reveal delay={120}>
-              <StatRow stats={engagementStats} />
-            </Reveal>
+            <div className="diagnostics-lead__grid">
+              <div className="diagnostics-lead__main">
+                <Reveal>
+                  <SectionHeader
+                    eyebrow="choose your pathway"
+                    title="Mould doesn't look the same to every home."
+                    lede="What you're seeing — or not seeing yet — determines the right diagnostic. Pick the pathway that matches your situation."
+                    titleMax="32ch"
+                    ledeMax="58ch"
+                  />
+                </Reveal>
+                <Reveal delay={120}>
+                  <div className="diagnostics-lead__links">
+                    <span className="mega-panel__col-title">Diagnostics</span>
+                    {diagnosticPathways.map((pathway) => (
+                      <a key={pathway.href} className="mega-link" href={pathway.href}>
+                        <span className="mega-link__label">
+                          {pathway.title}
+                          <ArrowIcon />
+                        </span>
+                        <span className="mega-link__desc">{pathway.desc}</span>
+                      </a>
+                    ))}
+                  </div>
+                </Reveal>
+              </div>
+              <div className="diagnostics-lead__quiz">
+                <Reveal delay={180}>
+                  <QuizCtaBanner stacked />
+                </Reveal>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -790,19 +763,19 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <TrustBadge
-                  quote={trustBadges[0].quote}
-                  meta={trustBadges[0].meta}
-                />
               </div>
 
-              <figure className="report report-image-only">
-                <img
-                  src="/images/sporetrace-report.jpg"
-                  alt="Sample mould diagnostic report showing visual evidence, thermal evidence, moisture record, air sample record and summary"
-                  loading="lazy"
-                />
-              </figure>
+              <div className="report-stack">
+                <ReportPreviewCard />
+                <a
+                  className="report-stack__cta"
+                  href="#report-demo"
+                  data-report-demo-trigger
+                >
+                  Open the digital report demo
+                  <ArrowIcon />
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -877,55 +850,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="journey" id="journey">
-          <div className="wrap">
-            <div className="journey-head">
-              <span className="eyebrow">[ from diagnosis to clearance ]</span>
-              <h2>From mould diagnosis to repaired, cleared and clean.</h2>
-              <p className="lede">
-                Remediation and repair are often different jobs. If your report shows works are needed, Sporetrust
-                helps you connect with trusted remediators and specialist repair contractors as one coordinated
-                pathway, so the likely scope is clear before your home is opened up.
-              </p>
-            </div>
-            <div className="journey-grid">
-              {journeyItems.map((item) => (
-                <article className="journey-card" key={item.num}>
-                  <div className="journey-card-top">
-                    <span className="num">Step {Number(item.num)}</span>
-                    <span className="title">{item.title}</span>
-                  </div>
-                  <h3>{item.heading}</h3>
-                  <p>{item.copy}</p>
-                  <div className="journey-meta">{item.meta}</div>
-                </article>
-              ))}
-            </div>
-            <div className="journey-callouts">
-              <aside className="journey-warning">
-                <span>Before remediation starts</span>
-                <h3>Know who is putting the home back together.</h3>
-                <p>
-                  Some remediation scopes end once contaminated materials are removed and cleaned. That can leave
-                  owners, tenants and managers needing urgent builder, plastering, flooring, cabinetry or plumbing
-                  quotes after the home is already opened up. We help surface those needs earlier, so remediation and
-                  repair can be planned as one pathway.
-                </p>
-              </aside>
-              <aside className="journey-note">
-                <span>Independent diagnosis</span>
-                <h3>Coordinated next steps.</h3>
-                <p>
-                  In an unregulated industry, trust matters. We focus on unbiased diagnostics, clear evidence and
-                  practical support through the pathway to clearance. If action is needed, we can introduce trusted
-                  partners and help manage the information handoff at no extra cost. You decide who to hire, and when.
-                  If you want us back for clearance checks and a final prevention clean, we are here to help.
-                </p>
-              </aside>
-            </div>
-          </div>
-        </section>
-
         <section className="independence">
           <div className="wrap">
             <span className="eyebrow">[ a note on independence ]</span>
@@ -962,6 +886,8 @@ export default function Home() {
       </a>
 
       <BookingTakeover />
+      <QuizTakeover />
+      <ReportDemoTakeover />
     </>
   );
 }

@@ -10,6 +10,9 @@ const page = {
   title: "Plan the repair before the home is in pieces.",
   lede:
     "Many remediation scopes remove affected materials but do not rebuild them. Sporetrust helps surface repair needs earlier so the handoff is less chaotic.",
+  background: "/images/partner-repair.jpg",
+  backgroundAlt:
+    "Vetted repair contractor patching prepared drywall in a daylit Australian home interior",
   cards: [
     {
       eyebrow: "Builders",
@@ -123,8 +126,8 @@ export default function ContractorPartnersPage() {
             primaryCta={{ label: "Book diagnosis", href: "#book" }}
             secondaryCta={{ label: "See the report", href: "/#report" }}
             footnote="Brisbane & SEQ · IICRC certified · NATA-accredited lab analysis available."
-            image="/images/thermal-imaging.jpg"
-            imageAlt="Sporetrust inspector using thermal imaging equipment in a Queenslander interior"
+            image="/images/partner-repair.jpg"
+            imageAlt="Vetted repair contractor finishing prepared drywall after remediation"
           />
         </div>
       </section>
