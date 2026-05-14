@@ -571,12 +571,15 @@ export default function Home() {
   return (
     <>
       <main>
+        <UtilityBanner />
+        <MegaNav />
         <div className="problem-theatre mould-strong">
           {/* Mould contamination canvas disabled — restore by adding back:
               <div className="problem-theatre-stage" aria-hidden="true" {...theatreMould} />
-              and the <Script src="/mould-contamination.js?v=37" /> tag at the bottom. */}
-          <UtilityBanner />
-          <MegaNav />
+              and the <Script src="/mould-contamination.js?v=37" /> tag at the bottom.
+              MegaNav was previously inside this wrapper — moved out so its
+              position:sticky has the full page to anchor against, instead of
+              unsticking when the wrapper closes mid-page. */}
         <Hero
           trust={{
             quote: trustBadges[3].quote,
