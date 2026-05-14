@@ -1,4 +1,5 @@
 import { Geist, JetBrains_Mono, Montserrat } from "next/font/google";
+import ReloadOnHistoryNav from "../components/ReloadOnHistoryNav";
 import "./globals.css";
 
 const geist = Geist({
@@ -52,7 +53,10 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en-AU" className={fontClasses}>
-      <body>{children}</body>
+      <body>
+        <ReloadOnHistoryNav />
+        {children}
+      </body>
     </html>
   );
 }
