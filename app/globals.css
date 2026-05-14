@@ -169,45 +169,15 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
    overlay and paints layered procedural mould keyed to that element's
    geometry. */
 .mould-strong { position: relative; }
-/* overflow: hidden removed — was clipping the mould-contamination canvas
-   (now disabled) but also breaking position:sticky on descendants like
-   .mega-nav. Scope clipping to .problem-theatre-stage if canvas returns. */
 .mould-strong > .wrap { position: relative; z-index: 3; }
 .mould-strong .pcard,
 .mould-strong .find-card {
   position: relative;
   overflow: hidden;
 }
-.problem-theatre {
-  position: relative;
-  background: var(--paper);
-  /* overflow: hidden intentionally NOT set — it broke position:sticky on
-     descendants (notably .mega-nav). If the mould-contamination canvas is
-     re-enabled, scope overflow:hidden to .problem-theatre-stage instead. */
-}
-.problem-theatre > section {
-  background: transparent;
-  position: relative;
-  z-index: 2;
-}
-.problem-theatre-stage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 1;
-}
-.problem-theatre-stage > .mould-contamination-canvas {
-  z-index: 1;
-}
 [data-mould] {
   position: relative;
   isolation: isolate;
-}
-.problem-theatre-stage[data-mould] {
-  position: absolute;
 }
 [data-mould] > :not(.mould-contamination-canvas) {
   position: relative;
