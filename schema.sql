@@ -116,6 +116,34 @@ ALTER TABLE particulate_types
 
 
 -- =====================================================================
+-- STAFF / TECHNICIANS
+-- =====================================================================
+
+-- Technicians: Sporetrust staff who conduct inspections and (qualified
+-- roles only) sign off on the resulting reports. role gates the
+-- permission to act as a sign-off authority on a field tech's report.
+CREATE TABLE technicians (
+  technician_id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  clerk_user_id   TEXT UNIQUE,                                -- Clerk user (nullable)
+  email           TEXT NOT NULL,
+  name            TEXT NOT NULL,
+  phone           TEXT,
+  role            TEXT NOT NULL DEFAULT 'field'
+                    CHECK (role IN ('field', 'qualified', 'admin')),
+  qualifications  TEXT,                                       -- 'IICRC S520', 'NATA accreditation #...'
+  active          BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX technicians_email_lower_uq ON technicians (LOWER(email));
+CREATE INDEX technicians_role   ON technicians (role);
+CREATE INDEX technicians_active ON technicians (active) WHERE active;
+CREATE TRIGGER technicians_updated_at
+  BEFORE UPDATE ON technicians
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- =====================================================================
 -- IDENTITY TABLES
 -- =====================================================================
 
@@ -185,10 +213,14 @@ CREATE TABLE inspections (
                             CHECK (inspection_type IN ('standard', 'lab_backed', 'sentinel_annual', 'clearance')),
 
   -- On-site
-  inspector_name           TEXT,
+  technician_id            BIGINT REFERENCES technicians(technician_id) ON DELETE RESTRICT,
   on_site_notes            TEXT,
   started_at               TIMESTAMPTZ,
   completed_at             TIMESTAMPTZ,
+
+  -- Qualified-technician sign-off (required to publish a report)
+  signed_off_by_technician_id BIGINT REFERENCES technicians(technician_id) ON DELETE RESTRICT,
+  signed_off_at               TIMESTAMPTZ,
 
   -- Report (the deliverable). report_slug is the unguessable share URL fragment.
   report_slug              TEXT UNIQUE CHECK (report_slug IS NULL OR LENGTH(report_slug) >= 16),
@@ -199,9 +231,17 @@ CREATE TABLE inspections (
   report_published_at      TIMESTAMPTZ,
 
   created_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at               TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  -- A published report must carry a qualified-technician sign-off.
+  CONSTRAINT inspections_published_requires_signoff CHECK (
+    report_status <> 'published'
+    OR (signed_off_by_technician_id IS NOT NULL AND signed_off_at IS NOT NULL)
+  )
 );
 CREATE INDEX inspections_customer       ON inspections (customer_id);
+CREATE INDEX inspections_technician     ON inspections (technician_id)            WHERE technician_id IS NOT NULL;
+CREATE INDEX inspections_signoff        ON inspections (signed_off_by_technician_id) WHERE signed_off_by_technician_id IS NOT NULL;
 CREATE INDEX inspections_property       ON inspections (property_id);
 CREATE INDEX inspections_scheduled_at   ON inspections (scheduled_at);
 CREATE INDEX inspections_status         ON inspections (status);

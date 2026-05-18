@@ -10,6 +10,7 @@ const ORDER = [
   "trade-categories",
   "fungal-classifications",
   "particulate-types",
+  "technicians",
   "customers",
   "properties",
   "inspections",
@@ -50,6 +51,7 @@ const IDENTITY_COL = {
   "trade-categories": "trade_category_id",
   "fungal-classifications": "fungal_classification_id",
   "particulate-types": "particulate_type_id",
+  technicians: "technician_id",
 };
 
 const tableFor = (slug) => slug.replace(/-/g, "_");

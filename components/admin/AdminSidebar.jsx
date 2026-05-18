@@ -11,6 +11,7 @@ const NAV = [
       { href: "/admin/data/properties",      label: "Properties" },
       { href: "/admin/data/inspections",     label: "Inspections" },
       { href: "/admin/data/air-samples",     label: "Air samples" },
+      { href: "/admin/data/technicians",     label: "Technicians" },
       { href: "/admin/data/scope-partners",  label: "Scope & partners" },
       { href: "/admin/data/subscriptions",   label: "Subscriptions" },
       { href: "/admin/data/reference",       label: "Reference data" },
