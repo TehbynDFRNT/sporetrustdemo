@@ -1,9 +1,7 @@
-import { mockData } from "../../../../lib/admin/mockData";
+import { adminListHandler } from "../../../../lib/admin/handler";
 
 export const runtime = "nodejs";
 
-// Mock route until Supabase is wired up. When live: query Supabase server
-// client (gated by Clerk auth) and return { rows: [...] }.
 export async function GET() {
-  return Response.json({ rows: mockData["location-findings"] ?? [] });
+  return adminListHandler("location-findings", "location_findings");
 }
