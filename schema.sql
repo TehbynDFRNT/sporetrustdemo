@@ -68,6 +68,9 @@ CREATE TABLE trade_categories (
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX trade_categories_group ON trade_categories (group_label);
+-- display_order is the position WITHIN a group_label, so unique-per-group.
+ALTER TABLE trade_categories
+  ADD CONSTRAINT trade_categories_group_order_uq UNIQUE (group_label, display_order);
 
 
 -- Fungal classifications: persistent glossary scraped from a lab partner
@@ -108,6 +111,8 @@ CREATE TABLE particulate_types (
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX particulate_types_kind ON particulate_types (kind);
+ALTER TABLE particulate_types
+  ADD CONSTRAINT particulate_types_order_uq UNIQUE (display_order);
 
 
 -- =====================================================================
@@ -236,6 +241,8 @@ CREATE INDEX sample_locations_sampled_at ON sample_locations (sampled_at);
 -- Only one outdoor control per inspection
 CREATE UNIQUE INDEX sample_locations_one_outdoor
   ON sample_locations (inspection_id) WHERE is_outdoor_control;
+ALTER TABLE sample_locations
+  ADD CONSTRAINT sample_locations_order_uq UNIQUE (inspection_id, display_order);
 CREATE TRIGGER sample_locations_updated_at
   BEFORE UPDATE ON sample_locations
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -301,6 +308,8 @@ CREATE TABLE location_findings (
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX location_findings_location ON location_findings (sample_location_id);
+ALTER TABLE location_findings
+  ADD CONSTRAINT location_findings_order_uq UNIQUE (sample_location_id, display_order);
 CREATE TRIGGER location_findings_updated_at
   BEFORE UPDATE ON location_findings
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -322,6 +331,8 @@ CREATE TABLE location_sources (
 );
 CREATE INDEX location_sources_location ON location_sources (sample_location_id);
 CREATE INDEX location_sources_category ON location_sources (source_category);
+ALTER TABLE location_sources
+  ADD CONSTRAINT location_sources_order_uq UNIQUE (sample_location_id, display_order);
 
 
 -- =====================================================================
@@ -426,6 +437,8 @@ CREATE TABLE air_sample_notable_objects (
 CREATE INDEX notable_objects_sample       ON air_sample_notable_objects (air_sample_id);
 CREATE INDEX notable_objects_fungal       ON air_sample_notable_objects (fungal_classification_id) WHERE fungal_classification_id IS NOT NULL;
 CREATE INDEX notable_objects_particulate  ON air_sample_notable_objects (particulate_type_id)      WHERE particulate_type_id      IS NOT NULL;
+ALTER TABLE air_sample_notable_objects
+  ADD CONSTRAINT notable_objects_order_uq UNIQUE (air_sample_id, display_order);
 
 
 -- =====================================================================
@@ -450,6 +463,8 @@ CREATE TABLE scope_items (
 );
 CREATE INDEX scope_items_inspection ON scope_items (inspection_id);
 CREATE INDEX scope_items_trade      ON scope_items (trade_category_id);
+ALTER TABLE scope_items
+  ADD CONSTRAINT scope_items_order_uq UNIQUE (inspection_id, display_order);
 CREATE TRIGGER scope_items_updated_at
   BEFORE UPDATE ON scope_items
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
