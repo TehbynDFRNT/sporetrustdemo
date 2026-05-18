@@ -22,10 +22,19 @@ function isLanderPath(pathname) {
   return LANDER_PATHS.has(pathname);
 }
 
+function isAdminPath(pathname) {
+  return typeof pathname === "string" && pathname.startsWith("/admin");
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   useEffect(() => {
     if (typeof document === "undefined") return;
+    if (isAdminPath(pathname)) {
+      document.body.dataset.admin = "true";
+    } else {
+      delete document.body.dataset.admin;
+    }
     if (isLanderPath(pathname)) {
       document.body.dataset.lander = "true";
     } else {

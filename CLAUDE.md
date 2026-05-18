@@ -86,3 +86,26 @@ Three tiers, applied consistently across the site. The background colour communi
   Surfaces: hero (`.hero` / `.hero--cinematic`), `.sentinel-card` (and its image variant `.sentinel-card--has-image`), `.trust-bar`, mega-nav callouts (`.mega-link--callout`), the dark zone inside DIY cards (`.method--text .m-reveals`).
 
 When adding a new section, reuse one of the existing classes (or add a modifier on it) rather than introducing a new background. The mould-effect canvas attaches to `.problem-bg` cream sections by intent — keep it that way.
+
+## Backend / internal-tool app pattern (`/admin`)
+
+The internal staff app under `/admin/*` follows a strict layered pattern so adding a new entity is mechanical:
+
+1. **Schema is source of truth.** `schema.sql` at the repo root defines every entity. UI column shapes, API responses and type files must match it; no field drift.
+
+2. **Three artefacts per entity:**
+   - **API route** — `app/api/admin/<entity>/route.js`. Returns `{ rows: [...] }`. Until Supabase is wired up, returns mock data shaped to `schema.sql`. When live, queries Supabase via the server client + Clerk auth as gate.
+   - **Type file** — `lib/admin/types/<entity>.js`. Exports a config: `{ slug, label, endpoint, rowKey, description, columns: [...] }`. Each column describes how the field renders (`mono`, `muted`, `cell: 'badge' | 'datetime' | 'currency' | 'percent' | 'jsonish'`).
+   - **(No bespoke component.)** Pages render `<DataTable config={...} />` from `components/admin/DataTable.jsx`, fed by the type file. For tightly-related entities (inspection → locations → readings) the page renders `<DataTabs tabs={[...]} />`.
+
+3. **Shared chrome at the section layout, never per-page.** `app/admin/layout.jsx` mounts the sidebar, the TanStack `QueryClientProvider`, and (when configured) the `ClerkProvider`. Pages stay slim — import a type config, render a table. Same rule as the marketing site shell: shared components mount once and persist across in-section navigation.
+
+4. **Marketing chrome stays mounted, hidden via CSS.** `components/SiteChrome.jsx` sets `document.body.dataset.admin = "true"` for paths starting with `/admin`. `globals.css` hides MegaNav / footers / takeovers via `body[data-admin] ...`. Do NOT unmount them — the SPA-nav fix (`a7bc9f8`) depends on those `document.addEventListener` handlers never being torn down and re-added.
+
+5. **Query caching defaults** (set globally in `components/admin/QueryProvider.jsx`):
+   - `staleTime: 60_000` — cached data fresh for 60s
+   - `gcTime: 5 * 60_000` — retained 5 min after last consumer unmounts
+   - `refetchOnWindowFocus: false`, `refetchOnReconnect: false`
+   Returning to a recently viewed table does not re-fetch.
+
+6. **Sidebar nav** lives in `components/admin/AdminSidebar.jsx`. **Sub-tabs** (one page, multiple related tables) live in `components/admin/DataTabs.jsx`. Use tabs only for tightly-grouped entities (e.g. inspections + sample_locations + image_captures + moisture_readings + findings + sources all sit under one Inspections sidebar item).
