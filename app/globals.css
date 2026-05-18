@@ -519,7 +519,10 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
   }
   .hero__wrap {
     flex-direction: column;
-    align-items: flex-start;
+    /* leave align-items at the default `stretch` so .hero__main and
+       .hero__footer fill the wrap's content width — flex-start collapses
+       them to content width, which lets wide children (form, trust badge)
+       overflow the right .wrap padding. */
     gap: var(--space-4);
     padding-bottom: var(--space-6);
   }
@@ -4469,13 +4472,22 @@ body:not([data-lander="true"]) > .lander-footer {
   .mega-nav__inner { gap: var(--space-3); padding: var(--space-3) var(--space-5); }
   .mega-nav__items { display: none; }
   .mega-nav__cta { display: none; }
+  .mega-nav__dropdown { display: none; }
+
+  /* When the drawer is open, the whole nav stacking context must outrank the
+     UtilityBanner (z-index var(--z-nav) + 1) so the drawer paints above it. */
+  .mega-nav.is-mobile-open {
+    z-index: calc(var(--z-utility) + 1);
+  }
+
   .mega-nav__hamburger {
-    display: flex;
+    display: inline-flex;
     flex: 0 0 auto;
     margin-left: auto;
     flex-direction: column;
     justify-content: center;
-    gap: 4px;
+    align-items: center;
+    gap: 5px;
     width: 40px;
     height: 40px;
     background: transparent;
@@ -4488,68 +4500,188 @@ body:not([data-lander="true"]) > .lander-footer {
     width: 18px;
     height: 1.5px;
     background: var(--ink);
-    margin: 0 auto;
-    transition: transform var(--dur-fast);
   }
-  .mega-nav__dropdown { display: none; }
+  .mega-nav.is-mobile-open .mega-nav__hamburger {
+    visibility: hidden;
+  }
 
+  /* Drawer — full-height slide-in from right */
   .mega-nav__drawer {
-    display: block;
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    top: 64px;
-    left: 0;
+    top: 0;
     right: 0;
     bottom: 0;
+    width: min(420px, 100vw);
     background: var(--paper);
-    overflow-y: auto;
-    transform: translateY(-12px);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base);
-    z-index: calc(var(--z-nav) - 1);
+    box-shadow: -16px 0 40px rgba(15, 17, 18, 0.12);
+    transform: translateX(100%);
+    transition: transform var(--dur-base) var(--ease-out);
+    z-index: calc(var(--z-nav) + 3);
+    visibility: hidden;
   }
   .mega-nav.is-mobile-open .mega-nav__drawer {
     transform: none;
-    opacity: 1;
-    pointer-events: auto;
+    visibility: visible;
   }
-  .mega-nav__drawer-inner {
-    padding: var(--space-5);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-  .mega-nav__drawer-item {
-    border-bottom: 1px solid var(--line-soft);
-  }
-  .mega-nav__drawer-item summary {
-    list-style: none;
-    cursor: pointer;
-    padding: var(--space-4) 0;
+
+  .mega-nav__drawer-head {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--line-soft);
+    min-height: 64px;
+  }
+  .mega-nav__drawer-close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-md);
+    color: var(--ink);
+    transition: background var(--dur-fast);
+  }
+  .mega-nav__drawer-close:hover {
+    background: rgba(15, 17, 18, 0.04);
+  }
+  .mega-nav__drawer-close svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mega-nav__drawer-inner {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: var(--space-3) var(--space-5) var(--space-5);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mega-nav__drawer-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 18px 4px;
     font-size: 17px;
     font-weight: 500;
     color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-soft);
+    transition: color var(--dur-fast);
   }
-  .mega-nav__drawer-item summary::-webkit-details-marker { display: none; }
-  .mega-nav__drawer-item summary svg { width: 12px; height: 12px; transition: transform var(--dur-fast); }
-  .mega-nav__drawer-item[open] summary svg { transform: rotate(180deg); }
-  .mega-nav__drawer-content {
-    padding: 0 0 var(--space-5);
+  .mega-nav__drawer-link:hover {
+    color: var(--ink-2, var(--ink));
   }
-  .mega-nav__drawer-content .mega-panel {
-    grid-template-columns: 1fr !important;
-    gap: var(--space-4);
+  .mega-nav__drawer-link svg {
+    width: 14px;
+    height: 14px;
+    color: var(--ink-soft);
   }
-  .mega-nav__drawer-content .mega-panel__media { display: none; }
+
+  .mega-nav__drawer-item {
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .mega-nav__drawer-summary {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    width: 100%;
+    cursor: pointer;
+    padding: 18px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ink);
+    text-align: left;
+  }
+  .mega-nav__drawer-chevron {
+    width: 12px;
+    height: 12px;
+    transition: transform var(--dur-fast);
+    color: var(--ink-soft);
+    flex: 0 0 auto;
+  }
+  .mega-nav__drawer-item.is-open .mega-nav__drawer-chevron {
+    transform: rotate(180deg);
+  }
+  .mega-nav__drawer-sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height var(--dur-base) var(--ease-out);
+  }
+  .mega-nav__drawer-item.is-open .mega-nav__drawer-sublist {
+    max-height: 600px;
+    margin-bottom: var(--space-3);
+    padding: 4px 0 var(--space-2);
+  }
+  .mega-nav__drawer-sublist li + li {
+    border-top: 1px solid var(--line-soft);
+  }
+  .mega-nav__drawer-sublist a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 14px 0 14px var(--space-3);
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 15.5px;
+    font-weight: 400;
+    transition: color var(--dur-fast);
+  }
+  .mega-nav__drawer-sublist a:hover {
+    color: var(--ink);
+  }
+  .mega-nav__drawer-sublist a svg {
+    width: 12px;
+    height: 12px;
+    flex: 0 0 auto;
+  }
+
+  .mega-nav__drawer-foot {
+    flex: 0 0 auto;
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--line-soft);
+    background: var(--paper);
+  }
   .mega-nav__cta--mobile {
     display: inline-flex;
-    margin-top: var(--space-4);
-    align-self: stretch;
+    width: 100%;
+    align-items: center;
     justify-content: center;
+    gap: 8px;
+    padding: 16px 22px;
+    font-size: 15px;
+    border-radius: var(--r-pill);
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background var(--dur-fast);
   }
+  .mega-nav__cta--mobile svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+  .mega-nav__cta--mobile:hover { background: var(--ink-2); }
 }
 
 /* ---------- Trust logos (reusable in hero + trust-bar) ---------- */

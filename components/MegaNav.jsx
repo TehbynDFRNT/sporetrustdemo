@@ -1,18 +1,49 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ArrowIcon from "./icons/ArrowIcon";
 import Brand from "./Brand";
 import SentinelMark from "./SentinelMark";
+
+function isHashHref(href) {
+  return typeof href === "string" && href.startsWith("#");
+}
 
 const HOVER_OPEN_DELAY = 100;
 const HOVER_CLOSE_DELAY = 220;
 
 const NAV_ITEMS = [
   { key: "how-it-works", label: "How it works", href: "/how-it-works" },
-  { key: "diagnostics", label: "Diagnostics", panel: true },
-  { key: "sentinel", label: "Sentinel", panel: true },
-  { key: "about", label: "About", panel: true },
+  {
+    key: "diagnostics",
+    label: "Diagnostics",
+    panel: true,
+    mobileLinks: [
+      { href: "/visible-mould", label: "I have mould already" },
+      { href: "/suspected-mould", label: "I suspect mould" },
+      { href: "/mould-prevention", label: "Mould prevention" },
+      { href: "#quiz", label: "Do I have mould? Take the test" },
+    ],
+  },
+  {
+    key: "sentinel",
+    label: "Sentinel",
+    panel: true,
+    mobileLinks: [
+      { href: "/sporetrust-sentinel", label: "Sporetrust Sentinel — $22.95/wk" },
+    ],
+  },
+  {
+    key: "about",
+    label: "About",
+    panel: true,
+    mobileLinks: [
+      { href: "/why-sporetrust", label: "Why Sporetrust" },
+      { href: "/partners/contractors", label: "Repair contractors" },
+      { href: "/partners/remediation", label: "Remediation providers" },
+    ],
+  },
 ];
 
 function PanelLink({ href, label, desc, kicker, variant }) {
@@ -183,10 +214,21 @@ const PANELS = {
 };
 
 export default function MegaNav() {
+  const pathname = usePathname();
   const [openKey, setOpenKey] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState(null);
   const openTimerRef = useRef(null);
   const closeTimerRef = useRef(null);
+
+  // Close the mobile drawer AFTER navigation completes (pathname change),
+  // so the page swap happens behind the still-open drawer and the drawer
+  // animates away once the new page is visible. Hash links (#book/#quiz)
+  // don't change pathname — those still close on click below.
+  useEffect(() => {
+    setMobileOpen(false);
+    setMobileSection(null);
+  }, [pathname]);
 
   function clearTimers() {
     if (openTimerRef.current) {
@@ -317,30 +359,105 @@ export default function MegaNav() {
 
       {/* Mobile drawer */}
       <div className="mega-nav__drawer" aria-hidden={!mobileOpen}>
+        <div className="mega-nav__drawer-head">
+          <Brand />
+          <button
+            type="button"
+            className="mega-nav__drawer-close"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 6 L18 18 M18 6 L6 18"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+
         <div className="mega-nav__drawer-inner">
-          {NAV_ITEMS.map((item) => (
-            <details key={item.key} className="mega-nav__drawer-item">
-              <summary>
-                {item.label}
-                {item.panel ? (
-                  <svg viewBox="0 0 12 12" aria-hidden="true">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          {NAV_ITEMS.map((item) => {
+            if (!item.panel) {
+              return (
+                <a
+                  key={item.key}
+                  className="mega-nav__drawer-link"
+                  href={item.href}
+                  onClick={() => {
+                    if (isHashHref(item.href)) setMobileOpen(false);
+                  }}
+                >
+                  {item.label}
+                  <ArrowIcon />
+                </a>
+              );
+            }
+            const links = item.mobileLinks || [];
+            const isOpen = mobileSection === item.key;
+            return (
+              <div
+                key={item.key}
+                className={`mega-nav__drawer-item${isOpen ? " is-open" : ""}`}
+              >
+                <button
+                  type="button"
+                  className="mega-nav__drawer-summary"
+                  aria-expanded={isOpen}
+                  onClick={() =>
+                    setMobileSection((current) =>
+                      current === item.key ? null : item.key
+                    )
+                  }
+                >
+                  <span>{item.label}</span>
+                  <svg
+                    className="mega-nav__drawer-chevron"
+                    viewBox="0 0 12 12"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 4.5L6 7.5L9 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
-                ) : null}
-              </summary>
-              {item.panel && PANELS[item.key]
-                ? (() => {
-                    const PanelComp = PANELS[item.key];
-                    return (
-                      <div className="mega-nav__drawer-content">
-                        <PanelComp />
-                      </div>
-                    );
-                  })()
-                : null}
-            </details>
-          ))}
-          <a className="mega-nav__cta mega-nav__cta--mobile" href="#book" onClick={() => setMobileOpen(false)}>
+                </button>
+                <ul
+                  className="mega-nav__drawer-sublist"
+                  role="list"
+                  aria-hidden={!isOpen}
+                >
+                  {links.map((link) => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        onClick={() => {
+                          if (isHashHref(link.href)) setMobileOpen(false);
+                        }}
+                      >
+                        {link.label}
+                        <ArrowIcon />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mega-nav__drawer-foot">
+          <a
+            className="mega-nav__cta mega-nav__cta--mobile"
+            href="#book"
+            onClick={() => setMobileOpen(false)}
+          >
             Book inspection <ArrowIcon />
           </a>
         </div>
