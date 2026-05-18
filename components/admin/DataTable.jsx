@@ -56,6 +56,20 @@ function fmtJsonish(value) {
   return String(value);
 }
 
+function resolveValue(row, column) {
+  // Column can opt into FK resolution via lookup: [embedTable, field].
+  // Supabase returns the embedded row as row[embedTable].
+  if (column.lookup) {
+    const [table, field] = column.lookup;
+    const nested = row?.[table];
+    if (nested && typeof nested === "object" && nested[field] != null) {
+      return nested[field];
+    }
+    // Fall through to the raw FK value when the embed didn't return a row.
+  }
+  return row?.[column.key];
+}
+
 function renderCell(value, column) {
   if (value === null || value === undefined || value === "") {
     return <span className="admin-table__null">—</span>;
@@ -76,6 +90,16 @@ function renderCell(value, column) {
     default:
       return String(value);
   }
+}
+
+// Compose a row key from one or more columns. config.rowKey can be a string
+// (the common single-PK case) or an array (composite keys, e.g. partner_skills).
+function getRowKey(row, rowKey, index) {
+  if (Array.isArray(rowKey)) {
+    return rowKey.map((k) => row?.[k] ?? "").join("|") || String(index);
+  }
+  const v = row?.[rowKey];
+  return v == null ? String(index) : v;
 }
 
 export default function DataTable({ config }) {
@@ -138,16 +162,19 @@ export default function DataTable({ config }) {
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
-                <tr key={row[config.rowKey]}>
+              rows.map((row, index) => (
+                <tr key={getRowKey(row, config.rowKey, index)}>
                   {config.columns.map((col) => {
                     const classes = [];
-                    if (col.mono) classes.push("admin-cell--mono");
+                    // When a lookup resolves, treat the column as plain text
+                    // (the resolved name shouldn't be mono'd like an ID).
+                    const usingLookup = !!col.lookup && row?.[col.lookup[0]];
+                    if (col.mono && !usingLookup) classes.push("admin-cell--mono");
                     if (col.muted) classes.push("admin-cell--muted");
                     if (col.align === "right") classes.push("is-right");
                     return (
                       <td key={col.key} className={classes.join(" ") || undefined}>
-                        {renderCell(row[col.key], col)}
+                        {renderCell(resolveValue(row, col), col)}
                       </td>
                     );
                   })}

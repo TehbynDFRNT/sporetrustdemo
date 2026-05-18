@@ -1,7 +1,8 @@
 import { adminListHandler } from "../../../../lib/admin/handler";
+import { airSamples } from "../../../../lib/admin/types/air-samples";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  return adminListHandler("air-samples", "air_samples");
+  return adminListHandler(airSamples);
 }
