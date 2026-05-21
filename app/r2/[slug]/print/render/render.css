@@ -1,0 +1,1054 @@
+/* Paper-first stylesheet for the PDF render route. Designed for A4 portrait
+ * (210mm × 297mm). Single column, real PDF typography. Puppeteer captures
+ * this with `page.pdf({ format: 'A4' })` so the @page rules govern paper
+ * dimensions and margins.
+ *
+ * NOT the screen layout — this is a totally separate visual language built
+ * for paper, not for a web viewport. Every section is designed to fit
+ * inside a single A4 page or break cleanly at page boundaries.
+ */
+
+/* Page size for the render route. Page margins are set by Puppeteer
+ * in /print/pdf/route.js so the persistent footerTemplate has room:
+ *   top 16mm · sides 16mm · bottom 28mm (footer lives in that band). */
+@page {
+  size: A4 portrait;
+  margin: 16mm 16mm 28mm 16mm;
+}
+
+:root {
+  --pdoc-ink: #111213;
+  --pdoc-ink-soft: #4a4d50;
+  --pdoc-ink-faint: #80868c;
+  --pdoc-line: #d8d8d6;
+  --pdoc-line-soft: #ececea;
+  --pdoc-bone: #f5f3ef;
+  --pdoc-paper: #ffffff;
+  --pdoc-green: #2f5d3a;
+  --pdoc-amber: #b15a1e;
+  --pdoc-red: #8b2415;
+}
+
+.pdoc, .pdoc * { box-sizing: border-box; }
+
+.pdoc {
+  font-family: "Geist", "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 10pt;
+  line-height: 1.45;
+  color: var(--pdoc-ink);
+  background: #fff;
+}
+
+/* Every page section must have an explicit white background — without it
+ * the PDF page surface inherits transparency and pdf.js shows the dark
+ * viewer stage through. */
+.pdoc-page { background: #fff; }
+
+.pdoc-mono {
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Page container — continuous flow ──────────────────────────────────
+ *
+ * No forced page breaks anywhere. Every section flows top-to-bottom and
+ * Chrome paginates wherever the content reaches the bottom of an A4
+ * page. Section boundaries get a visible separator (border-top + spacing)
+ * so the reader sees logical breaks regardless of where the engine
+ * paginates. Cards keep `page-break-inside: avoid` so a moisture card or
+ * image pair doesn't get split mid-figure.
+ */
+.pdoc-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14pt;
+}
+
+/* Visible section separator: a hairline + breathing space between
+ * top-level sections (cover → room 1 → room 2 → scope → closing). */
+.pdoc-page + .pdoc-page {
+  padding-top: 16pt;
+  margin-top: 4pt;
+  border-top: 1pt solid var(--pdoc-line);
+}
+
+/* Headings + section heads can never be orphaned from the content that
+ * follows them. Belt-and-braces: every heading sets `break-after: avoid`
+ * AND its immediately following sibling sets `break-before: avoid` so the
+ * engine has nowhere to break the pair apart. */
+h1, h2, h3, h4, h5, h6,
+.pdoc-room__head,
+.pdoc-disclaimer__head,
+.pdoc-block__title,
+.pdoc-rollup__title,
+.pdoc-cover__brand,
+.pdoc-cover__title-block {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+.pdoc-room__head + *,
+.pdoc-disclaimer__head + *,
+.pdoc-block__title + *,
+.pdoc-rollup__title + *,
+h1 + *, h2 + *, h3 + *, h4 + *, h5 + *, h6 + * {
+  page-break-before: avoid;
+  break-before: avoid;
+}
+
+/* Paragraphs avoid 1-2 line orphans at page boundaries. */
+.pdoc p {
+  orphans: 3;
+  widows: 3;
+}
+
+/* Image pair stays atomic. Tables are NOT atomic — long species lists
+ * and scope tables need to flow across pages instead of orphaning to
+ * the next page. The thead repeats on subsequent pages automatically. */
+.pdoc-images {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.pdoc-table thead { display: table-header-group; }
+.pdoc-table tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ─── Cover (first section of the continuous flow) ──────────────────── */
+
+.pdoc-cover {
+  padding: 0;
+  gap: 22pt;
+}
+/* The cover is the first child — no separator above it. */
+.pdoc-cover:first-child { padding-top: 0; margin-top: 0; border-top: 0; }
+.pdoc-cover__brand {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18pt;
+  padding-bottom: 12pt;
+  border-bottom: 1px solid var(--pdoc-line);
+}
+.pdoc-cover__brand-mark {
+  font-size: 16pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--pdoc-ink);
+}
+.pdoc-cover__recipient {
+  max-width: 60mm;
+  font-size: 8pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+  text-align: right;
+  line-height: 1.4;
+}
+
+.pdoc-cover__title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10pt;
+  padding: 8pt 0;
+}
+.pdoc-cover__title {
+  margin: 0;
+  font-size: 28pt;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--pdoc-ink);
+}
+.pdoc-cover__summary {
+  margin: 0;
+  max-width: 130mm;
+  font-size: 11.5pt;
+  line-height: 1.5;
+  color: var(--pdoc-ink);
+}
+
+.pdoc-cover__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12pt 18pt;
+  margin: 0;
+  padding: 14pt 0;
+  border-top: 1px solid var(--pdoc-line);
+  border-bottom: 1px solid var(--pdoc-line);
+}
+.pdoc-cover__meta > div { display: flex; flex-direction: column; gap: 2pt; }
+.pdoc-cover__meta dt {
+  margin: 0;
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-cover__meta dd {
+  margin: 0;
+  font-size: 10pt;
+  color: var(--pdoc-ink);
+  line-height: 1.35;
+}
+.pdoc-cover__meta-sub {
+  font-size: 8.5pt;
+  color: var(--pdoc-ink-soft);
+}
+
+.pdoc-cover__intro { display: flex; flex-direction: column; gap: 8pt; }
+.pdoc-cover__intro p {
+  margin: 0;
+  font-size: 10pt;
+  line-height: 1.55;
+  color: var(--pdoc-ink);
+}
+
+
+/* ─── Room page ──────────────────────────────────────────────────────── */
+
+.pdoc-room { gap: 10pt; }
+
+.pdoc-room__head { display: flex; flex-direction: column; gap: 4pt; padding-bottom: 8pt; border-bottom: 1px solid var(--pdoc-line); }
+.pdoc-room__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12pt;
+}
+.pdoc-room__title {
+  margin: 0;
+  font-size: 18pt;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  color: var(--pdoc-ink);
+}
+.pdoc-room__meta {
+  margin: 0;
+  font-size: 8.5pt;
+  color: var(--pdoc-ink-soft);
+}
+
+.pdoc-eyebrow {
+  margin: 0;
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pdoc-ink-soft);
+}
+
+/* ─── Block (section inside a room) ──────────────────────────────────── */
+
+/* Blocks are NOT atomic — they're allowed to flow across pages so the
+ * room imagery above doesn't get stranded on its own page when a block
+ * doesn't fit in the remaining space. The block's heading stays paired
+ * with its first child (see h1-h6 + * rule). */
+.pdoc-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6pt;
+}
+.pdoc-block__title {
+  margin: 0;
+  font-size: 9pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink);
+  padding-bottom: 3pt;
+  border-bottom: 1px solid var(--pdoc-line-soft);
+}
+
+.pdoc-prose {
+  margin: 0;
+  font-size: 10pt;
+  line-height: 1.55;
+  color: var(--pdoc-ink);
+}
+.pdoc-muted { color: var(--pdoc-ink-soft); font-style: italic; }
+
+/* ─── Image rows ─────────────────────────────────────────────────────── */
+
+.pdoc-images {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8pt;
+}
+.pdoc-image {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4pt;
+}
+.pdoc-image__frame {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+.pdoc-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 90mm;
+  object-fit: cover;
+  border: 1px solid var(--pdoc-line);
+  border-radius: 2pt;
+  background: var(--pdoc-bone);
+}
+.pdoc-image figcaption {
+  font-size: 8pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+  text-align: center;
+}
+
+/* Numbered pin overlay — absolute within .pdoc-image__frame so the
+ * percentage-based marker_x/y_pct map exactly to the image bounds. Pin
+ * styling: dark fill + white text + white halo so the number reads on
+ * both visible (light) and thermal (dark) images. */
+.pdoc-image__markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pdoc-image__marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 6.5mm;
+  height: 6.5mm;
+  background: var(--pdoc-ink);
+  color: #fff;
+  border: 0.6mm solid #fff;
+  border-radius: 999pt;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 8pt;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0.4mm 0.8mm rgba(0, 0, 0, 0.35);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pdoc-images--slides .pdoc-image--slide img {
+  max-height: 55mm;
+  object-fit: contain;
+}
+
+/* ─── Room summary card ──────────────────────────────────────────────── */
+
+/* At-a-glance card at the top of each room: worst-of moisture reading +
+ * air-vs-outdoor ratio + structured findings/sources. Sits above the
+ * visual evidence so the reader gets the conclusion first. */
+.pdoc-summary {
+  background: var(--pdoc-paper);
+  border: 1px solid var(--pdoc-line);
+  border-radius: 4pt;
+  padding: 12pt 14pt 14pt;
+  display: flex;
+  flex-direction: column;
+  gap: 12pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdoc-summary__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14pt;
+  padding-bottom: 12pt;
+  border-bottom: 1px solid var(--pdoc-line-soft);
+}
+.pdoc-summary__stats:only-child { border-bottom: 0; padding-bottom: 0; }
+
+.pdoc-summary__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2pt;
+  min-width: 0;
+}
+.pdoc-summary__stat-eyebrow {
+  margin: 0;
+  font-size: 7pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-summary__stat-value {
+  margin: 1pt 0 0;
+  font-size: 24pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--pdoc-ink);
+}
+.pdoc-summary__stat-value em {
+  font-style: normal;
+  font-size: 11pt;
+  font-weight: 400;
+  color: var(--pdoc-ink-faint);
+  margin-left: 2pt;
+}
+.pdoc-summary__stat-meta {
+  margin: 2pt 0 0;
+  font-size: 8.5pt;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-summary__stat .pdoc-pill {
+  align-self: flex-start;
+  margin-top: 4pt;
+}
+
+/* Findings panel inside the summary card */
+.pdoc-summary__findings {
+  display: flex;
+  flex-direction: column;
+  gap: 8pt;
+}
+
+.pdoc-findings__eyebrow {
+  margin: 0 0 3pt;
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pdoc-ink-soft);
+}
+
+.pdoc-findings__observation { display: flex; flex-direction: column; gap: 0; }
+.pdoc-findings__obs {
+  margin: 0 0 3pt;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: var(--pdoc-ink);
+}
+.pdoc-findings__obs:last-child { margin-bottom: 0; }
+
+.pdoc-findings__sources { display: flex; flex-direction: column; gap: 4pt; }
+
+.pdoc-findings__source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6pt;
+}
+
+.pdoc-findings__source {
+  padding: 6pt 8pt 7pt;
+  background: var(--pdoc-bone);
+  border-radius: 3pt;
+  border-left: 3pt solid var(--pdoc-line);
+  display: flex;
+  flex-direction: column;
+  gap: 3pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.pdoc-findings__source--primary   { border-left-color: var(--pdoc-red); }
+.pdoc-findings__source--secondary { border-left-color: var(--pdoc-amber); }
+.pdoc-findings__source--tertiary  { border-left-color: var(--pdoc-ink-soft); }
+
+.pdoc-findings__source-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6pt;
+  flex-wrap: wrap;
+}
+.pdoc-findings__source-rank {
+  font-size: 6.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-findings__source-head strong {
+  font-size: 9.5pt;
+  font-weight: 600;
+  color: var(--pdoc-ink);
+}
+.pdoc-findings__source-body {
+  margin: 0;
+  font-size: 8.5pt;
+  line-height: 1.4;
+  color: var(--pdoc-ink-soft);
+}
+
+/* ─── Per-reading moisture evidence ─────────────────────────────────── */
+
+.pdoc-evidence-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 7pt;
+}
+
+/* Evidence cards are NOT atomic — they're allowed to split mid-card so
+ * the moisture section can begin on the same page as the room imagery
+ * above. Within a card, only the smaller sub-units (image figure +
+ * caption, detail grid) stay atomic. */
+.pdoc-evidence {
+  background: var(--pdoc-paper);
+  border: 1px solid var(--pdoc-line);
+  border-radius: 3pt;
+  padding: 5pt 8pt 6pt;
+  display: flex;
+  gap: 10pt;
+  align-items: stretch;
+}
+
+.pdoc-evidence__image,
+.pdoc-evidence__detail,
+.pdoc-evidence__interp {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.pdoc-evidence__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4pt;
+}
+
+.pdoc-evidence__head {
+  display: flex;
+  align-items: center;
+  gap: 8pt;
+}
+.pdoc-evidence__index {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--pdoc-ink-faint);
+  flex: 0 0 auto;
+  min-width: 16pt;
+}
+.pdoc-evidence__title-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 8pt;
+  min-width: 0;
+}
+.pdoc-evidence__title {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--pdoc-ink);
+  line-height: 1.2;
+}
+.pdoc-evidence__value {
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--pdoc-ink);
+  white-space: nowrap;
+}
+.pdoc-evidence__value em {
+  font-style: normal;
+  font-size: 8pt;
+  font-weight: 400;
+  color: var(--pdoc-ink-faint);
+  margin-left: 2pt;
+}
+
+/* Side column — fixed width on the right of the card so the body
+ * (header, detail grid, interpretation) takes the remaining width. */
+.pdoc-evidence__image {
+  margin: 0;
+  flex: 0 0 35mm;
+  display: flex;
+  flex-direction: column;
+  gap: 3pt;
+}
+.pdoc-evidence__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--pdoc-line);
+  border-radius: 2pt;
+  background: var(--pdoc-bone);
+}
+.pdoc-evidence__image figcaption {
+  font-size: 6.5pt;
+  line-height: 1.3;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-evidence__image figcaption strong {
+  color: var(--pdoc-ink);
+  font-weight: 600;
+}
+
+.pdoc-evidence__detail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2pt 12pt;
+  margin: 0;
+  padding: 3pt 0 0;
+  border-top: 1px solid var(--pdoc-line-soft);
+}
+.pdoc-evidence__detail > div { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.pdoc-evidence__detail dt {
+  font-size: 6.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+  margin: 0;
+}
+.pdoc-evidence__detail dd {
+  margin: 0;
+  font-size: 8.5pt;
+  color: var(--pdoc-ink);
+  line-height: 1.2;
+}
+
+.pdoc-evidence__interp {
+  margin: 0;
+  padding: 3pt 6pt;
+  background: var(--pdoc-bone);
+  border-radius: 2pt;
+  font-size: 8.5pt;
+  line-height: 1.35;
+  color: var(--pdoc-ink);
+}
+.pdoc-evidence__interp-eyebrow {
+  font-size: 6.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+  margin-right: 3pt;
+}
+
+/* ─── Fungal classification rollup ──────────────────────────────────── */
+
+/* Rollup is allowed to flow too — the three group rows each carry their
+ * own context so splitting between them is acceptable. */
+.pdoc-rollup {
+  margin: 0 0 6pt;
+}
+.pdoc-rollup__title {
+  margin: 0 0 6pt;
+  font-size: 8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-rollup__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4pt;
+}
+.pdoc-rollup__row {
+  padding: 6pt 8pt;
+  background: var(--pdoc-bone);
+  border-left: 3pt solid var(--pdoc-line);
+  border-radius: 2pt;
+  display: flex;
+  flex-direction: column;
+  gap: 3pt;
+}
+.pdoc-rollup__row--predominantly-indoor-water-related { border-left-color: var(--pdoc-red); }
+.pdoc-rollup__row--indoor-outdoor { border-left-color: var(--pdoc-amber); }
+.pdoc-rollup__row--predominantly-outdoor { border-left-color: var(--pdoc-green); }
+.pdoc-rollup__row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10pt;
+}
+.pdoc-rollup__row-head strong {
+  font-size: 9.5pt;
+  font-weight: 600;
+  color: var(--pdoc-ink);
+}
+.pdoc-rollup__totals {
+  font-size: 10pt;
+  font-weight: 700;
+  color: var(--pdoc-ink);
+  white-space: nowrap;
+}
+.pdoc-rollup__totals em {
+  font-style: normal;
+  font-size: 7.5pt;
+  font-weight: 400;
+  color: var(--pdoc-ink-faint);
+}
+.pdoc-rollup__species {
+  font-size: 8pt;
+  font-weight: 400;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-rollup__note {
+  margin: 0;
+  font-size: 8.5pt;
+  line-height: 1.45;
+  color: var(--pdoc-ink-soft);
+}
+
+.pdoc-table__group {
+  font-size: 8pt;
+  color: var(--pdoc-ink-soft);
+  white-space: nowrap;
+}
+
+/* ─── Sources list ───────────────────────────────────────────────────── */
+
+.pdoc-sources {
+  list-style: none;
+  padding: 0;
+  margin: 4pt 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4pt;
+}
+.pdoc-sources li {
+  display: grid;
+  grid-template-columns: 18mm 1fr;
+  gap: 6pt;
+  font-size: 9.5pt;
+  line-height: 1.45;
+}
+.pdoc-sources__rank {
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+  padding-top: 1pt;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────── */
+
+.pdoc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  background: var(--pdoc-paper);
+  border: 1px solid var(--pdoc-line);
+}
+.pdoc-table th,
+.pdoc-table td {
+  padding: 4pt 6pt;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--pdoc-line-soft);
+}
+.pdoc-table thead th {
+  background: var(--pdoc-bone);
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pdoc-ink-soft);
+  border-bottom: 1px solid var(--pdoc-line);
+}
+.pdoc-table tbody tr:last-child td { border-bottom: 0; }
+.pdoc-table__idx {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 8pt;
+  color: var(--pdoc-ink-faint);
+  width: 14mm;
+}
+.pdoc-table__sub {
+  font-size: 8pt;
+  color: var(--pdoc-ink-soft);
+  font-weight: 400;
+}
+.pdoc-num { text-align: right; white-space: nowrap; }
+.pdoc-unit { font-size: 7.5pt; color: var(--pdoc-ink-faint); font-style: italic; }
+
+.pdoc-table tfoot th {
+  background: var(--pdoc-bone);
+  border-top: 1px solid var(--pdoc-line);
+  font-size: 9pt;
+  font-weight: 600;
+  color: var(--pdoc-ink);
+  padding: 6pt;
+}
+
+.pdoc-table--compact th,
+.pdoc-table--compact td { padding: 3pt 6pt; }
+
+.pdoc-table--scope th,
+.pdoc-table--scope td { padding: 5pt 6pt; }
+
+/* ─── Air sample comparison ──────────────────────────────────────────── */
+
+/* Two-column when an intake evidence image is present (body left,
+ * thumbnail right). Body-only when there's no intake image. */
+.pdoc-air-compare {
+  padding: 8pt 10pt;
+  background: var(--pdoc-bone);
+  border-radius: 3pt;
+  display: flex;
+  gap: 12pt;
+  align-items: stretch;
+}
+.pdoc-air-compare__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4pt;
+}
+.pdoc-air-compare__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12pt;
+  font-size: 9.5pt;
+}
+.pdoc-air-compare__label { color: var(--pdoc-ink-soft); }
+.pdoc-air-compare__value { font-size: 11pt; font-weight: 600; color: var(--pdoc-ink); }
+.pdoc-air-compare__value.is-alarm { color: var(--pdoc-red); }
+.pdoc-air-compare__value em { font-style: normal; font-size: 7.5pt; color: var(--pdoc-ink-faint); margin-left: 2pt; }
+.pdoc-air-compare__note {
+  margin: 4pt 0 0;
+  padding-top: 4pt;
+  border-top: 1px solid var(--pdoc-line);
+  font-size: 9.5pt;
+  color: var(--pdoc-ink);
+}
+
+/* Intake evidence photo column — same visual treatment as the moisture
+ * intake column for consistency. Fixed 35mm width so the body compare
+ * rows still read clearly. */
+.pdoc-air-compare__image {
+  margin: 0;
+  flex: 0 0 35mm;
+  display: flex;
+  flex-direction: column;
+  gap: 3pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.pdoc-air-compare__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--pdoc-line);
+  border-radius: 2pt;
+  background: var(--pdoc-paper);
+}
+.pdoc-air-compare__image figcaption {
+  font-size: 6.5pt;
+  line-height: 1.3;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-air-compare__image figcaption strong {
+  color: var(--pdoc-ink);
+  font-weight: 600;
+}
+
+.pdoc-foot-note {
+  margin: 0;
+  padding-top: 4pt;
+  font-size: 8pt;
+  color: var(--pdoc-ink-soft);
+  font-style: italic;
+}
+
+/* ─── Pills ──────────────────────────────────────────────────────────── */
+
+.pdoc-pill {
+  display: inline-block;
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2pt 8pt;
+  border-radius: 999pt;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--pdoc-ink-soft);
+}
+.pdoc-pill.pill--ok   { background: var(--pdoc-green); }
+.pdoc-pill.pill--warn { background: var(--pdoc-amber); }
+.pdoc-pill.pill--bad  { background: var(--pdoc-red); }
+
+/* ─── Scope page ─────────────────────────────────────────────────────── */
+
+.pdoc-scope { gap: 12pt; }
+
+/* ─── Your Fix Plan — full-page CTA ───────────────────────────────────
+ *
+ * Conversion page. The anchor button is a real clickable PDF link —
+ * Puppeteer's page.pdf() preserves <a href> as a link annotation in
+ * the rendered PDF, so it opens the live report when clicked or
+ * tapped. Background colour + button colour rely on
+ * `print-color-adjust: exact` so the brand ink fills survive print.
+ */
+
+/* Fix-plan and disclaimer each anchor on their own dedicated page so
+ * conversion focus + sign-off framing are never broken across a page
+ * boundary mid-CTA. The rest of the document still flows continuously. */
+.pdoc-fix {
+  gap: 0;
+  page-break-before: always;
+  break-before: page;
+}
+
+.pdoc-fix__eyebrow {
+  margin: 0 0 8pt;
+  font-size: 8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pdoc-ink-soft);
+}
+
+.pdoc-fix__headline {
+  margin: 0 0 8pt;
+  font-size: 24pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--pdoc-ink);
+  max-width: 150mm;
+}
+
+.pdoc-fix__body {
+  margin: 0 0 18pt;
+  font-size: 11pt;
+  line-height: 1.55;
+  color: var(--pdoc-ink-soft);
+  max-width: 150mm;
+}
+
+/* Real button — a styled <a href> Puppeteer renders as a clickable link
+ * annotation in the PDF. Generous padding + brand ink fill + white text
+ * so it reads as a button on paper. */
+.pdoc-fix__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8pt;
+  padding: 11pt 22pt;
+  background: var(--pdoc-ink);
+  color: #fff !important;
+  font-size: 12pt;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border-radius: 999pt;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.pdoc-fix__button-arrow {
+  font-size: 13pt;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.pdoc-fix__url-line {
+  margin: 8pt 0 0;
+  font-size: 9pt;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-fix__url-eyebrow {
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-faint);
+  margin-right: 3pt;
+}
+.pdoc-fix__url {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 9pt;
+  color: var(--pdoc-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--pdoc-line);
+  text-underline-offset: 2pt;
+}
+
+/* Supporting stats strip — between button and the scope table. */
+.pdoc-fix__stats {
+  margin: 24pt 0 14pt;
+  padding: 12pt 0;
+  border-top: 1px solid var(--pdoc-line);
+  border-bottom: 1px solid var(--pdoc-line);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18pt;
+}
+.pdoc-fix__stats > div { display: flex; flex-direction: column; gap: 2pt; min-width: 0; }
+.pdoc-fix__stat-eyebrow {
+  margin: 0;
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+}
+.pdoc-fix__stat-value {
+  margin: 0;
+  font-size: 16pt;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--pdoc-ink);
+  line-height: 1.15;
+}
+
+/* ─── Disclaimer (final block at the document end) ───────────────────── */
+
+.pdoc-disclaimer {
+  gap: 10pt;
+  page-break-before: always;
+  break-before: page;
+}
+.pdoc-disclaimer__head { display: flex; flex-direction: column; gap: 4pt; }
+.pdoc-disclaimer__title {
+  margin: 0;
+  font-size: 11pt;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--pdoc-ink);
+}
+.pdoc-disclaimer__body {
+  margin: 0;
+  max-width: 160mm;
+  font-size: 9pt;
+  line-height: 1.55;
+  color: var(--pdoc-ink-soft);
+  font-style: italic;
+}
+.pdoc-disclaimer__signoff {
+  margin: 0;
+  padding: 10pt 12pt;
+  background: var(--pdoc-bone);
+  border-radius: 3pt;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6pt;
+}
+.pdoc-disclaimer__signoff > div { display: flex; flex-direction: column; gap: 1pt; }
+.pdoc-disclaimer__signoff dt {
+  font-size: 7.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdoc-ink-soft);
+  margin: 0;
+}
+.pdoc-disclaimer__signoff dd {
+  margin: 0;
+  font-size: 10pt;
+  color: var(--pdoc-ink);
+}

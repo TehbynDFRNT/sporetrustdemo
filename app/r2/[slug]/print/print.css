@@ -1,0 +1,194 @@
+/* PDF viewer page — `/r2/[slug]/print`.
+ *
+ * Docusign-style: toolbar at the top with back link, the report title,
+ * the audience template switcher, and a Download button. Below, an
+ * <iframe> embeds the generated PDF from /r2/[slug]/print/pdf so the
+ * browser's native PDF viewer handles pagination / zoom / scroll.
+ */
+
+/* Kill ALL site chrome on the viewer route. Next App Router scopes
+ * route-segment CSS imports to that route, so these unconditional
+ * selectors only apply while the viewer is mounted. Unconditional
+ * (not gated on body[data-report]) so there's no flash before
+ * SiteChrome's client effect runs. */
+body > header,
+body > footer,
+body .mega-nav,
+body .lander-header,
+body .lander-footer,
+body .footer,
+body .utility-banner,
+body .sticky-cta { display: none !important; }
+
+body[data-report] .pviewer { background: #2c2d2f; }
+
+.pviewer {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #2c2d2f;
+  color: #fff;
+}
+
+/* ─── Toolbar ─────────────────────────────────────────────────────── */
+
+.pviewer__bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 24px);
+  padding: 10px clamp(16px, 2vw, 28px);
+  background: #1c1d1e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.pviewer__bar-left,
+.pviewer__bar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.pviewer__bar-left { min-width: 0; }
+
+.pviewer__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: background 120ms, color 120ms;
+}
+.pviewer__back:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.pviewer__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.25;
+}
+.pviewer__title strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+.pviewer__title span {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+/* Quiet variant pill — just shows which copy the customer picked in the
+ * Share dialog so the toolbar has a sense of identity without offering
+ * a switch back. To change variants, the customer goes back to the
+ * report and re-opens the Share dialog. */
+.pviewer__variant {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pviewer__download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #fff;
+  color: #1c1d1e;
+  border: 0;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms;
+}
+.pviewer__download:hover { background: #f5f5f3; }
+
+/* ─── Stage — continuous-document page stack ──────────────────────────
+ * Pages render edge-to-edge with no gap, on a light cream stage. A
+ * single hairline border between pages marks the page-break point —
+ * the document reads as one continuous flow rather than a stack of
+ * separate sheets. */
+
+.pviewer__stage {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(16px, 2vw, 28px) clamp(12px, 2vw, 24px) 64px;
+  background: #e8e6e2;
+  display: flex;
+  justify-content: center;
+}
+
+.pviewer__doc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.pviewer__page {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.pviewer__page + .pviewer__page {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.pviewer__page canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+}
+
+.pviewer__page-skeleton {
+  aspect-ratio: 1 / 1.414; /* A4 portrait */
+  background: linear-gradient(180deg, #f5f5f3, #ebeae6);
+}
+
+.pviewer__loading,
+.pviewer__error {
+  padding: 32px 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+}
+.pviewer__error p { margin: 0 0 4px; }
+.pviewer__error-detail {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* ─── Narrow screens ──────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .pviewer__bar { flex-wrap: wrap; }
+  .pviewer__title strong,
+  .pviewer__title span { max-width: 200px; }
+}

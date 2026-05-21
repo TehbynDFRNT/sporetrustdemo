@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CAL_EVENT_LENGTH, CAL_TIME_ZONE, calFetch, getCalEventTypeId, isCalTestMode, toShortMetadata } from "../../../../lib/cal";
+import { ensureInspectionFromBooking } from "../../../../lib/inspectionsFromBooking";
 
 export const runtime = "nodejs";
 
@@ -58,12 +59,27 @@ export async function POST(request) {
       .join("\n");
 
     if (isCalTestMode()) {
+      const testUid = `test-${Date.now()}`;
+      const inspection = await ensureInspectionFromBooking({
+        cal_booking_id: testUid,
+        start: startIso,
+        attendee: { name, email, phone },
+        address,
+        postcode,
+        placeId,
+        lat,
+        lng,
+      });
       return NextResponse.json({
         booking: {
-          uid: `test-${Date.now()}`,
+          uid: testUid,
           title: `Sporetrust diagnostic - ${locationLabel}`,
           start: startIso,
           status: "accepted",
+        },
+        inspection: {
+          slug: inspection.report_slug,
+          url: `/r2/${inspection.report_slug}`,
         },
         testMode: true,
       });
@@ -104,6 +120,26 @@ export async function POST(request) {
 
     const booking = payload.data;
 
+    // Mirror the Cal booking into our DB so the customer has a slug to
+    // land on immediately. If this fails we don't tear down the Cal
+    // booking — the BOOKING_CREATED webhook will reconcile (the helper
+    // is idempotent on cal_booking_id).
+    let inspection = null;
+    try {
+      inspection = await ensureInspectionFromBooking({
+        cal_booking_id: booking?.uid,
+        start: booking?.start || startIso,
+        attendee: { name, email, phone },
+        address,
+        postcode,
+        placeId,
+        lat,
+        lng,
+      });
+    } catch (mirrorErr) {
+      console.error("[cal/bookings] inspection mirror failed:", mirrorErr?.message || mirrorErr);
+    }
+
     return NextResponse.json({
       booking: {
         uid: booking?.uid,
@@ -111,6 +147,9 @@ export async function POST(request) {
         start: booking?.start,
         status: booking?.status,
       },
+      inspection: inspection
+        ? { slug: inspection.report_slug, url: `/r2/${inspection.report_slug}` }
+        : null,
     });
   } catch (error) {
     return NextResponse.json(

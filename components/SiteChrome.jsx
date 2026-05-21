@@ -26,6 +26,11 @@ function isAdminPath(pathname) {
   return typeof pathname === "string" && pathname.startsWith("/admin");
 }
 
+function isReportPath(pathname) {
+  if (typeof pathname !== "string") return false;
+  return pathname.startsWith("/r/") || pathname.startsWith("/r2/");
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   useEffect(() => {
@@ -39,6 +44,11 @@ export function SiteHeader() {
       document.body.dataset.lander = "true";
     } else {
       delete document.body.dataset.lander;
+    }
+    if (isReportPath(pathname)) {
+      document.body.dataset.report = "true";
+    } else {
+      delete document.body.dataset.report;
     }
   }, [pathname]);
   return (

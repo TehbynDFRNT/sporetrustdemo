@@ -73,9 +73,9 @@ ALTER TABLE trade_categories
   ADD CONSTRAINT trade_categories_group_order_uq UNIQUE (group_label, display_order);
 
 
--- Fungal classifications: persistent glossary scraped from a lab partner
--- (e.g. sporecyte.com/fungal-glossary/). Populated independently of
--- inspections; air_sample_fungal_count and air_sample_notable_object FK in.
+-- Fungal classifications: persistent glossary of fungal species. Populated
+-- independently of inspections; air_sample_fungal_count and
+-- air_sample_notable_object FK in.
 CREATE TABLE fungal_classifications (
   fungal_classification_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   slug                     TEXT NOT NULL UNIQUE,           -- 'aspergillus-penicillium'
@@ -140,6 +140,59 @@ CREATE INDEX technicians_role   ON technicians (role);
 CREATE INDEX technicians_active ON technicians (active) WHERE active;
 CREATE TRIGGER technicians_updated_at
   BEFORE UPDATE ON technicians
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- =====================================================================
+-- EQUIPMENT (typed assets owned by technicians)
+-- =====================================================================
+
+-- Equipment catalogue. Each row carries an image so the wizard can
+-- render card-based identification when a tech is picking which device
+-- they used for a reading.
+CREATE TABLE equipment_types (
+  equipment_type_id  BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  slug               TEXT NOT NULL UNIQUE,
+  name               TEXT NOT NULL,
+  manufacturer       TEXT,
+  category           TEXT NOT NULL CHECK (category IN (
+                       'moisture_meter', 'thermal_camera', 'air_sampler',
+                       'particle_counter', 'hygrometer', 'other'
+                     )),
+  image_storage_path TEXT,                                       -- Supabase Storage path (equipment-images bucket)
+  notes              TEXT,
+  active             BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at         TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX equipment_types_category ON equipment_types (category);
+CREATE INDEX equipment_types_active   ON equipment_types (active) WHERE active;
+CREATE TRIGGER equipment_types_updated_at
+  BEFORE UPDATE ON equipment_types
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- A tech's personal kit. One row per physical instrument they own —
+-- asset_tag distinguishes "the SE corner Wagner" from "the spare Wagner".
+CREATE TABLE technician_equipment (
+  technician_equipment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  technician_id           BIGINT NOT NULL REFERENCES technicians(technician_id) ON DELETE CASCADE,
+  equipment_type_id       BIGINT NOT NULL REFERENCES equipment_types(equipment_type_id) ON DELETE RESTRICT,
+  asset_tag               TEXT,                                  -- 'SR-MOIST-001'
+  serial                  TEXT,
+  acquired_at             DATE,
+  active                  BOOLEAN NOT NULL DEFAULT TRUE,
+  notes                   TEXT,
+  created_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at              TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX technician_equipment_tech    ON technician_equipment (technician_id);
+CREATE INDEX technician_equipment_type    ON technician_equipment (equipment_type_id);
+CREATE INDEX technician_equipment_active  ON technician_equipment (active) WHERE active;
+CREATE UNIQUE INDEX technician_equipment_asset_uq
+  ON technician_equipment (technician_id, asset_tag) WHERE asset_tag IS NOT NULL;
+CREATE TRIGGER technician_equipment_updated_at
+  BEFORE UPDATE ON technician_equipment
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 
@@ -222,12 +275,17 @@ CREATE TABLE inspections (
   signed_off_by_technician_id BIGINT REFERENCES technicians(technician_id) ON DELETE RESTRICT,
   signed_off_at               TIMESTAMPTZ,
 
+  -- "Today's kit" gate. NULL means the technician still needs to
+  -- confirm what equipment they've brought before the wizard unlocks.
+  kit_confirmed_at         TIMESTAMPTZ,
+
   -- Report (the deliverable). report_slug is the unguessable share URL fragment.
   report_slug              TEXT UNIQUE CHECK (report_slug IS NULL OR LENGTH(report_slug) >= 16),
   report_status            TEXT NOT NULL DEFAULT 'draft'
                             CHECK (report_status IN ('draft', 'published', 'archived')),
   report_severity          TEXT CHECK (report_severity IN ('none', 'low', 'moderate', 'high', 'severe')),
-  report_summary           TEXT,
+  report_title             TEXT,                                  -- inspection-level headline (what + where), distinct from any per-room finding
+  report_summary           TEXT,                                  -- reviewer narrative shown under the title
   report_published_at      TIMESTAMPTZ,
 
   created_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -247,11 +305,24 @@ CREATE INDEX inspections_scheduled_at   ON inspections (scheduled_at);
 CREATE INDEX inspections_status         ON inspections (status);
 CREATE INDEX inspections_report_status  ON inspections (report_status);
 CREATE INDEX inspections_published_at   ON inspections (report_published_at) WHERE report_published_at IS NOT NULL;
+CREATE INDEX inspections_kit_confirmed  ON inspections (kit_confirmed_at) WHERE kit_confirmed_at IS NOT NULL;
 CREATE UNIQUE INDEX inspections_cal_booking_uq
   ON inspections (cal_booking_id) WHERE cal_booking_id IS NOT NULL;
 CREATE TRIGGER inspections_updated_at
   BEFORE UPDATE ON inspections
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- "Today's kit": which of a technician's assigned equipment they've
+-- checked off as on-hand for THIS inspection. Pure join — inserts /
+-- deletes map directly to the checkbox state in the landing-page gate.
+CREATE TABLE inspection_equipment (
+  inspection_id            BIGINT NOT NULL REFERENCES inspections(inspection_id) ON DELETE CASCADE,
+  technician_equipment_id  BIGINT NOT NULL REFERENCES technician_equipment(technician_equipment_id) ON DELETE CASCADE,
+  added_at                 TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (inspection_id, technician_equipment_id)
+);
+CREATE INDEX inspection_equipment_tech_eq ON inspection_equipment (technician_equipment_id);
 
 
 -- =====================================================================
@@ -297,7 +368,7 @@ CREATE TRIGGER sample_locations_updated_at
 CREATE TABLE image_captures (
   image_capture_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   sample_location_id  BIGINT NOT NULL REFERENCES sample_locations(sample_location_id) ON DELETE CASCADE,
-  capture_kind        TEXT NOT NULL CHECK (capture_kind IN ('visible', 'thermal')),
+  capture_kind        TEXT NOT NULL CHECK (capture_kind IN ('visible', 'thermal', 'moisture_evidence', 'air_evidence')),
   storage_path        TEXT NOT NULL,                                -- Supabase Storage object key
   caption             TEXT,
   pair_group          INTEGER NOT NULL DEFAULT 1,
@@ -319,13 +390,22 @@ CREATE TABLE moisture_readings (
   reading_unit          TEXT   NOT NULL DEFAULT '%MC',              -- moisture content percent
   level                 TEXT   NOT NULL CHECK (level IN ('normal', 'low', 'moderate', 'high', 'severe')),
 
-  -- Visual overlay positioning (optional)
+  -- Visual overlay positioning (optional) — points at the wide visible
+  -- reference shot for this location so the reading can be plotted on it.
   image_capture_id      BIGINT REFERENCES image_captures(image_capture_id) ON DELETE SET NULL,
   marker_x_pct          NUMERIC(5, 2) CHECK (marker_x_pct BETWEEN 0 AND 100),
   marker_y_pct          NUMERIC(5, 2) CHECK (marker_y_pct BETWEEN 0 AND 100),
 
-  -- Equipment provenance
-  instrument_model      TEXT,                                       -- 'Wagner Orion 940'
+  -- Evidence: photo of the moisture reader actually in position at this
+  -- reading point (capture_kind = 'moisture_evidence').
+  evidence_image_capture_id BIGINT REFERENCES image_captures(image_capture_id) ON DELETE SET NULL,
+
+  -- Equipment provenance. technician_equipment_id is the structured FK
+  -- the wizard writes to; instrument_model is kept as a deprecated
+  -- free-text fallback for rows imported before the equipment tables
+  -- existed (and for partner-lab imports that don't know our asset list).
+  technician_equipment_id BIGINT REFERENCES technician_equipment(technician_equipment_id) ON DELETE SET NULL,
+  instrument_model      TEXT,                                       -- 'Wagner Orion 940' (deprecated)
   depth_mm              NUMERIC(5, 2),                              -- 25
 
   measured_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -334,6 +414,8 @@ CREATE TABLE moisture_readings (
 CREATE INDEX moisture_readings_location ON moisture_readings (sample_location_id);
 CREATE INDEX moisture_readings_level    ON moisture_readings (level);
 CREATE INDEX moisture_readings_image    ON moisture_readings (image_capture_id) WHERE image_capture_id IS NOT NULL;
+CREATE INDEX moisture_readings_evidence  ON moisture_readings (evidence_image_capture_id) WHERE evidence_image_capture_id IS NOT NULL;
+CREATE INDEX moisture_readings_equipment ON moisture_readings (technician_equipment_id) WHERE technician_equipment_id IS NOT NULL;
 
 
 -- Location findings: narrative observation text per location.
@@ -387,9 +469,8 @@ CREATE TABLE air_samples (
   sample_location_id       BIGINT NOT NULL UNIQUE REFERENCES sample_locations(sample_location_id) ON DELETE CASCADE,
 
   -- Lab provenance
-  lab_partner              TEXT   NOT NULL DEFAULT 'sporecyte',     -- supports multi-lab future
+  lab_partner              TEXT   NOT NULL DEFAULT 'lab',           -- multi-lab future; the row records which lab analysed the slide
   lab_sample_id            TEXT,
-  air_volume_litres        NUMERIC(8, 2),
   sampled_at               TIMESTAMPTZ NOT NULL,
   received_by_lab_at       TIMESTAMPTZ,
   reported_by_lab_at       TIMESTAMPTZ,
@@ -407,6 +488,13 @@ CREATE TABLE air_samples (
   lab_notes                TEXT,
   lab_pdf_storage_path     TEXT,
 
+  -- Field evidence: intake-time photo of the canister with ID legible while
+  -- the pump is running (capture_kind = 'air_evidence').
+  intake_evidence_image_capture_id BIGINT REFERENCES image_captures(image_capture_id) ON DELETE SET NULL,
+
+  -- Which pump / sampler unit this sample was taken with.
+  technician_equipment_id  BIGINT REFERENCES technician_equipment(technician_equipment_id) ON DELETE SET NULL,
+
   created_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at               TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -414,6 +502,8 @@ CREATE INDEX air_samples_location    ON air_samples (sample_location_id);
 CREATE INDEX air_samples_sampled_at  ON air_samples (sampled_at);
 CREATE INDEX air_samples_lab_partner ON air_samples (lab_partner);
 CREATE INDEX air_samples_dominant    ON air_samples (dominant_fungal_classification_id) WHERE dominant_fungal_classification_id IS NOT NULL;
+CREATE INDEX air_samples_intake_evidence ON air_samples (intake_evidence_image_capture_id) WHERE intake_evidence_image_capture_id IS NOT NULL;
+CREATE INDEX air_samples_equipment        ON air_samples (technician_equipment_id)        WHERE technician_equipment_id IS NOT NULL;
 CREATE UNIQUE INDEX air_samples_lab_sample_uq
   ON air_samples (lab_partner, lab_sample_id) WHERE lab_sample_id IS NOT NULL;
 CREATE TRIGGER air_samples_updated_at
@@ -596,15 +686,43 @@ CREATE TRIGGER subscriptions_updated_at
 
 
 -- =====================================================================
+-- INTEGRATION / WEBHOOKS
+-- =====================================================================
+
+-- Idempotency + audit log for external webhook deliveries (Cal.com,
+-- Stripe, ...). The handler inserts a row keyed by (provider, event_id)
+-- BEFORE doing real work — the UNIQUE constraint guarantees a duplicate
+-- delivery (provider retries on 5xx) becomes a no-op conflict instead
+-- of double-processing the inspection state change. `event_id` is
+-- whatever the provider gives us as a stable dedupe key (or computed
+-- from the payload if they don't expose one — see /api/cal/webhook).
+CREATE TABLE webhook_events (
+  webhook_event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  provider         TEXT NOT NULL,                                 -- 'cal', 'stripe', ...
+  event_id         TEXT NOT NULL,                                 -- provider's dedupe key
+  event_type       TEXT NOT NULL,                                 -- 'BOOKING_CREATED' etc
+  received_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  processed_at     TIMESTAMPTZ,                                   -- set when the handler completes
+  error            TEXT,                                          -- set when the handler throws
+  raw_payload      TEXT,                                          -- raw JSON body for debugging only
+
+  UNIQUE (provider, event_id)
+);
+CREATE INDEX webhook_events_received_at ON webhook_events (received_at DESC);
+CREATE INDEX webhook_events_unprocessed
+  ON webhook_events (received_at) WHERE processed_at IS NULL;
+
+
+-- =====================================================================
 -- TODO before production
 -- =====================================================================
 --
 --   1. Seed reference tables:
 --        - trade_categories (the canonical list of trades you offer)
 --        - particulate_types (Hypha, Pollen, ... + size totals)
---        - fungal_classifications (scrape sporecyte.com/fungal-glossary/
---          into rows; classification_group is the section header on that
---          page: Predominantly Outdoor / Indoor Water Related / Indoor+Outdoor)
+--        - fungal_classifications (canonical list of species; classification_group
+--          buckets each into: predominantly_outdoor / predominantly_indoor_water_related
+--          / indoor_outdoor — drives the report's "is this normal for outdoor air?" framing)
 --
 --   2. Enable Supabase RLS and add policies. Sketch:
 --        ALTER TABLE inspections ENABLE ROW LEVEL SECURITY;
