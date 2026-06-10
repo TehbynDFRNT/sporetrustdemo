@@ -4108,7 +4108,8 @@ body:not([data-lander="true"]) > .lander-footer {
    than the marketing site. Scoped to body[data-lander] so nothing else moves. */
 @media (max-width: 720px) {
   body[data-lander="true"] section { padding: 40px 0; }
-  /* Hero opts out of section padding entirely — its wrap carries its own. */
+  /* Hero opts out via its own base rule (.service-hero, padding: 0) — its
+     wrap carries the rhythm; this stronger selector must not re-add it. */
   body[data-lander="true"] section.service-hero { padding: 0; }
   body[data-lander="true"] h2 { font-size: clamp(25px, 6.8vw, 31px); }
   body[data-lander="true"] .service-hero__form-title { font-size: 21px; }
@@ -5949,14 +5950,17 @@ body:not([data-lander="true"]) > .lander-footer {
   overflow: hidden;
   isolation: isolate;
   border-bottom: 1px solid var(--line-soft);
+  /* Opt out of the global section padding — the wrap carries the hero's own
+     (much tighter) rhythm; stacking both left ~150px of dead air up top. */
+  padding: 0;
 }
 .service-hero__wrap {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: clamp(24px, 3vw, 56px);
   align-items: center;
-  padding-top: clamp(40px, 6vh, 80px);
-  padding-bottom: clamp(40px, 6vh, 80px);
+  padding-top: clamp(32px, 5vh, 64px);
+  padding-bottom: clamp(36px, 5.5vh, 72px);
   max-width: 1520px;
   position: relative;
   z-index: 1;
