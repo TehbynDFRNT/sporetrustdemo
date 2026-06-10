@@ -4104,6 +4104,12 @@ body:not([data-lander="true"]) > .lander-footer {
   .lander-closer .btn { width: 100%; justify-content: center; }
 }
 
+/* Lander zone alignment — testimonials are proof of the solution, so they
+   stay in the white solution band (the marketing site keeps its own rhythm). */
+body[data-lander="true"] .testimonials {
+  background: var(--white);
+}
+
 /* Lander mobile compression — paid-traffic pages run a tighter vertical rhythm
    than the marketing site. Scoped to body[data-lander] so nothing else moves. */
 @media (max-width: 720px) {
@@ -5944,7 +5950,9 @@ body:not([data-lander="true"]) > .lander-footer {
 
 /* ---------- SERVICE / LEAD HERO (offer + persuasion + CTA, no price) ---------- */
 .service-hero {
-  background: var(--paper);
+  /* White = solution/offer surface. The page then drops into the cream
+     problem zone, so the first scroll reads as a deliberate zone change. */
+  background: var(--white);
   color: var(--ink);
   position: relative;
   overflow: hidden;
