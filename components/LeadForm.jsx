@@ -35,6 +35,7 @@ export default function LeadForm() {
     setName(firstName);
     submitLead(
       {
+        audience: String(data.get("audience") || "tenant"),
         firstName,
         phone: normalizeAuPhone(data.get("phone")) || String(data.get("phone") || "").trim(),
         email: String(data.get("email") || "").trim(),
@@ -86,6 +87,19 @@ export default function LeadForm() {
             </div>
           ) : (
             <form className="lead-form__form" onSubmit={handleSubmit} noValidate>
+              <div className="lead-form__field">
+                <span className="lead-form__label" id="lf-audience-label">I am a:</span>
+                <div className="lead-form__split" role="radiogroup" aria-labelledby="lf-audience-label">
+                  <label className="lead-form__split-opt">
+                    <input type="radio" name="audience" value="tenant" defaultChecked />
+                    <span>Tenant</span>
+                  </label>
+                  <label className="lead-form__split-opt">
+                    <input type="radio" name="audience" value="homeowner" />
+                    <span>Homeowner</span>
+                  </label>
+                </div>
+              </div>
               <div className="lead-form__field">
                 <label className="lead-form__label" htmlFor="lf-firstName">First name</label>
                 <input className="lead-form__input" id="lf-firstName" name="firstName" type="text" autoComplete="given-name" required />
