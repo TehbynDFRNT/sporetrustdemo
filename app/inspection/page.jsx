@@ -1,7 +1,6 @@
-import { preload } from "react-dom";
-import DiagnosticHero from "../../components/DiagnosticHero";
+import ServiceHero from "../../components/ServiceHero";
 import FaqAccordion from "../../components/FaqAccordion";
-import FeatureCard from "../../components/FeatureCard";
+import LeadForm from "../../components/LeadForm";
 import ReportPreviewCard from "../../components/ReportPreviewCard";
 import Reveal from "../../components/Reveal";
 import SectionHeader from "../../components/SectionHeader";
@@ -12,490 +11,247 @@ import ArrowIcon from "../../components/icons/ArrowIcon";
 import CheckIcon from "../../components/icons/CheckIcon";
 
 /* --------------------------------------------------------------------------
-   Paid-media landing page. PAS structure (Problem → Agitate → Solution → CTA).
-   Sections inlined per project convention; data is condensed copy from existing
-   site pages, ordered to push toward the #book CTA in BookingTakeover.
+   Paid-media landing page — TENANT template, form arm. The visitor arrives
+   problem-aware (they clicked a "mould in your rental" ad), so the page skips
+   "do I have mould?" education and answers their actual question: who's
+   responsible, and how do I make them fix it. Flow: hero w/ form → rights
+   (leverage) → situations → deflection rebuttals → the report → process →
+   tenant proof → form → objections. Every CTA drives to #enquire; no price,
+   no booking calendar. Sections inlined per project convention.
    -------------------------------------------------------------------------- */
 
 export const metadata = {
-  title: "Suspect mould? Get a definitive answer in 48 hours · Sporetrust",
+  title: "Mould in your rental? Get landlord-ready evidence in 48 hours · Sporetrust",
   description:
-    "Independent thermal, moisture and lab-backed mould diagnostic for Brisbane and South-East Queensland homes. Cause, damage extent and a defensible repair-cost range in plain English, within 48 hours.",
+    "Independent thermal, moisture and lab-backed mould inspection for Brisbane & South-East Queensland renters. Proof of cause and whether it's a building defect — the record to get repairs actioned, meet minimum housing standards, or take to QCAT.",
   alternates: {
     canonical: "/inspection",
   },
   openGraph: {
-    title: "Independent mould & moisture diagnostic — report in 48 hours",
+    title: "Mould in your rental? Independent, landlord-ready evidence in 48 hours",
     description:
-      "Cause, damage extent and a defensible repair-cost range. NATA-lab analysis available. Brisbane & South-East Queensland.",
+      "Proof it's the building, not you. Cause, extent and liveability notes for your agent, landlord or QCAT. Brisbane & South-East Queensland.",
     images: [
       {
         url: "/images/book-diagnostic-banner.jpg",
         width: 1200,
         height: 630,
-        alt: "Sporetrust inspector running a thermal and moisture diagnostic in a Brisbane home",
+        alt: "Sporetrust inspector documenting mould and moisture evidence in a rental property",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Independent mould diagnostic — report in 48 hours",
+    title: "Mould in your rental? Landlord-ready evidence in 48 hours",
     description:
-      "Cause, damage extent and a defensible repair-cost range. Brisbane & SEQ.",
+      "Independent proof of cause and building defect — for repair requests, housing standards or QCAT. Brisbane & SEQ.",
     images: ["/images/book-diagnostic-banner.jpg"],
   },
 };
 
-const contaminationSigns = [
+const tenantRights = [
   {
-    num: "01",
-    tag: "Visible",
-    title: "Water staining on walls or ceilings",
-    copy:
-      "Brown rings, tide marks, swollen paint and shadowing can point to roof leaks, plumbing failures, condensation or historical wetting. The cause changes the response.",
-    foot: "Moisture path",
-    image: "/images/sign-water-staining.png",
-    imageAlt: "Water staining on a ceiling and wall surface",
-  },
-  {
-    num: "02",
-    tag: "Weather",
-    title: "Wet weather, storms and floods",
-    copy:
-      "Heavy rain, stormwater overflow and flood events push moisture into places that look dry again by inspection day. We check what the weather left behind.",
-    foot: "Event history",
-    image: "/images/sign-wet-weather.jpg",
-    imageAlt: "Wet weather and storm moisture affecting an interior room",
-  },
-  {
-    num: "03",
-    tag: "Hidden",
-    title: "Musty odour without visible growth",
-    copy:
-      "A persistent smell can come from wall cavities, cabinetry, underlay, HVAC or damp contents. We pair odour notes with readings instead of guessing.",
-    foot: "Likely reservoir",
-    image: "/images/sign-musty-odour.png",
-    imageAlt: "Room corner representing musty odour and hidden dampness",
-  },
-  {
-    num: "04",
-    tag: "Moisture",
-    title: "Condensation, humidity and cold surfaces",
-    copy:
-      "Wet windows, cold external walls and damp cupboards create mould without a pipe leak. Dew-point risk is measurable, not a matter of opinion.",
-    foot: "Dew-point risk",
-    image: "/images/sign-condensation.png",
-    imageAlt: "Condensation and humidity on cold indoor surfaces",
-  },
-  {
-    num: "05",
-    tag: "Materials",
-    title: "Soft plaster, lifted paint, swollen timber",
-    copy:
-      "Material failure tells us how long moisture has been present and whether cleaning is enough. Sometimes the affected material has already lost the argument.",
-    foot: "Damage extent",
-    image: "/images/sign-splitting-paint.png",
-    imageAlt: "Splitting paint and damaged plaster caused by moisture",
-  },
-  {
-    num: "06",
-    tag: "Recurring",
-    title: "Mould that returns after cleaning",
-    copy:
-      "Regrowth usually means the moisture source is still active or the contaminated material was never properly dealt with. Surface cleaning is not a diagnosis.",
-    foot: "Root cause",
-    image: "/images/sign-returning-mould.png",
-    imageAlt: "Returning mould on an interior surface after cleaning",
-  },
-  {
-    num: "07",
-    tag: "Airflow",
-    title: "Dust, HVAC and indoor-air symptoms",
-    copy:
-      "Air movement carries spores away from the source. We check the room, the system and the surrounding moisture conditions before pointing at the obvious patch.",
-    foot: "Exposure pathway",
-    image: "/images/sign-aircon.png",
-    imageAlt: "Air conditioning vent as an indoor air movement and mould exposure pathway",
-  },
-];
-
-const invisibleSigns = [
-  {
-    num: "S.01",
-    tag: "Laundry",
-    title: "Spotting on laundry or stored fabrics",
-    image: "/images/sign-musty-odour.png",
-    imageAlt: "Stored fabric in a cupboard developing mould spotting",
-    measure:
-      "Towels, linen and clothes developing dark specks in cupboards, wardrobes or sealed rooms — usually where soft goods sit close to a wall or in still air.",
-    reveals: "Humidity reservoir behind storage and ventilation failure.",
-  },
-  {
-    num: "S.02",
-    tag: "Wet areas",
-    title: "Black grout in bathrooms and laundries",
-    image: "/images/sign-water-staining.png",
-    imageAlt: "Wet area showing staining around grout and joints",
-    measure:
-      "Black-staining grout in showers, splashbacks or wet-room corners — the contamination usually extends past where it's visible into substrate.",
-    reveals: "Waterproofing failure or persistent humidity load.",
-  },
-  {
-    num: "S.03",
-    tag: "Recurring",
-    title: "Mould keeps returning after cleaning",
-    image: "/images/sign-recurring-mould.png",
-    imageAlt: "Mould returning after surface cleaning",
-    measure:
-      "Regrowth in the same spot after a clean. Surface treatment isn't a diagnosis — the conditions that caused the bloom are still in the room.",
-    reveals: "Active moisture source or unaddressed affected material.",
-  },
-  {
-    num: "S.04",
-    tag: "Atmosphere",
-    title: "The air feels heavy in certain rooms",
-    image: "/images/sign-aircon.png",
-    imageAlt: "Air vent in a room with heavy humid air",
-    measure:
-      "A musty smell that won't air out, rooms that feel close or damp, or a persistent sense that something's not quite right indoors.",
-    reveals: "Hidden moisture, ventilation failure or HVAC carrying spores.",
-  },
-  {
-    num: "S.05",
-    tag: "Recent event",
-    title: "Recent leaks, storms or wet weather",
-    image: "/images/sign-wet-weather.jpg",
-    imageAlt: "Room affected by recent wet weather or a leak",
-    measure:
-      "After a roof leak, plumbing failure or significant storm event, materials can stay wet long after they look dry to the eye.",
-    reveals: "Material that's still saturated despite looking surface-dry.",
-  },
-];
-
-const costStats = [
-  {
-    tag: "Annual risk",
-    figure: "50%",
-    label: "Over any 12-month window, your home has a 50% chance of developing mould or damp.",
-    source: "ABS / AIHW housing data",
-    diagram: "recurrence",
-    diagramProps: { percent: 50 },
-  },
-  {
-    tag: "Costliest",
-    figure: "1st",
+    tag: "Standards",
+    figure: "Their job",
     label:
-      "Water damage is the costliest home risk in Australia. In 2018 the average claim was $30,361 — more than fire or burglary.",
-    source: "Australian insurance industry data",
-    diagram: "costBars",
+      "QLD rentals must be weatherproof, structurally sound and free of damp or mould caused by the property. Building-defect mould is the lessor's to fix — not yours to tolerate.",
+    source: "QLD minimum housing standards",
+    diagram: "alert",
   },
   {
-    tag: "Predictor",
-    figure: "2 in 3",
+    tag: "Emergency",
+    figure: "Urgent",
     label:
-      "Self-reported damp beats visible spotting as a predictor in lab tests. Sporetrust measures the moisture behind that instinct.",
-    source: "Building science research",
-    diagram: "donut",
-    diagramProps: { percent: 67 },
+      "Serious damp or mould that affects health can qualify as an emergency repair — work the lessor or agent must action fast, not whenever it suits. Evidence is what makes it urgent on paper.",
+    source: "RTRA Act — emergency repairs",
+    diagram: "clock",
+  },
+  {
+    tag: "Recoverable",
+    figure: "Refundable",
+    label:
+      "Where the mould is the property's fault, the cost of having it independently documented can be recoverable from the lessor — so the evidence needn't come out of your pocket.",
+    source: "Recoverable where building-caused",
+    diagram: "invoice",
   },
 ];
 
-const diyMisconceptions = [
+/* Situation-matched, not symptom-matched — the visitor already knows the
+   mould is there; these meet the decision-state they're stuck in. */
+const tenantScenarios = [
+  {
+    num: "T.01",
+    tag: "Ignored",
+    title: "You report it. They “look into it.” Nothing happens.",
+    measure:
+      "Requests disappear into the agent's inbox, weeks pass, and eventually someone wipes the wall down and calls it handled.",
+    evidence:
+      "A documented cause, framed against their repair obligations, puts a clock on the fix — it stops being optional.",
+  },
+  {
+    num: "T.02",
+    tag: "Blamed",
+    title: "They say it's your lifestyle.",
+    measure:
+      "“Open a window, dry your clothes outside” — the standard reply that quietly makes the building's problem your fault.",
+    evidence: "Moisture readings settle building defect vs lifestyle on paper, not opinion.",
+  },
+  {
+    num: "T.03",
+    tag: "Recurring",
+    title: "It comes back after every clean.",
+    measure:
+      "You bleach it, it returns within weeks — because the moisture source behind the surface is still active.",
+    evidence: "Documented regrowth plus an active source is proof it was never a cleaning problem.",
+  },
+  {
+    num: "T.04",
+    tag: "Bond",
+    title: "You're worried it lands on your bond.",
+    measure:
+      "Mould “damage” has a way of appearing on exit reports. Without a record, it's your word against theirs.",
+    evidence: "Independent proof it was the building, on file before you hand back the keys.",
+  },
+];
+
+/* The three deflections every renter hears — each granted its kernel of
+   truth, then answered with what the instruments actually show. */
+const toldLines = [
   {
     num: "D.01",
     tag: "Bleach",
-    title: "Spray and pray.",
-    measure: "Bleach clears what you see. On tile or grout, it works.",
-    but: "If moisture's still feeding it, the patch returns within weeks.",
+    title: "“Just give it a clean with bleach.”",
+    measure: "Surface cleaning clears what you can see — on tile and grout it genuinely works.",
+    reality:
+      "If it returns, the moisture source is still active. Regrowth is evidence of a building problem, not poor housekeeping.",
   },
   {
     num: "D.02",
-    tag: "Laundry",
-    title: "Wash, soak, repeat.",
-    measure:
-      "Hot wash, vinegar soak and sun-drying do rescue spotted clothes, hopefully.",
-    but: "The spores came from somewhere. Fresh laundry keeps spotting.",
+    tag: "Ventilation",
+    title: "“You need to air the place out more.”",
+    measure: "Cross-flow ventilation does lower indoor humidity. It's worth doing.",
+    reality: "You can't ventilate a wall cavity, a slab leak or a failed waterproofing membrane.",
   },
   {
     num: "D.03",
-    tag: "Airflow",
-    title: "Crack a window.",
-    measure: "Cross-flow ventilation lowers indoor humidity. It's worth doing.",
-    but: "You can't ventilate a wall cavity, or an AC compressor leaking behind the unit.",
-  },
-];
-
-const sourceCategories = [
-  {
-    num: "C.01",
-    tag: "Roof",
-    title: "Roof leaks",
-    image: "/images/sign-wet-weather.jpg",
-    imageAlt: "Roof leak source",
-    copy:
-      "Failed flashings, displaced tiles, ageing penetrations around vents and chimneys, sarking gaps and box-gutter overflow.",
-    foot: "Water entry",
-  },
-  {
-    num: "C.02",
-    tag: "Walls",
-    title: "Wall and window leaks",
-    image: "/images/sign-splitting-paint.png",
-    imageAlt: "Wall and window leak source",
-    copy:
-      "Failed window flashings, render cracks, blocked weep-holes and brick-cavity moisture migrating into internal linings.",
-    foot: "Wall entry",
-  },
-  {
-    num: "C.03",
-    tag: "Drainage",
-    title: "Blocked gutters and drainage",
-    image: "/images/sign-water-staining.png",
-    imageAlt: "Drainage failure source",
-    copy:
-      "Blocked gutters, downpipes discharging at the base of walls, and surface water pooling against slab edges instead of running to drain.",
-    foot: "Surface water",
-  },
-  {
-    num: "C.04",
-    tag: "Showers",
-    title: "Leaking showers and bathrooms",
-    image: "/images/sign-recurring-mould.png",
-    imageAlt: "Leaking shower source",
-    copy:
-      "Ageing waterproofing under shower bases, sealant gaps at tile junctions and compromised membranes behind tiles and at hob upstands.",
-    foot: "Failed seal",
-  },
-  {
-    num: "C.05",
-    tag: "Plumbing",
-    title: "Hidden plumbing leaks",
-    image: "/images/sign-returning-mould.png",
-    imageAlt: "Hidden plumbing leak source",
-    copy:
-      "Hairline supply leaks behind walls, weeping shower-waste fittings and slab penetration faults that wet surrounding material long before it shows.",
-    foot: "Concealed leak",
-  },
-  {
-    num: "C.06",
-    tag: "Appliances",
-    title: "Leaking appliances",
-    image: "/images/thermal-before-after.jpg",
-    imageAlt: "Leaking appliance source",
-    copy:
-      "Dishwashers, washing machines and fridge water lines slowly seeping into joinery, flooring and the wall behind them.",
-    foot: "Slow drip",
-  },
-  {
-    num: "C.07",
-    tag: "Air-con",
-    title: "Air conditioner leaks",
-    image: "/images/sign-aircon.png",
-    imageAlt: "Air conditioner leak source",
-    copy:
-      "Overflowing drip trays, blocked or poorly graded condensate lines, and split-system heads seeping into the wall behind them.",
-    foot: "AC condensate",
-  },
-  {
-    num: "C.08",
-    tag: "Ventilation",
-    title: "Poor ventilation",
-    image: "/images/sign-musty-odour.png",
-    imageAlt: "Ventilation failure source",
-    copy:
-      "Exhaust fans dumping into roof voids instead of outside, recirculating range hoods, blocked subfloor vents and rooms with no cross-flow.",
-    foot: "Trapped humidity",
-  },
-  {
-    num: "C.09",
-    tag: "Subfloor",
-    title: "Damp under the house",
-    image: "/images/thermal-imaging.jpg",
-    imageAlt: "Subfloor moisture source",
-    copy:
-      "Undercroft dampness, slab-edge moisture, poor site fall and groundwater migrating up into bearers, joists and finished floors.",
-    foot: "Ground water",
-  },
-];
-
-const methods = [
-  {
-    num: "M.01",
-    tag: "Thermal",
-    title: "Thermal mapping",
-    image: "/images/thermal-before-after.jpg",
-    imageAlt: "Thermal imaging comparison used during a Sporetrust diagnostic",
-    measure:
-      "Surface temperature differentials across walls, ceilings, floors, plumbing lines and HVAC penetrations.",
-    reveals: "Hidden moisture, cold bridges and leak paths.",
-  },
-  {
-    num: "M.02",
-    tag: "Moisture",
-    title: "Moisture metering",
-    image: "/images/metal-ball-moisture-detector.jpg",
-    imageAlt: "Moisture detector used to check damp building materials",
-    measure:
-      "Pin and pinless readings at surface and depth across timber, gypsum, masonry, tile substrates and skirting cavities.",
-    reveals: "Active wetting and moisture migration.",
-  },
-  {
-    num: "M.03",
-    tag: "Air sample",
-    title: "Hygrometer + air sampling",
-    image: "/images/air-sample.jpg",
-    imageAlt: "Air sampling cassette used for mould spore capture",
-    measure:
-      "Continuous hygrometer logging on-site, plus optional indoor and outdoor control samples to a NATA-accredited lab.",
-    reveals: "Humidity load and airborne spore count.",
-  },
-  {
-    num: "M.04",
-    tag: "Lab",
-    title: "Lab analysis",
-    image: "/images/lab-testing.jpg",
-    imageAlt: "Laboratory testing equipment for mould sample analysis",
-    measure:
-      "Independent sample handling and lab analysis where spore count, species profile or claim-ready evidence is needed.",
-    reveals: "Contamination indicators and evidence support.",
+    tag: "Lifestyle",
+    title: "“It's from drying clothes inside.”",
+    measure: "Living produces moisture — cooking, showers, laundry. Every household makes it.",
+    reality: "A compliant building handles normal living. Readings show whether yours can't — and why.",
   },
 ];
 
 const reportItems = [
   [
-    "Where moisture, damage and mould indicators were found",
-    "Mapped against rooms and surfaces with photos, readings and thermal images.",
+    "Building defect vs tenant-caused — settled",
+    "The question that decides who's responsible. Moisture readings and cause analysis answer it on paper, not opinion.",
   ],
   [
-    "The likely cause",
-    "Leak, condensation, ventilation, roof, waterproofing, slab moisture or building defect.",
+    "The likely cause, named",
+    "Leak, roof, waterproofing, ventilation, slab or building defect — so the right repair lands on the right party.",
   ],
   [
-    "Damage extent & affected materials",
-    "What's wet, contaminated, salvageable, or likely to need removal.",
+    "Where the mould is — mapped and dated",
+    "Every affected room and surface, with photos, thermal images and moisture readings — dated proof that protects your bond at exit.",
   ],
   [
-    "Defensible repair cost range",
-    "Independent cost bands based on current South-East Queensland trade rates.",
+    "Liveability & minimum-standards notes",
+    "A plain-English read on whether the property meets its obligations — the language a repair request or QCAT needs.",
   ],
   [
-    "Liveability and urgency notes",
-    "Clear language for tenants, owners, managers, insurers and contractors.",
+    "What needs to happen, and how urgently",
+    "Affected materials, health risk and whether it qualifies as an emergency repair — so “we'll get to it” gets a deadline.",
   ],
   [
-    "Sharable PDF + portal access",
-    "Ready for landlords, property managers, insurers, builders and remediation providers.",
+    "Shareable PDF for your landlord, agent or QCAT",
+    "Formatted to forward straight to the people who can action it — or submit as evidence.",
   ],
+];
+
+const instruments = [
+  ["Thermal imaging", "Moisture paths behind walls and ceilings, visible on camera."],
+  ["Moisture metering", "Surface and depth readings that map and date the wetting."],
+  ["Air sampling", "Indoor vs outdoor spore counts, analysed by a NATA-accredited lab."],
+  ["Photo record", "Every reading photographed, located and timestamped."],
 ];
 
 const timelineItems = [
   {
-    title: "Book online.",
-    meta: "Day 0 · 2 min",
+    title: "Send the form.",
+    meta: "Today · 1 min",
     copy:
-      "Tell us what changed: stains, smell, leaks, symptoms, disputes, claims or prior cleanup. We confirm fit and schedule the visit.",
-    signals: ["Suburb check", "Brief intake", "Fixed price"],
+      "Tell us what you're seeing and where. No payment, no calendar — it goes straight to the inspection team, not a call centre.",
+    signals: ["No obligation", "Same-day reply"],
   },
   {
-    title: "Technician visits.",
-    meta: "Day 1 to 5 · 45 min",
+    title: "We call you back.",
+    meta: "Same business day",
     copy:
-      "Moisture readings, thermal imaging, photos, odour notes, ventilation checks and optional air or surface sampling — all on-site, one visit.",
-    signals: ["Thermal", "Moisture meter", "Hygrometer", "Air sampler"],
+      "We confirm what's happening, quote a fixed price on the phone and book a time around you. If an inspection isn't the right move, we'll say so.",
+    signals: ["Fixed price", "Your schedule"],
   },
   {
-    title: "Report delivered.",
-    meta: "Within 48 hours",
+    title: "We inspect — 45 minutes.",
+    meta: "At the property",
     copy:
-      "Plain-English findings: cause, extent, photos, thermal images, moisture record and a defensible repair-cost range — sharable PDF and portal access.",
-    signals: ["Cause", "Damage extent", "Cost range", "Shareable PDF"],
+      "Thermal imaging, moisture readings at surface and depth, humidity logging and optional air sampling — documented room by room while you watch.",
+    signals: ["Thermal", "Moisture", "Air sample"],
   },
   {
-    title: "Act on the evidence.",
-    meta: "When you are ready",
+    title: "Report in 48 hours.",
+    meta: "Then it's on them",
     copy:
-      "No treatment pitch. Use the report with your landlord, insurer, builder or a contractor you trust. We can introduce vetted partners if you want.",
-    signals: ["Tenant", "Insurer", "Builder", "Remediator"],
+      "Cause, extent and liveability findings in plain English, formatted to forward straight to your landlord, agent or QCAT. We tell you exactly what to send, and to whom.",
+    signals: ["Landlord-ready", "QCAT-ready", "Recoverable cost"],
   },
 ];
 
 const testimonials = [
   {
     quote:
-      "Caught a slow drip behind the dishwasher before the floor ever stained. Plumber fix was $220 — without the diagnostic that's a $20k floor and cabinet job.",
-    meta: "Homeowner · Brisbane",
+      "Eight months of “we'll send someone”. The report went to the agent on a Tuesday — a plumber was booked by Friday, and nobody has mentioned our “lifestyle” since.",
+    meta: "Tenant · Annerley",
   },
   {
     quote:
-      "After the November storm we got an inspection within four days. Came back clean — and we had the report ready for our insurer just in case.",
-    meta: "Homeowner · Bayside",
+      "Our property manager swore it was condensation from drying clothes inside. The readings found a slab leak. Hard to argue with a number.",
+    meta: "Renter · Logan",
   },
   {
     quote:
-      "Stacked reports turned a tribunal letter into a five-minute conversation. The document did the talking, not us.",
-    meta: "Rental owner · Gold Coast",
-  },
-];
-
-const pricingTiers = [
-  {
-    title: "Rapid Inspection",
-    tag: "For most homes & apartments",
-    price: "$695",
-    sub: "ONCE-OFF · GST INC",
-    featured: false,
-    button: "Book Rapid",
-    bullets: [
-      "On-site thermal, moisture & humidity testing",
-      "Up to 3 areas of concern + whole-of-home walkthrough",
-      "Severity rating & likely cause per area",
-      "Damage extent & affected materials, quantified",
-      "Defensible repair cost range per area + total",
-      "48-hour digital report, sharable PDF",
-    ],
-  },
-  {
-    title: "Lab-Backed Diagnostic",
-    tag: "When you need defensible evidence",
-    price: "$945",
-    sub: "ONCE-OFF · GST INC",
-    featured: true,
-    button: "Book Lab-Backed",
-    bullets: [
-      "Everything in the Rapid Inspection",
-      "Indoor air sample (room of your choice)",
-      "Outdoor control sample for comparison",
-      "Lab-analysed spore count & species",
-      "Health risk indicator from air results",
-      "Suitable for insurance & tribunal submissions",
-    ],
+      "We were bracing for it to come out of the bond when we moved. The report put it on the building before we handed back the keys.",
+    meta: "Tenant · Gold Coast",
   },
 ];
 
 const faqs = [
   [
-    "How long does the on-site visit take?",
-    "Most homes take around 45 minutes. Larger homes, multiple buildings or sites with complex history can take longer. We'll let you know in advance once we've reviewed your booking notes.",
+    "Can my landlord refuse to let you in?",
+    "You're entitled to arrange your own assessment, and entry for repairs and inspections follows normal notice rules. Most issues are settled once there's independent evidence on the table — not a standoff at the door.",
   ],
   [
-    "When do I get the report?",
-    "Rapid Inspection reports are delivered to your portal within 48 hours of the on-site visit. Lab-Backed Diagnostic reports include the lab analysis appendix, which arrives 5–7 days after sampling depending on lab turnaround.",
+    "What if they blame my lifestyle?",
+    "That's exactly what the report settles. Moisture readings and cause analysis show whether it's a building defect or genuinely tenant-caused — so 'you're not airing the place out' stops being the end of the conversation.",
+  ],
+  [
+    "Will this sour things with my landlord or agent?",
+    "It usually does the opposite. A standoff is two opinions; a report is a path. Most lessors action repairs once the cause and their obligation are documented — ignoring written evidence is what creates risk for them. Queensland tenancy law also restricts retaliatory action against renters for exercising their rights.",
+  ],
+  [
+    "How long does it take?",
+    "Around 45 minutes on-site, then a plain-English report within 48 hours. If lab air-sampling is included, that appendix follows a few days later depending on lab turnaround.",
+  ],
+  [
+    "Can I share the report with my agent or QCAT?",
+    "Yes — that's what it's built for. Forward the PDF straight to your landlord or property manager, or submit it as evidence in a repair dispute or QCAT application.",
+  ],
+  [
+    "Do I have to pay for it?",
+    "You arrange and pay up front, but where the mould is the property's fault the cost can be recoverable from the lessor. We'll talk you through it when we call.",
   ],
   [
     "What if you don't find anything serious?",
-    "That's still a useful answer, and you'll get it documented. A low-risk report with prevention guidance is valuable to have on file, especially as a tenant, owner or buyer.",
-  ],
-  [
-    "Can I share the report with my landlord, builder or insurer?",
-    "Yes. The report is built for that handoff: landlord, property manager, insurer, builder, remediation provider or tribunal support file.",
-  ],
-  [
-    "How accurate are your repair cost estimates?",
-    "Defensible bands based on current South-East Queensland trade rates, the materials affected and the scope indicated by the diagnosis. They let you budget with confidence and benchmark every quote you receive.",
-  ],
-  [
-    "Are you a remediation company?",
-    "No. We inspect, document and report. If remediation or building work is needed, we can point you toward vetted providers — but we don't clip the ticket on the cleanup.",
+    "That's still a useful answer, documented. An independent record that the mould isn't serious — or isn't the building's fault — protects your bond at exit and ends the speculation either way.",
   ],
 ];
 
@@ -513,122 +269,49 @@ const faqSchema = {
 };
 
 export default function InspectionLandingPage() {
-  preload("/images/book-diagnostic-banner.jpg", { as: "image" });
-
   return (
     <main>
-      {/* P — product hero with the offer + book CTA visible above the fold */}
-      <DiagnosticHero />
+      {/* Offer + persuasion + the form itself, above the fold. */}
+      <ServiceHero />
 
-      {/* P — pattern-match: "you have at least one of these" */}
-      <section className="problem-bg" id="signs">
-        <div className="wrap">
-          <div className="find-head">
-            <div className="copy">
-              <span className="eyebrow">[ signs of contamination ]</span>
-              <h2>50% of QLD homes had mould within 12 months. Does yours?</h2>
-              <p className="lede">
-                Visible mould is only one signal. We document moisture patterns, material damage, odour and air movement so hidden contamination has somewhere to show itself.
-              </p>
-            </div>
-          </div>
-          <div className="find-grid" aria-label="Signs of contamination">
-            {contaminationSigns.map((card) => (
-              <div key={card.num} className="find-card">
-                <div className="find-meta">
-                  <span className="num">{card.num}</span>
-                  <span className="tag">{card.tag}</span>
-                </div>
-                <figure className="find-card-media">
-                  <img src={card.image} alt={card.imageAlt} loading="lazy" />
-                </figure>
-                <h3>{card.title}</h3>
-                <p>{card.copy}</p>
-                <div className="find-foot">
-                  <span className="l">Documents</span>
-                  <span className="r">{card.foot}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* P — escalate: the hidden signs most owners miss */}
-      <section className="signs-section">
-        <div className="wrap">
-          <div className="signs-grid">
-            <div className="signs-grid__copy">
-              <Reveal>
-                <SectionHeader
-                  eyebrow="signs you can't see yet"
-                  title="By the time it shows on the wall, the moisture's been there for months."
-                  lede="Five quiet signs the house gives you before anything stains."
-                />
-              </Reveal>
-              <a className="btn" href="#book">
-                Book inspection <ArrowIcon />
-              </a>
-            </div>
-            <div className="signs-grid__cards">
-              {invisibleSigns.map((card) => (
-                <article className="method signs-card" key={card.num}>
-                  <figure className="method-media">
-                    <img src={card.image} alt={card.imageAlt} loading="lazy" />
-                  </figure>
-                  <div className="method-meta">
-                    <span className="num">{card.num}</span>
-                    <span className="tag">{card.tag}</span>
-                  </div>
-                  <h3>{card.title}</h3>
-                  <p className="m-measure">{card.measure}</p>
-                  <div className="m-divider" />
-                  <p className="m-reveals">
-                    <strong>Reveals</strong>
-                    {card.reveals}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* A — agitate: the cost of doing nothing */}
+      {/* Leverage first — the renter's actual question is "can I make them fix it?" */}
       <section className="stat-section">
         <div className="wrap">
           <Reveal>
             <SectionHeader
               align="center"
-              eyebrow="the cost of waiting"
-              title="Doing nothing is the expensive option."
-              ledeMax="60ch"
-              lede="Three numbers explain why the earliest diagnostic is the cheapest one — and why an unchecked drip becomes Australia's costliest insurance claim."
+              eyebrow="your rights as a renter"
+              title="In Queensland, mould isn't yours to just live with."
+              ledeMax="62ch"
+              lede="Renters have more leverage than most realise — when the mould is the property's fault. The right evidence is what turns 'we'll look into it' into an obligation."
             />
           </Reveal>
           <div className="problem-cta">
-            <a className="btn" href="#book">
-              Book inspection <ArrowIcon />
+            <a className="btn" href="#enquire">
+              Request your inspection <ArrowIcon />
             </a>
           </div>
           <Reveal delay={120}>
-            <StatRow variant="stacked" stats={costStats} />
+            <StatRow variant="stacked" stats={tenantRights} />
           </Reveal>
+          <p className="stat-section__note">
+            General guidance, not legal advice — but the evidence holds up the same either way.
+          </p>
         </div>
       </section>
 
-      {/* A — burn the DIY/cleaning objection */}
-      <section className="diy-section">
+      {/* Situation matching — meet the stuck-state, resolve each to the same move. */}
+      <section className="problem-bg" id="signs">
         <div className="wrap">
           <Reveal>
             <SectionHeader
-              eyebrow="the reframe"
-              title="Mould is not a hygiene problem."
-              lede="Pests happen to the house. Burst pipes happen to the house. Mould is a plumbing, waterproofing, or ventilation failure that hasn't surfaced yet. Not your guilty reminder."
+              eyebrow="is this you?"
+              title="In a rental, the fight isn't the mould. It's whose fault it is."
+              lede="Half of Queensland homes had mould inside 12 months — renters just carry the extra fight over responsibility. Four situations we hear every week; the way out of all of them is the same."
             />
           </Reveal>
-          <div className="methodology-grid diy-grid">
-            {diyMisconceptions.map((card) => (
+          <div className="methodology-grid">
+            {tenantScenarios.map((card) => (
               <article className="method method--text" key={card.num}>
                 <div className="method-meta">
                   <span className="num">{card.num}</span>
@@ -638,8 +321,8 @@ export default function InspectionLandingPage() {
                 <p className="m-measure">{card.measure}</p>
                 <div className="m-divider" />
                 <p className="m-reveals">
-                  <strong>But</strong>
-                  {card.but}
+                  <strong>Evidence</strong>
+                  {card.evidence}
                 </p>
               </article>
             ))}
@@ -647,66 +330,29 @@ export default function InspectionLandingPage() {
         </div>
       </section>
 
-      {/* A — what we trace damp back to: the failure modes most owners haven't considered */}
-      <section className="sources-section">
+      {/* Rehearse the dispute — grant each deflection its truth, then answer it. */}
+      <section className="diy-section">
         <div className="wrap">
           <Reveal>
             <SectionHeader
-              eyebrow="what we surface"
-              title="Finding the source stops the cycle."
-              lede="The patch is the symptom. These are the failure modes we typically trace it back to."
-              titleMax="32ch"
+              eyebrow="what you'll be told"
+              title="Three lines every renter hears."
+              lede="Mould is not a hygiene problem. It's a plumbing, waterproofing or ventilation failure that hasn't been named yet — and every one of these deflections has a measurable answer."
             />
           </Reveal>
-          <div className="find-grid" aria-label="Source failure modes">
-            {sourceCategories.map((source) => (
-              <div key={source.num} className="find-card">
-                <div className="find-meta">
-                  <span className="num">{source.num}</span>
-                  <span className="tag">{source.tag}</span>
-                </div>
-                <figure className="find-card-media">
-                  <img src={source.image} alt={source.imageAlt} loading="lazy" />
-                </figure>
-                <h3>{source.title}</h3>
-                <p>{source.copy}</p>
-                <div className="find-foot">
-                  <span className="l">Documents</span>
-                  <span className="r">{source.foot}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* S — the protocol: uniquely qualified to catch damp & mould early */}
-      <section className="solution" id="methodology">
-        <div className="wrap">
-          <Reveal>
-            <SectionHeader
-              eyebrow="how we diagnose"
-              title="Uniquely qualified to catch damp & mould early."
-              lede="Visual checks find damp after the wall stains. Sporetrust's protocol surfaces it in the cavity, in the substrate and in the air — months before it shows."
-              titleMax="36ch"
-            />
-          </Reveal>
-          <div className="methodology-grid">
-            {methods.map((method) => (
-              <article className="method" key={method.num}>
-                <figure className="method-media">
-                  <img src={method.image} alt={method.imageAlt} loading="lazy" />
-                </figure>
+          <div className="methodology-grid diy-grid">
+            {toldLines.map((card) => (
+              <article className="method method--text" key={card.num}>
                 <div className="method-meta">
-                  <span className="num">{method.num}</span>
-                  <span className="tag">{method.tag}</span>
+                  <span className="num">{card.num}</span>
+                  <span className="tag">{card.tag}</span>
                 </div>
-                <h3>{method.title}</h3>
-                <p className="m-measure">{method.measure}</p>
+                <h3>{card.title}</h3>
+                <p className="m-measure">{card.measure}</p>
                 <div className="m-divider" />
                 <p className="m-reveals">
-                  <strong>Reveals</strong>
-                  {method.reveals}
+                  <strong>Readings say</strong>
+                  {card.reality}
                 </p>
               </article>
             ))}
@@ -714,13 +360,19 @@ export default function InspectionLandingPage() {
         </div>
       </section>
 
-      {/* S — the deliverable: report contents + live preview */}
+      {/* The deliverable — outcomes first, instrument credibility folded in below. */}
       <section className="solution" id="report">
         <div className="wrap">
           <span className="eyebrow">[ what's in your report ]</span>
-          <h2 style={{ marginTop: 28, maxWidth: "30ch" }}>
-            Official evidence for the people who need to act.
+          <h2 style={{ marginTop: 28, maxWidth: "32ch" }}>
+            The record your landlord or agent can't wave away.
           </h2>
+          <ul className="outcome-chips" role="list">
+            <li>Repairs actioned</li>
+            <li>Bond protected</li>
+            <li>QCAT-ready</li>
+            <li>Cost recoverable</li>
+          </ul>
           <div className="what-grid">
             <div className="report-checks">
               <ul className="what-list">
@@ -737,17 +389,30 @@ export default function InspectionLandingPage() {
             </div>
             <ReportPreviewCard />
           </div>
+          <div className="evidence-strip">
+            <span className="evidence-strip__kicker">
+              The instruments behind it — readings an agent can&rsquo;t argue with
+            </span>
+            <ul className="evidence-strip__grid" role="list">
+              {instruments.map(([title, copy]) => (
+                <li key={title}>
+                  <strong>{title}</strong>
+                  <span>{copy}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
-      {/* S — process: kills the "what does this involve" hesitation */}
+      {/* Process — mirrors the form's three steps, kills "what does this involve". */}
       <section className="solution" id="how-it-works">
         <div className="wrap">
           <Reveal>
             <SectionHeader
               eyebrow="how it works"
-              title="Four steps to a definitive answer."
-              lede="From the moment you book, you'll know what's coming, when it lands and what it costs. No upsell, no callout fees, no quote pressure."
+              title="From the form to a forwarded report, inside a week."
+              lede="No callout fee, no treatment upsell, no quote pressure. We diagnose and document — what you do with it stays in your hands."
               titleMax="28ch"
             />
           </Reveal>
@@ -755,16 +420,16 @@ export default function InspectionLandingPage() {
         </div>
       </section>
 
-      {/* S — social proof */}
+      {/* Social proof — tenant voices only on the tenant arm. */}
       <section className="testimonials">
         <div className="wrap">
           <Reveal>
             <SectionHeader
               align="center"
-              eyebrow="from customers"
-              title="Caught early. Fixed small. Stayed dry."
+              eyebrow="from renters"
+              title="Taken seriously. Fixed fast. Bond intact."
               ledeMax="56ch"
-              lede="What homeowners and rental owners say once the report is in their hands."
+              lede="What tenants say once the report lands in the agent's inbox."
             />
           </Reveal>
           <div className="testimonial-grid">
@@ -777,67 +442,10 @@ export default function InspectionLandingPage() {
         </div>
       </section>
 
-      {/* S — transparent pricing, two tiers, Lab-Backed featured */}
-      <section className="pricing" id="pricing">
-        <div className="wrap">
-          <span className="eyebrow">[ fixed pricing ]</span>
-          <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>
-            No hourly rates. No surprises.
-          </h2>
-          <div className="price-grid">
-            {pricingTiers.map((tier) => (
-              <div key={tier.title} className={tier.featured ? "tier featured" : "tier"}>
-                {tier.featured ? <span className="badge">Most booked</span> : null}
-                <h3>{tier.title}</h3>
-                <div className="tag">{tier.tag}</div>
-                <div className="price">{tier.price}</div>
-                <div className="price-sub">{tier.sub}</div>
-                <ul>
-                  {tier.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-                <a className={tier.featured ? "btn btn-light" : "btn"} href="#book">
-                  {tier.button} <ArrowIcon />
-                </a>
-              </div>
-            ))}
-          </div>
-          <div className="price-foot">
-            Larger homes, multiple buildings, commercial sites or specialist insurance reports —{" "}
-            <a href="#book">request a custom quote</a>.
-          </div>
-        </div>
-      </section>
+      {/* The catch-all conversion for readers who needed the whole story first. */}
+      <LeadForm />
 
-      {/* Action — last touch before FAQ */}
-      <section className="route-page-banner">
-        <div className="wrap">
-          <FeatureCard
-            eyebrow="Book a diagnostic"
-            title="Get the evidence before the wall turns black."
-            stats={[
-              {
-                figure: "$945",
-                label:
-                  "Lab-Backed Diagnostic — on-site protocol + NATA-lab analysis + 48-hour report. Fixed price, GST inc.",
-              },
-              {
-                figure: "48 hours",
-                label:
-                  "Plain-English digital report with cause, extent, evidence and a defensible repair-cost range.",
-              },
-            ]}
-            primaryCta={{ label: "Book inspection", href: "#book" }}
-            secondaryCta={{ label: "See pricing", href: "#pricing" }}
-            footnote="No callout fees · independent of remediation · IICRC certified · NATA-accredited lab analysis available."
-            image="/images/thermal-imaging.jpg"
-            imageAlt="Sporetrust inspector using thermal imaging equipment in a Queenslander interior"
-          />
-        </div>
-      </section>
-
-      {/* Action — objection handling */}
+      {/* Objection handling — incl. the silent ones: retaliation, cost, bond. */}
       <section className="faq" id="faq">
         <script
           type="application/ld+json"
@@ -847,9 +455,9 @@ export default function InspectionLandingPage() {
           <div className="faq-grid">
             <div>
               <span className="eyebrow">[ common questions ]</span>
-              <h2 style={{ marginTop: 28 }}>Before you book.</h2>
+              <h2 style={{ marginTop: 28 }}>Before you ask.</h2>
               <p className="lede" style={{ marginTop: 22 }}>
-                Still unsure? Send us a quick note in the booking form. We'll come back the same business day.
+                Still unsure? Add a note when you request your inspection — we'll come back the same business day.
               </p>
             </div>
             <div>

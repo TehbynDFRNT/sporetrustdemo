@@ -6,8 +6,8 @@ export default function LanderHeader() {
     <header className="lander-header" aria-label="Sporetrust">
       <div className="lander-header__inner">
         <Brand />
-        <a className="lander-header__cta" href="#book">
-          Book inspection
+        <a className="lander-header__cta" href="#enquire">
+          Request your inspection
           <ArrowIcon />
         </a>
       </div>

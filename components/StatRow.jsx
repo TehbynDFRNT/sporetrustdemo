@@ -261,6 +261,36 @@ function CostBarsDiagram() {
   );
 }
 
+function AlertDiagram() {
+  return (
+    <svg viewBox="0 0 120 120" className="stat__diagram" aria-hidden="true">
+      <path
+        d="M60 28 L98 92 a5 5 0 0 1 -4.3 7.5 H26.3 a5 5 0 0 1 -4.3 -7.5 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.2"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <line x1="60" y1="54" x2="60" y2="76" stroke="var(--green)" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="60" cy="86" r="2.6" fill="var(--green)" />
+    </svg>
+  );
+}
+
+function InvoiceDiagram() {
+  return (
+    <svg viewBox="0 0 120 120" className="stat__diagram" aria-hidden="true">
+      <rect x="38" y="24" width="40" height="72" rx="4" fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="2" />
+      <line x1="47" y1="40" x2="69" y2="40" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" />
+      <line x1="47" y1="51" x2="69" y2="51" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" />
+      <line x1="47" y1="62" x2="61" y2="62" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="80" cy="80" r="15" fill="var(--paper)" stroke="var(--green)" strokeWidth="2" />
+      <text x="80" y="81" textAnchor="middle" dominantBaseline="central" className="stat__diagram-figure stat__diagram-figure--small" fill="var(--green)">$</text>
+    </svg>
+  );
+}
+
 const DIAGRAMS = {
   donut: DonutDiagram,
   clock: ClockDiagram,
@@ -269,6 +299,8 @@ const DIAGRAMS = {
   rootCause: RootCauseDiagram,
   recurrence: RecurrenceDiagram,
   costBars: CostBarsDiagram,
+  alert: AlertDiagram,
+  invoice: InvoiceDiagram,
 };
 
 function StatCard({ stat, index }) {

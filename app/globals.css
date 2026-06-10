@@ -230,12 +230,15 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
   padding: 0;
   background: var(--ink);
   color: var(--paper);
-  min-height: min(calc(100dvh - var(--banner-h) - var(--nav-h) - var(--trust-bar-h)), 1100px);
+  /* --vph is locked once at first paint by an inline script in app/layout.jsx
+     so the Hero (and everything below it) doesn't reflow as the mobile URL
+     bar collapses. Falls back to 100dvh for SSR / pre-hydration paint. */
+  min-height: min(calc(var(--vph, 100dvh) - var(--banner-h) - var(--nav-h) - var(--trust-bar-h)), 1100px);
   display: flex;
   align-items: stretch;
 }
 .hero--compact {
-  min-height: clamp(360px, 50dvh, 560px);
+  min-height: clamp(360px, calc(var(--vph, 100dvh) * 0.5), 560px);
 }
 .hero--compact .hero__title {
   font-size: clamp(30px, 3.2vw, 46px);
@@ -507,7 +510,7 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
 @media (max-width: 880px) {
   .hero {
     /* Mobile: smaller trust bar (logos stack), let hero take more of the screen */
-    min-height: clamp(520px, calc(100dvh - var(--nav-h) - 120px), 720px);
+    min-height: clamp(520px, calc(var(--vph, 100dvh) - var(--nav-h) - 120px), 720px);
     align-items: flex-end;
   }
   .hero__veil {
@@ -3685,6 +3688,13 @@ footer {
 .stat-section .section-header--center {
   margin-inline: auto;
 }
+.stat-section__note {
+  margin: clamp(20px, 2.4vw, 28px) auto 0;
+  text-align: center;
+  max-width: 60ch;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
 .problem-cta {
   display: flex;
   justify-content: center;
@@ -3969,6 +3979,7 @@ footer {
 }
 
 /* Paid-media lander chrome swap — components stay mounted, CSS toggles which is visible. */
+body[data-lander="true"] > .utility-banner,
 body[data-lander="true"] > .mega-nav,
 body[data-lander="true"] > footer:not(.lander-footer) {
   display: none;
@@ -3979,7 +3990,9 @@ body:not([data-lander="true"]) > .lander-footer {
 }
 
 .lander-header {
-  position: relative;
+  /* Sticky so the CTA persists for the whole scroll — the lander has no other nav. */
+  position: sticky;
+  top: 0;
   z-index: var(--z-nav);
   background: var(--paper);
   border-bottom: 1px solid var(--line-soft);
@@ -5850,6 +5863,430 @@ body:not([data-lander="true"]) > .lander-footer {
   .diagnostic-hero__title { font-size: clamp(26px, 7.6vw, 34px); }
 }
 
+/* ---------- SERVICE / LEAD HERO (offer + persuasion + CTA, no price) ---------- */
+.service-hero {
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-bottom: 1px solid var(--line-soft);
+}
+.service-hero__wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 56px);
+  align-items: center;
+  padding-top: clamp(40px, 6vh, 80px);
+  padding-bottom: clamp(40px, 6vh, 80px);
+  max-width: 1520px;
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 980px) {
+  .service-hero__wrap { grid-template-columns: 1fr; gap: var(--space-6); }
+}
+
+/* Content — sits directly on paper, editorial, no card chrome */
+.service-hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.service-hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  font-weight: 500;
+}
+.service-hero__title {
+  font-size: clamp(34px, 4vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: var(--ink);
+  margin: var(--space-4) 0 0;
+  max-width: 20ch;
+}
+.service-hero__lede {
+  margin: var(--space-5) 0 0;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 56ch;
+}
+.service-hero__proof {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.service-hero__stars { color: var(--green); }
+.service-hero__stars svg { width: 14px; height: 14px; }
+.service-hero__proof-text {
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: -0.005em;
+}
+.service-hero__points {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.service-hero__point {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.service-hero__point strong {
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.service-hero__check {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-top: 3px;
+  color: var(--green);
+  fill: none;
+}
+.service-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-7);
+}
+.service-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  transition: background var(--dur-fast), transform var(--dur-fast);
+  box-shadow: 0 4px 12px rgba(15, 17, 18, 0.18);
+}
+.service-hero__cta:hover { background: var(--ink-2); transform: translateY(-1px); }
+.service-hero__cta svg { width: 13px; height: 13px; }
+.service-hero__cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--grey-200);
+  padding-bottom: 2px;
+  transition: border-color var(--dur-fast), color var(--dur-fast);
+}
+.service-hero__cta-ghost:hover { border-color: var(--ink); }
+.service-hero__reassurance {
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+/* Form card — the conversion holds the hero's visual slot (reuses .lead-form__card chrome) */
+.service-hero__form {
+  align-self: center;
+  width: 100%;
+  max-width: 520px;
+  justify-self: end;
+}
+.service-hero__form-head { margin-bottom: var(--space-5); }
+.service-hero__form-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.service-hero__form-title {
+  margin: var(--space-3) 0 0;
+  font-size: clamp(21px, 1.8vw, 25px);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+.service-hero__form-sub {
+  margin: var(--space-2) 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 980px) {
+  .service-hero__form { justify-self: stretch; max-width: none; }
+}
+@media (max-width: 720px) {
+  .service-hero__title { font-size: clamp(30px, 8.4vw, 40px); }
+  .service-hero__actions { width: 100%; }
+}
+
+/* ---------- LEAD FORM (paid-media form arm conversion) ---------- */
+.lead-form {
+  background: var(--white);
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.lead-form__wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .lead-form__wrap { grid-template-columns: 1fr; gap: clamp(24px, 5vw, 36px); }
+}
+
+.lead-form__intro h2 {
+  font-size: clamp(26px, 2.8vw, 36px);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: var(--space-4) 0 0;
+  max-width: 18ch;
+}
+.lead-form__lede {
+  margin: var(--space-4) 0 0;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 52ch;
+}
+.lead-form__steps {
+  list-style: none;
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.lead-form__step {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--space-3);
+  align-items: start;
+}
+.lead-form__step-num {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.lead-form__step strong {
+  display: block;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.lead-form__step span {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+/* Card */
+.lead-form__card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-2);
+  padding: clamp(22px, 2.4vw, 32px);
+}
+.lead-form__form { display: flex; flex-direction: column; gap: var(--space-4); }
+.lead-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+@media (max-width: 480px) {
+  .lead-form__row { grid-template-columns: 1fr; }
+}
+.lead-form__field { display: flex; flex-direction: column; gap: 7px; }
+.lead-form__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.lead-form__optional { color: var(--ink-faint); font-weight: 400; }
+.lead-form__input,
+.lead-form__textarea {
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  width: 100%;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.lead-form__textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+.lead-form__input:focus,
+.lead-form__textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(47, 111, 73, 0.12);
+}
+.lead-form__submit {
+  margin-top: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 24px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  font: inherit;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  box-shadow: 0 4px 12px rgba(15, 17, 18, 0.18);
+}
+.lead-form__submit:hover { background: var(--ink-2); transform: translateY(-1px); }
+.lead-form__submit svg { width: 13px; height: 13px; }
+.lead-form__note {
+  margin: 2px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* Success state */
+.lead-form__success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-3);
+}
+.lead-form__success-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(47, 111, 73, 0.10);
+  color: var(--green);
+}
+.lead-form__success-mark svg { width: 26px; height: 26px; }
+.lead-form__success h3 {
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.lead-form__success p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 38ch;
+}
+
+/* ---------- Outcome chips (report section — what the evidence gets you) ---------- */
+.outcome-chips {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.outcome-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  padding: 7px 12px;
+  background: rgba(47, 111, 73, 0.07);
+  border: 1px solid rgba(47, 111, 73, 0.22);
+  border-radius: var(--r-pill);
+}
+.outcome-chips li::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+/* ---------- Evidence strip (compressed methodology — instruments, one line each) ---------- */
+.evidence-strip {
+  margin-top: clamp(40px, 5vw, 64px);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--line-soft);
+}
+.evidence-strip__kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.evidence-strip__grid {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-5) var(--space-6);
+}
+.evidence-strip__grid li {
+  border-top: 2px solid var(--green);
+  padding-top: var(--space-3);
+}
+.evidence-strip__grid strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.evidence-strip__grid span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
 /* ---------- Audience selector banner (slim dark, ~20px below hero) ---------- */
 .audience-bar {
   position: sticky;
@@ -6075,7 +6512,9 @@ body:not([data-lander="true"]) > .lander-footer {
   inset: 0;
   z-index: 100000;
   min-height: 100dvh;
-  width: 100vw;
+  /* width comes from `inset: 0` (left:0 + right:0). Using `100vw` here can
+     exceed the visible viewport on browsers that count scrollbar width and
+     introduces horizontal overflow on the results page. */
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   background:
@@ -6152,7 +6591,8 @@ body:not([data-lander="true"]) > .lander-footer {
 
 .quiz-takeover-body {
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: clamp(24px, 4vw, 56px) clamp(18px, 4vw, 56px);
   display: flex;
   flex-direction: column;
@@ -8665,42 +9105,120 @@ body:not([data-lander="true"]) > .lander-footer {
   height: 14px;
 }
 
-/* Tablet — collapse to single column, restore scroll */
+/* Tablet & mobile — give up the fixed-viewport bento grid, scroll like a normal page.
+   Chrome stays sticky at the top, CTA bar sticks to the bottom. */
 @media (max-width: 1024px) {
   .report-demo {
-    grid-template-rows: 60px auto auto auto;
-  }
-  .report-demo__pane {
-    grid-template-columns: 1fr;
+    display: block;
+    height: 100dvh;
     overflow: auto;
   }
+  .report-demo__chrome {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+  }
+  .report-demo__subhead {
+    position: relative;
+    z-index: 1;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+  }
+  .report-demo__pane,
+  .report-demo__pane--next {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    grid-template-rows: none;
+    overflow: visible;
+    gap: clamp(14px, 2.4vw, 22px);
+    padding-bottom: clamp(20px, 3vw, 32px);
+  }
   .report-demo__zone {
+    flex: none;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 2vw, 18px);
   }
   .report-demo__evidence-grid,
-  .report-demo__interp-stack {
+  .report-demo__interp-stack,
+  .report-demo__next-grid,
+  .report-demo__partner-grid {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
     grid-template-rows: none;
+    gap: clamp(12px, 2vw, 18px);
+    max-width: none;
   }
-  .report-demo__evidence-grid {
+  .report-demo__card,
+  .report-demo__card--resolution,
+  .report-demo__next-card,
+  .report-demo__partner-card {
+    flex: none;
+    overflow: visible;
+  }
+  .report-demo__card--photo .report-demo__card-figure,
+  .report-demo__visual-split,
+  .report-demo__air-figure {
+    flex: none;
+    aspect-ratio: 16 / 9;
+  }
+  .report-demo__visual-split {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
   }
-  .report-demo__interp-stack {
-    grid-template-rows: auto auto auto;
+  .report-demo__card--narrative .report-demo__card-body {
+    overflow: visible;
   }
-  .report-demo__card--photo .report-demo__card-figure { aspect-ratio: 4 / 3; }
+  .report-demo__scope { overflow: visible; }
+  .report-demo__cta-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+  }
 }
 
 @media (max-width: 720px) {
+  .report-demo__chrome {
+    height: 56px;
+    padding: 0 16px;
+  }
+  .report-demo__tabs ul { gap: 0; }
+  .report-demo__subhead {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 12px;
+  }
   .report-demo__subhead-meta { white-space: normal; }
-  .report-demo__subhead { grid-template-columns: 1fr; }
-  .report-demo__evidence-grid { grid-template-columns: 1fr; }
+  .report-demo__subhead h1 { font-size: 24px; }
+  .report-demo__rating-mini { align-self: flex-start; }
+  .report-demo__pane,
+  .report-demo__pane--next { padding: 16px; }
+  .report-demo__visual-split { aspect-ratio: 16 / 10; }
+  .report-demo__card--photo .report-demo__card-figure { aspect-ratio: 4 / 3; }
+  .report-demo__resolution-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .report-demo__resolution-stats { align-self: stretch; align-items: flex-start; }
+  .report-demo__resolution-cta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
   .report-demo__cta-bar {
     grid-template-columns: 1fr;
     gap: 10px;
+    padding: 12px 16px;
   }
   .report-demo__cta-actions { width: 100%; }
   .report-demo__cta-actions > * { flex: 1; justify-content: center; }
+  /* Hide the marker labels on tiny photos — they cover the image */
+  .report-demo__visual-marker-label,
+  .report-demo__visual-marker-leader-v,
+  .report-demo__visual-marker-leader-h { display: none; }
 }
 
 /* ---------- WHY SPORETRUST HERO ---------- */
