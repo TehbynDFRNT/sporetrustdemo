@@ -4060,6 +4060,40 @@ body:not([data-lander="true"]) > .lander-footer {
   .lander-footer__copy { margin-left: 0; width: 100%; }
 }
 
+/* ---------- Lander closer (final CTA band — ink, per the CTA-surface convention) ---------- */
+.lander-closer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: clamp(56px, 7vw, 72px) 0;
+}
+.lander-closer__wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.lander-closer .eyebrow { color: var(--green-soft); }
+.lander-closer .eyebrow::before { background: var(--green-soft); }
+.lander-closer h2 {
+  margin: var(--space-4) 0 0;
+  color: var(--paper);
+  font-size: clamp(25px, 2.6vw, 34px);
+  letter-spacing: -0.02em;
+  max-width: 24ch;
+}
+.lander-closer p {
+  margin: var(--space-3) 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(241, 240, 238, 0.66);
+  max-width: 52ch;
+}
+.lander-closer .btn { flex: 0 0 auto; }
+@media (max-width: 720px) {
+  .lander-closer .btn { width: 100%; justify-content: center; }
+}
+
 /* Lander mobile compression — paid-traffic pages run a tighter vertical rhythm
    than the marketing site. Scoped to body[data-lander] so nothing else moves. */
 @media (max-width: 720px) {

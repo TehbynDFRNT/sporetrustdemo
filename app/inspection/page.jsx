@@ -14,10 +14,10 @@ import CheckIcon from "../../components/icons/CheckIcon";
    Paid-media landing page — TENANT template, form arm. The visitor arrives
    problem-aware (they clicked a "mould in your rental" ad), so the page skips
    "do I have mould?" education and answers their actual question: who's
-   responsible, and how do I make them fix it. Flow: hero w/ form → rights
-   (leverage) → situations → deflection rebuttals → the report → process →
-   tenant proof → form → objections. Every CTA drives to #enquire; no price,
-   no booking calendar. Sections inlined per project convention.
+   responsible, and how do I make them fix it. Flow: hero w/ form → situations
+   (recognition) → rights (leverage) → deflection rebuttals → the report →
+   process → tenant proof → form → objections → closing CTA. Every CTA drives
+   to #enquire; no price, no booking calendar. Sections inlined per convention.
    -------------------------------------------------------------------------- */
 
 export const metadata = {
@@ -302,33 +302,7 @@ export default function InspectionLandingPage() {
       {/* Offer + persuasion + the form itself, above the fold. */}
       <ServiceHero />
 
-      {/* Leverage first — the renter's actual question is "can I make them fix it?" */}
-      <section className="stat-section">
-        <div className="wrap">
-          <Reveal>
-            <SectionHeader
-              align="center"
-              eyebrow="your rights as a renter"
-              title="In Queensland, mould isn't yours to just live with."
-              ledeMax="62ch"
-              lede="Renters have more leverage than most realise — when the mould is the property's fault. The right evidence is what turns 'we'll look into it' into an obligation."
-            />
-          </Reveal>
-          <div className="problem-cta">
-            <a className="btn" href="#enquire">
-              Request your inspection <ArrowIcon />
-            </a>
-          </div>
-          <Reveal delay={120}>
-            <StatRow variant="stacked" stats={tenantRights} />
-          </Reveal>
-          <p className="stat-section__note">
-            General guidance, not legal advice — but the evidence holds up the same either way.
-          </p>
-        </div>
-      </section>
-
-      {/* Situation matching — meet the stuck-state, resolve each to the same move. */}
+      {/* Recognition first — mirror the stuck-state before arguing anything. */}
       <section className="problem-bg" id="signs">
         <div className="wrap">
           <Reveal>
@@ -358,6 +332,32 @@ export default function InspectionLandingPage() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Leverage — the situation's been named; now the obligation framework that unsticks it. */}
+      <section className="stat-section">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeader
+              align="center"
+              eyebrow="your rights as a renter"
+              title="In Queensland, mould isn't yours to just live with."
+              ledeMax="62ch"
+              lede="Renters have more leverage than most realise — when the mould is the property's fault. The right evidence is what turns 'we'll look into it' into an obligation."
+            />
+          </Reveal>
+          <div className="problem-cta">
+            <a className="btn" href="#enquire">
+              Request your inspection <ArrowIcon />
+            </a>
+          </div>
+          <Reveal delay={120}>
+            <StatRow variant="stacked" stats={tenantRights} />
+          </Reveal>
+          <p className="stat-section__note">
+            General guidance, not legal advice — but the evidence holds up the same either way.
+          </p>
         </div>
       </section>
 
@@ -439,6 +439,12 @@ export default function InspectionLandingPage() {
               ))}
             </ul>
           </div>
+          {/* Belief peak of the page — deliverable shown, outcomes chipped, instruments proven. */}
+          <div className="problem-cta problem-cta--left">
+            <a className="btn" href="#enquire">
+              Get this report for your rental <ArrowIcon />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -501,6 +507,24 @@ export default function InspectionLandingPage() {
               <FaqAccordion items={faqs} />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Closing action — a DR page never ends on an accordion. Ink surface per
+          the background convention: direct-CTA moments run dark. */}
+      <section className="lander-closer">
+        <div className="wrap lander-closer__wrap">
+          <div className="lander-closer__copy">
+            <span className="eyebrow">[ the no-pressure next step ]</span>
+            <h2>Still weighing it up? The call costs nothing.</h2>
+            <p>
+              Send the form — we call today, confirm a fixed price, and you decide from there.
+              Often recoverable from the lessor when the building&rsquo;s at fault.
+            </p>
+          </div>
+          <a className="btn btn-light" href="#enquire">
+            Request your inspection <ArrowIcon />
+          </a>
         </div>
       </section>
     </main>
