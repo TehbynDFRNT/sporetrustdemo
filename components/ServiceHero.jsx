@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { captureAttribution, submitLead } from "../lib/leadSubmit";
 import AddressAutocomplete from "./AddressAutocomplete";
+import PhoneInput, { normalizeAuPhone } from "./PhoneInput";
 import ArrowIcon from "./icons/ArrowIcon";
 import ReviewStars from "./ReviewStars";
 
@@ -61,7 +62,7 @@ export default function ServiceHero() {
     submitLead(
       {
         firstName,
-        phone: String(data.get("phone") || "").trim(),
+        phone: normalizeAuPhone(data.get("phone")) || String(data.get("phone") || "").trim(),
         email: String(data.get("email") || "").trim(),
         address: String(data.get("address") || "").trim(),
         ...(addressRef.current || {}),
@@ -146,7 +147,7 @@ export default function ServiceHero() {
                   </div>
                   <div className="lead-form__field">
                     <label className="lead-form__label" htmlFor="shf-phone">Phone</label>
-                    <input className="lead-form__input" id="shf-phone" name="phone" type="tel" autoComplete="tel" required />
+                    <PhoneInput id="shf-phone" name="phone" required />
                   </div>
                 </div>
                 <div className="lead-form__field">

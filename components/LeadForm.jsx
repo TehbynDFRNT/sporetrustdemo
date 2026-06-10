@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { captureAttribution, submitLead } from "../lib/leadSubmit";
 import AddressAutocomplete from "./AddressAutocomplete";
+import PhoneInput, { normalizeAuPhone } from "./PhoneInput";
 import ArrowIcon from "./icons/ArrowIcon";
 
 /* Full lead-capture section — the catch-all conversion at the bottom of the
@@ -35,7 +36,7 @@ export default function LeadForm() {
     submitLead(
       {
         firstName,
-        phone: String(data.get("phone") || "").trim(),
+        phone: normalizeAuPhone(data.get("phone")) || String(data.get("phone") || "").trim(),
         email: String(data.get("email") || "").trim(),
         address: String(data.get("address") || "").trim(),
         detail: String(data.get("detail") || "").trim(),
@@ -92,7 +93,7 @@ export default function LeadForm() {
               <div className="lead-form__row">
                 <div className="lead-form__field">
                   <label className="lead-form__label" htmlFor="lf-phone">Phone</label>
-                  <input className="lead-form__input" id="lf-phone" name="phone" type="tel" autoComplete="tel" required />
+                  <PhoneInput id="lf-phone" name="phone" required />
                 </div>
                 <div className="lead-form__field">
                   <label className="lead-form__label" htmlFor="lf-email">Email</label>
