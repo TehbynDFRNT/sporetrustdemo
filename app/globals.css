@@ -6200,7 +6200,9 @@ body:not([data-lander="true"]) > .lander-footer {
   letter-spacing: -0.005em;
   color: var(--ink);
 }
-.lead-form__step span {
+/* Scoped to the copy column — a bare `.lead-form__step span` also catches
+   the number badge and paints it ink-on-green. */
+.lead-form__step div span {
   font-size: 13.5px;
   color: var(--ink-soft);
   line-height: 1.45;
