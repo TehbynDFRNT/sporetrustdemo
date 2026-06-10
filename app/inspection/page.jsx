@@ -198,7 +198,7 @@ const instruments = [
   ],
   [
     "Lab analysis",
-    "NATA-accredited lab confirmation — counts and species they can't dispute.",
+    "AIHA ISO 17025 lab confirmation — counts and species they can't dispute.",
     "/images/lab-testing.jpg",
     "Laboratory analysis of mould samples",
   ],
@@ -507,16 +507,22 @@ export default function InspectionLandingPage() {
                 </li>
                 <li className="credential-card">
                   <span className="credential-card__logo">
-                    <img src="/logos/nata-dark.png" alt="" loading="lazy" />
+                    {/* No AIHA asset on hand — neutral ISO/IEC 17025 mark instead of the wrong emblem. */}
+                    <svg viewBox="0 0 48 48" aria-hidden="true">
+                      <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.35" />
+                      <text x="24" y="21" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="11" fontWeight="600" fill="currentColor">ISO</text>
+                      <text x="24" y="33" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="currentColor">17025</text>
+                    </svg>
                   </span>
                   <div className="credential-card__body">
-                    <span className="credential-card__label">NATA-Accredited Lab Analysis</span>
+                    <span className="credential-card__label">AIHA-Accredited Lab Analysis</span>
                     <span className="credential-card__sublabel">
-                      National Association of Testing Authorities, Australia
+                      AIHA-LAP accredited · ISO/IEC 17025
                     </span>
                     <p className="credential-card__desc">
-                      Air and surface samples go to a NATA-accredited lab — spore counts and
-                      certificates in the format tribunals and insurers already accept.
+                      Air and surface samples go to an AIHA-accredited lab under ISO/IEC 17025 —
+                      spore counts and certificates in the format tribunals and insurers already
+                      accept.
                     </p>
                   </div>
                 </li>

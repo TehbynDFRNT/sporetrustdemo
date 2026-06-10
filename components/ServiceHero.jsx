@@ -143,7 +143,7 @@ export default function ServiceHero() {
             </a>
           </div>
           <p className="service-hero__reassurance">
-            No callout fees · IICRC certified · NATA-accredited labs · Brisbane &amp; SEQ
+            No callout fees · IICRC certified · AIHA ISO 17025 labs · Brisbane &amp; SEQ
           </p>
         </div>
 
