@@ -83,6 +83,8 @@ const tenantScenarios = [
     num: "T.01",
     tag: "Ignored",
     title: "You report it. They “look into it.” Nothing happens.",
+    image: "/images/sign-water-staining.png",
+    imageAlt: "Water staining on a rental ceiling that has been reported but never repaired",
     measure:
       "Requests disappear into the agent's inbox, weeks pass, and eventually someone wipes the wall down and calls it handled.",
     evidence:
@@ -92,6 +94,8 @@ const tenantScenarios = [
     num: "T.02",
     tag: "Blamed",
     title: "They say it's your lifestyle.",
+    image: "/images/sign-condensation.png",
+    imageAlt: "Condensation on a cold window — the moisture renters get blamed for",
     measure:
       "“Open a window, dry your clothes outside” — the standard reply that quietly makes the building's problem your fault.",
     evidence: "Moisture readings settle building defect vs lifestyle on paper, not opinion.",
@@ -100,6 +104,8 @@ const tenantScenarios = [
     num: "T.03",
     tag: "Recurring",
     title: "It comes back after every clean.",
+    image: "/images/sign-returning-mould.png",
+    imageAlt: "Mould returning on an interior wall after surface cleaning",
     measure:
       "You bleach it, it returns within weeks — because the moisture source behind the surface is still active.",
     evidence: "Documented regrowth plus an active source is proof it was never a cleaning problem.",
@@ -108,6 +114,8 @@ const tenantScenarios = [
     num: "T.04",
     tag: "Bond",
     title: "You're worried it lands on your bond.",
+    image: "/images/sign-splitting-paint.png",
+    imageAlt: "Splitting paint and moisture damage of the kind that appears on exit reports",
     measure:
       "Mould “damage” has a way of appearing on exit reports. Without a record, it's your word against theirs.",
     evidence: "Independent proof it was the building, on file before you hand back the keys.",
@@ -169,10 +177,30 @@ const reportItems = [
 ];
 
 const instruments = [
-  ["Thermal imaging", "Moisture paths behind walls and ceilings, visible on camera."],
-  ["Moisture metering", "Surface and depth readings that map and date the wetting."],
-  ["Air sampling", "Indoor vs outdoor spore counts, analysed by a NATA-accredited lab."],
-  ["Photo record", "Every reading photographed, located and timestamped."],
+  [
+    "Thermal imaging",
+    "Moisture paths behind walls and ceilings, visible on camera.",
+    "/images/thermal-before-after.jpg",
+    "Thermal imaging comparison revealing hidden moisture in a wall",
+  ],
+  [
+    "Moisture metering",
+    "Surface and depth readings that map and date the wetting.",
+    "/images/metal-ball-moisture-detector.jpg",
+    "Pinless moisture detector reading a damp wall",
+  ],
+  [
+    "Air sampling",
+    "Indoor vs outdoor spore counts that quantify what you're breathing.",
+    "/images/air-sample.jpg",
+    "Air sampling cassette capturing airborne mould spores",
+  ],
+  [
+    "Lab analysis",
+    "NATA-accredited lab confirmation — counts and species they can't dispute.",
+    "/images/lab-testing.jpg",
+    "Laboratory analysis of mould samples",
+  ],
 ];
 
 const timelineItems = [
@@ -312,7 +340,10 @@ export default function InspectionLandingPage() {
           </Reveal>
           <div className="methodology-grid">
             {tenantScenarios.map((card) => (
-              <article className="method method--text" key={card.num}>
+              <article className="method signs-card" key={card.num}>
+                <figure className="method-media">
+                  <img src={card.image} alt={card.imageAlt} loading="lazy" />
+                </figure>
                 <div className="method-meta">
                   <span className="num">{card.num}</span>
                   <span className="tag">{card.tag}</span>
@@ -340,21 +371,24 @@ export default function InspectionLandingPage() {
               lede="Mould is not a hygiene problem. It's a plumbing, waterproofing or ventilation failure that hasn't been named yet — and every one of these deflections has a measurable answer."
             />
           </Reveal>
-          <div className="methodology-grid diy-grid">
-            {toldLines.map((card) => (
-              <article className="method method--text" key={card.num}>
-                <div className="method-meta">
-                  <span className="num">{card.num}</span>
-                  <span className="tag">{card.tag}</span>
+          <div className="told-ledger">
+            {toldLines.map((row) => (
+              <div className="told-ledger__row" key={row.num}>
+                <div className="told-ledger__line">
+                  <div className="told-ledger__meta">
+                    <span className="num">{row.num}</span>
+                    <span className="tag">{row.tag}</span>
+                  </div>
+                  <h3>{row.title}</h3>
                 </div>
-                <h3>{card.title}</h3>
-                <p className="m-measure">{card.measure}</p>
-                <div className="m-divider" />
-                <p className="m-reveals">
-                  <strong>Readings say</strong>
-                  {card.reality}
-                </p>
-              </article>
+                <div className="told-ledger__answer">
+                  <p className="told-ledger__truth">{row.measure}</p>
+                  <p className="told-ledger__say">
+                    <strong>Readings say</strong>
+                    {row.reality}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -394,8 +428,11 @@ export default function InspectionLandingPage() {
               The instruments behind it — readings an agent can&rsquo;t argue with
             </span>
             <ul className="evidence-strip__grid" role="list">
-              {instruments.map(([title, copy]) => (
+              {instruments.map(([title, copy, image, imageAlt]) => (
                 <li key={title}>
+                  <figure className="evidence-strip__media">
+                    <img src={image} alt={imageAlt} loading="lazy" />
+                  </figure>
                   <strong>{title}</strong>
                   <span>{copy}</span>
                 </li>

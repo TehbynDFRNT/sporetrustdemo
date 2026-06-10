@@ -4059,6 +4059,40 @@ body:not([data-lander="true"]) > .lander-footer {
 @media (max-width: 640px) {
   .lander-footer__copy { margin-left: 0; width: 100%; }
 }
+
+/* Lander mobile compression — paid-traffic pages run a tighter vertical rhythm
+   than the marketing site. Scoped to body[data-lander] so nothing else moves. */
+@media (max-width: 720px) {
+  body[data-lander="true"] section { padding: 40px 0; }
+  /* Hero opts out of section padding entirely — its wrap carries its own. */
+  body[data-lander="true"] section.service-hero { padding: 0; }
+  body[data-lander="true"] h2 { font-size: clamp(25px, 6.8vw, 31px); }
+  body[data-lander="true"] .service-hero__form-title { font-size: 21px; }
+  body[data-lander="true"] .lede { font-size: 15px; }
+  body[data-lander="true"] .section-header { gap: var(--space-5); }
+  body[data-lander="true"] .section-header__main { gap: var(--space-3); }
+  body[data-lander="true"] .problem-cta { margin-top: var(--space-4); }
+  body[data-lander="true"] .stat-row { margin-top: var(--space-5); }
+  body[data-lander="true"] .stat-row--stacked .stat { padding: var(--space-4); gap: var(--space-3); }
+  body[data-lander="true"] .stat-row--stacked .stat__media { width: 96px; height: 96px; }
+  body[data-lander="true"] .stat-section__note { margin-top: var(--space-4); }
+  body[data-lander="true"] .methodology-grid { margin-top: 24px; gap: 12px; }
+  body[data-lander="true"] .method { padding: 20px 18px; }
+  body[data-lander="true"] .method-meta { margin-bottom: 16px; }
+  body[data-lander="true"] .outcome-chips { margin-top: var(--space-4); }
+  body[data-lander="true"] .what-grid { margin-top: 28px; gap: 28px; }
+  body[data-lander="true"] .what-list li { padding: 14px 0; gap: 14px; }
+  body[data-lander="true"] .evidence-strip { margin-top: 28px; padding-top: var(--space-5); }
+  body[data-lander="true"] .evidence-strip__grid { margin-top: var(--space-4); gap: var(--space-4) var(--space-5); }
+  body[data-lander="true"] .timeline { margin-top: var(--space-6); }
+  body[data-lander="true"] .timeline__list { gap: var(--space-6); }
+  body[data-lander="true"] .timeline__card { padding-top: var(--space-4); }
+  body[data-lander="true"] .testimonial-grid { margin-top: var(--space-6); gap: var(--space-3); }
+  body[data-lander="true"] .lead-form__wrap { gap: 20px; }
+  body[data-lander="true"] .lead-form__steps { margin-top: var(--space-5); gap: var(--space-3); }
+  body[data-lander="true"] .faq-grid { gap: 20px; }
+}
+
 .mega-nav__inner {
   display: flex;
   align-items: center;
@@ -6041,8 +6075,20 @@ body:not([data-lander="true"]) > .lander-footer {
   .service-hero__form { justify-self: stretch; max-width: none; }
 }
 @media (max-width: 720px) {
-  .service-hero__title { font-size: clamp(30px, 8.4vw, 40px); }
-  .service-hero__actions { width: 100%; }
+  /* Compress the copy stack so headline → points sit above the fold with the
+     form card starting right under them. Section padding dies in the lander
+     mobile block (body[data-lander] section rules, see lander chrome CSS). */
+  .service-hero__wrap { padding-top: 20px; padding-bottom: 28px; gap: var(--space-5); }
+  .service-hero__title { font-size: clamp(27px, 7.4vw, 33px); margin-top: var(--space-3); }
+  .service-hero__lede { margin-top: var(--space-3); font-size: 15px; }
+  .service-hero__proof { margin-top: var(--space-3); }
+  .service-hero__points { margin-top: var(--space-3); gap: 10px; }
+  .service-hero__point { font-size: 13.5px; line-height: 1.45; }
+  /* Ghost CTA is redundant on mobile — the form is adjacent and the header CTA is sticky. */
+  .service-hero__actions { display: none; }
+  .service-hero__reassurance { margin-top: var(--space-3); font-size: 11px; }
+  .service-hero__form-head { margin-bottom: var(--space-4); }
+  .service-hero__form .lead-form__form { gap: var(--space-3); }
 }
 
 /* ---------- LEAD FORM (paid-media form arm conversion) ---------- */
@@ -6247,7 +6293,7 @@ body:not([data-lander="true"]) > .lander-footer {
   background: var(--green);
 }
 
-/* ---------- Evidence strip (compressed methodology — instruments, one line each) ---------- */
+/* ---------- Evidence strip (compressed methodology — instrument thumb + one line each) ---------- */
 .evidence-strip {
   margin-top: clamp(40px, 5vw, 64px);
   padding-top: var(--space-6);
@@ -6272,6 +6318,20 @@ body:not([data-lander="true"]) > .lander-footer {
   border-top: 2px solid var(--green);
   padding-top: var(--space-3);
 }
+.evidence-strip__media {
+  margin: 0 0 var(--space-3);
+  aspect-ratio: 16 / 10;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 17, 18, 0.08);
+  background: var(--grey-50);
+}
+.evidence-strip__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .evidence-strip__grid strong {
   display: block;
   font-size: 15px;
@@ -6285,6 +6345,79 @@ body:not([data-lander="true"]) > .lander-footer {
   font-size: 13.5px;
   line-height: 1.5;
   color: var(--ink-soft);
+}
+
+/* ---------- Told ledger ("what you'll be told" — dialogue rows, not cards) ----------
+   Deliberately a different shape from the .method card grids around it: the
+   agent's line reads as speech on the left, the instrument answer on the right. */
+.told-ledger {
+  margin-top: 48px;
+  border-top: 1px solid var(--ink);
+}
+.told-ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--space-4) clamp(28px, 5vw, 72px);
+  padding: clamp(24px, 3vw, 36px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.told-ledger__meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.told-ledger__meta .num {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+.told-ledger__meta .tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.told-ledger__line h3 {
+  margin: var(--space-3) 0 0;
+  font-size: clamp(22px, 2.2vw, 30px);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  max-width: 18ch;
+}
+.told-ledger__truth {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.told-ledger__say {
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--line);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.told-ledger__say strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+@media (max-width: 720px) {
+  .told-ledger { margin-top: 24px; }
+  .told-ledger__row {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding: var(--space-5) 0;
+  }
+  .told-ledger__line h3 { max-width: none; font-size: 21px; }
 }
 
 /* ---------- Audience selector banner (slim dark, ~20px below hero) ---------- */
