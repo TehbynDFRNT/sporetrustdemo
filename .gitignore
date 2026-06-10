@@ -13,3 +13,7 @@ pnpm-debug.log*
 
 # Supabase CLI cache
 supabase/.temp/
+
+# Local-only
+.claude/
+.pre-pull-backup/

@@ -10,10 +10,13 @@ const ORDER = [
   "trade-categories",
   "fungal-classifications",
   "particulate-types",
+  "equipment-types",
   "technicians",
+  "technician-equipment",
   "customers",
   "properties",
   "inspections",
+  "inspection-equipment",
   "sample-locations",
   "image-captures",
   "moisture-readings",
@@ -30,7 +33,8 @@ const ORDER = [
   "subscriptions",
 ];
 
-// Slug → table identity column. partner-skills has a composite PK and no identity.
+// Slug → table identity column. partner-skills + inspection-equipment have
+// composite PKs and no identity.
 const IDENTITY_COL = {
   customers: "customer_id",
   properties: "property_id",
@@ -52,6 +56,8 @@ const IDENTITY_COL = {
   "fungal-classifications": "fungal_classification_id",
   "particulate-types": "particulate_type_id",
   technicians: "technician_id",
+  "equipment-types": "equipment_type_id",
+  "technician-equipment": "technician_equipment_id",
 };
 
 const tableFor = (slug) => slug.replace(/-/g, "_");

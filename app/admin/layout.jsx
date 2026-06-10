@@ -1,6 +1,7 @@
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import QueryProvider from "../../components/admin/QueryProvider";
 import "./admin.css";
+import "./admin-forms.css";
 
 // Admin section layout. Hosts the sidebar + TanStack QueryClientProvider so
 // they mount once and persist across in-section navigation — pages inside

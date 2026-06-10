@@ -1,0 +1,39 @@
+/* Workflow-oriented inspections index. Borrows the per-inspection
+ * landing's section + row primitives and adds a couple of bucket-level
+ * accents (Active uses a quiet amber rule, Awaiting sign-off picks up an
+ * indigo rule). Muted buckets de-emphasise themselves so closed work
+ * doesn't compete with the active pipeline. */
+
+.insp-bucket { margin-bottom: 8px; }
+.insp-bucket__head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.insp-bucket__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft, #45484C);
+}
+.insp-bucket__title--active   { color: #854d0e; }
+.insp-bucket__title--signoff  { color: #3730a3; }
+.insp-bucket__subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-soft, #45484C);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.insp-bucket--muted .insp-bucket__title { color: var(--ink-faint, #82858A); }
+.insp-bucket--muted .ins-row             { opacity: 0.85; }
+
+.insp-elapsed {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  background: #fef3c7;
+  color: #854d0e;
+  padding: 2px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}

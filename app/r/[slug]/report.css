@@ -1,0 +1,533 @@
+/* Public inspection report — reuses every .report-demo__* class from
+ * globals.css verbatim so the visual language matches the marketing demo
+ * exactly. The .report-page wrapper just removes the modal positioning
+ * so the report renders as a regular scroll-through page.
+ *
+ * Anything that would otherwise break in a non-modal context is forced
+ * back to its sensible page-shaped value here. Demo styles stay
+ * untouched — if the demo gets a polish pass, this page inherits it. */
+
+/* Kill the marketing chrome on /r/*. SiteChrome sets body[data-report]
+ * for these paths; we just need the hide rules in a stylesheet that
+ * actually loads here (admin.css doesn't — it only ships under /admin). */
+body[data-report] .utility-banner,
+body[data-report] .mega-nav,
+body[data-report] footer,
+body[data-report] .footer,
+body[data-report] .lander-header,
+body[data-report] .lander-footer,
+body[data-report] .sticky-cta { display: none !important; }
+
+.report-page {
+  min-height: 100dvh;
+  background: var(--bone);
+}
+
+.report-page .report-demo {
+  /* Demo is position:fixed; inset:0; — undo for the standalone page. */
+  position: static;
+  inset: auto;
+  z-index: auto;
+  /* Demo locks to 100dvh + overflow:hidden so the modal handles its own
+   * scroll. On a page, that would clip everything below the fold. */
+  height: auto;
+  min-height: 100dvh;
+  /* Full width — the report uses the demo's internal padding for its own
+   * gutters; no outer container. */
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  overflow: visible;
+  /* Drop the in/out animation that fires on modal open. */
+  animation: none;
+}
+
+/* Demo's grid template assumes a fixed-height container (60px chrome / auto
+ * subhead / 1fr pane / auto cta). On a standalone page we want every row
+ * to size to its content, not stretch to fill viewport — otherwise the
+ * pane fights to be 1fr and clips its own content. */
+.report-page .report-demo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The pane in the demo is overflow:hidden + min-height:0 so internal cards
+ * scroll independently of the modal frame. On a standalone page we want
+ * the whole page to flow, so cards size to content and the page scrolls. */
+.report-page .report-demo__pane {
+  overflow: visible;
+}
+.report-page .report-demo__zone,
+.report-page .report-demo__evidence-grid,
+.report-page .report-demo__interp-stack {
+  min-height: 0;
+}
+.report-page .report-demo__card { overflow: visible; }
+
+/* Make the chrome sticky so the tabs stay reachable while reading.
+ * The demo gets its 60px height from the parent's grid-template-rows
+ * (60px auto 1fr auto). We swapped the parent to flex to let the page
+ * scroll, so re-assert the row height here. */
+.report-page .report-demo__chrome {
+  min-height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
+}
+
+/* The CTA bar in the demo is the "Book your diagnostic" footer. On the
+ * page it's a quiet "Independent diagnostics" sign-off — keep the
+ * footer rhythm but no fixed positioning. */
+.report-page .report-demo__cta-bar {
+  position: static;
+}
+
+/* Location details mini-list (this page's own card content — not in the
+ * marketing demo). Mirror the demo's typography. */
+.report-page .report-demo__loc-meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px 16px;
+}
+.report-page .report-demo__loc-meta > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.report-page .report-demo__loc-meta dt {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.report-page .report-demo__loc-meta dd { margin: 0; font-size: 14px; }
+.report-page .report-demo__loc-notes {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* Defensive muted helper for "no data" rows inside cards. */
+.report-page .report-demo__muted { color: var(--ink-faint); }
+
+/* ───────────────────────────────────────────────────────────────────────
+ * Room view layout
+ * Two-column grid: visual (wide-left, full height) + air (right top),
+ * findings sit full-width below. Scope-of-works has moved out — it's
+ * now the sticky bottom bar (.pr-scope-bar).
+ * ─────────────────────────────────────────────────────────────────────── */
+
+/* Pane locks to (viewport - chrome - subhead - sticky scope bar) with a
+ * clamp() so it doesn't get absurdly short on a laptop or absurdly tall
+ * on a 4K. align-items: stretch (default on grid) makes both cards fill
+ * the pane height; the cards' internal flex layouts then scroll only the
+ * sections that need it (the fungal counts list, and the moisture +
+ * findings region inside the visual card). */
+.report-page .pr-room-pane {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(10px, 1.4vw, 16px);
+  align-items: stretch;
+  height: clamp(540px, calc(100dvh - 220px), 920px);
+  box-sizing: border-box;
+}
+
+@media (max-width: 860px) {
+  /* On narrow viewports give up the fixed-height layout — stacking two
+   * cards in viewport height crushes them both. Let the page scroll. */
+  .report-page .pr-room-pane {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* Cards are flex columns so internal sections can claim the remaining
+ * space via flex: 1. min-height: 0 lets them shrink below their content
+ * size (the magic that allows internal scroll inside a flex parent). */
+.report-page .pr-card--visual-merged,
+.report-page .pr-card--air {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* Visual card: header + image pair are fixed-height; the moisture
+ * readings + findings region absorbs the remaining card height and
+ * scrolls internally if it overflows. */
+.report-page .pr-card--visual-merged > header,
+.report-page .pr-card--visual-merged > .report-demo__visual-split {
+  flex-shrink: 0;
+}
+.report-page .pr-card__scroll-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Air card: header / slide / bars are fixed-height; the fungal counts
+ * block takes the remaining height and scrolls inside. */
+.report-page .pr-card--air > header,
+.report-page .pr-card--air > .pr-slide,
+.report-page .pr-card--air > .pr-air-bars {
+  flex-shrink: 0;
+}
+.report-page .pr-card--air > .pr-fungal {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Moisture readings attached to the visual card ─────────────────────
+ * Acts as the visual card's body — pins on the image are 01, 02, 03 and
+ * the rows below carry the same numbering. */
+
+.report-page .pr-attached-readings {
+  border-top: 1px solid var(--line);
+  padding: 10px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.report-page .pr-attached-readings--empty { padding: 14px 16px; }
+.report-page .pr-attached-readings__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.report-page .pr-attached-readings__head h4 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.report-page .pr-attached-readings__scroll {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* ── Findings & likely sources — attached to the Visual card ──────────── */
+
+.report-page .pr-attached-findings {
+  border-top: 1px solid var(--line);
+  padding: 10px 16px 14px;
+}
+.report-page .pr-attached-findings__head {
+  margin-bottom: 6px;
+}
+.report-page .pr-attached-findings__head h4 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.report-page .pr-attached-findings__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.report-page .pr-attached-findings__prose {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.report-page .pr-attached-findings__causes {
+  list-style: none;
+  padding: 10px 0 0;
+  margin: 0;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.report-page .pr-attached-findings__causes li {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 10px;
+}
+
+/* ── Lab slide image inside the air-sample card ───────────────────────── */
+
+/* Lab slides — trace 4× + 30× zoom side-by-side as a single row.
+ * Columns use flex-grow proportional to each image's natural aspect ratio
+ * (trace ~1.9, zoom ~1.0) so the rendered heights end up matching with
+ * no fixed pixel sizes. Combined block stays short instead of stacking. */
+.report-page .pr-slide {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.report-page .pr-slide__row {
+  display: flex;
+  align-items: stretch;
+  gap: 1px;             /* thin hairline between the two figures */
+  background: var(--line);
+}
+.report-page .pr-slide__col {
+  margin: 0;
+  background: var(--bone);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;   /* anchor for the chip-style figcaption */
+  overflow: hidden;     /* clip the chip if it would spill past the corner */
+}
+.report-page .pr-slide__col--trace { flex: 1.9 1 0; }
+.report-page .pr-slide__col--zoom  { flex: 1   1 0; }
+
+/* Equal-height images. The 30× zoom is the height anchor (renders at its
+ * natural ratio); the 4× trace fills the same stretched height via
+ * object-fit: cover so any tiny aspect mismatch crops the trace's
+ * whitespace edges, not the actual sample content. Flex's align-items:
+ * stretch above makes both columns the same height; the image rules
+ * below make the IMAGES occupy that same height too. */
+.report-page .pr-slide__col img {
+  display: block;
+  width: 100%;
+}
+.report-page .pr-slide__col--zoom img {
+  height: auto;        /* natural ratio — drives the row height */
+}
+.report-page .pr-slide__col--trace img {
+  height: 100%;        /* fills to the zoom-driven row height */
+  object-fit: cover;
+}
+.report-page .pr-slide__col--trace {
+  /* Image inside is height:100% — the figure needs to fill its flex
+   * cell so the image has a parent height to resolve against. */
+  min-height: 100%;
+}
+/* Caption rendered as a chip overlaid on the slide image — matches the
+ * marketing demo's visible/thermal figure caption treatment. Dark
+ * translucent pill in the top-left corner. */
+.report-page .pr-slide__col figcaption {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  background: rgba(15, 17, 18, 0.78);
+  color: #fff;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.report-page .pr-slide--empty .pr-slide__placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 1;
+  background: var(--bone);
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+}
+
+/* ── Sticky scope-of-works CTA bar ──────────────────────────────────────
+ * Two-mode "stick to viewport bottom":
+ *   - margin-top: auto pushes the bar to the end of the flex column
+ *     when total content < viewport, so it sits at the viewport bottom
+ *     even though the pane is height-capped.
+ *   - position: sticky; bottom: 0 then keeps the bar at the viewport
+ *     bottom while content scrolls past on taller pages / smaller
+ *     viewports where total content > viewport. */
+.report-page .pr-scope-bar {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px clamp(18px, 2.4vw, 34px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 -6px 24px rgba(0,0,0,0.08);
+}
+.report-page .pr-scope-bar__main {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.report-page .pr-scope-bar__eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.65);
+}
+.report-page .pr-scope-bar__cost {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.report-page .pr-scope-bar__count {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.7);
+}
+.report-page .pr-scope-bar__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 0;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.report-page .pr-scope-bar__cta:hover { background: #fff; }
+.report-page .pr-scope-bar__cta svg { width: 14px; height: 14px; }
+
+.report-page .pr-cta-bar {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+@media print {
+  .report-page .pr-scope-bar,
+  .report-page .pr-cta-bar { display: none !important; }
+}
+
+/* Air-sample comparison: two stacked horizontal bars sharing the same
+ * scale (max(outdoor, indoor)) so the visual length difference IS the
+ * comparison. The indoor bar goes alarm-red at ≥5× baseline. Slide image
+ * intentionally omitted — no room and the customer-facing story is the
+ * ratio, not the slide. */
+.report-page .pr-air-bars {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.report-page .pr-air-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.report-page .pr-air-bar__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.report-page .pr-air-bar__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.report-page .pr-air-bar__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.report-page .pr-air-bar__value em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--ink-faint);
+  margin-left: 4px;
+}
+.report-page .pr-air-bar__value--alarm { color: #8a1c1c; }
+.report-page .pr-air-bar__track {
+  height: 8px;
+  background: #ECE9E0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.report-page .pr-air-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 240ms ease-out;
+}
+.report-page .pr-air-bar__fill--outdoor { background: #2F6F49; }
+.report-page .pr-air-bar__fill--indoor  { background: #2F6F49; opacity: 0.85; }
+.report-page .pr-air-bar__fill--alarm   { background: #B22F2F; }
+.report-page .pr-air-bars__note {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.report-page .pr-air-bars__note strong {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--ink);
+}
+.report-page .pr-air-bars__note--muted { color: var(--ink-faint); }
+
+/* Fungal counts list inside the air-sample card. Uses the demo's
+ * .report-demo__readings table styling for visual continuity with the
+ * moisture readings list; just wraps it in a scroll container so a long
+ * lab breakdown can scroll independently of the card. */
+.report-page .pr-fungal {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+.report-page .pr-fungal__scroll {
+  flex: 1;
+  min-height: 0;
+  /* No max-height cap — the parent .pr-fungal is flex:1 inside a height-
+   * constrained card, so the scroll region naturally takes whatever's
+   * left after slide + bars + caption are laid out. */
+  overflow-y: auto;
+  padding: 0 16px;
+}
+.report-page .pr-fungal__table { width: 100%; }
+.report-page .pr-fungal__value em {
+  font-style: normal;
+  margin-left: 4px;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+.report-page .pr-fungal__foot {
+  border-top: 1px solid var(--line);
+  padding: 10px 16px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+/* Print: drop the chrome, page-break per pane. */
+@media print {
+  body { background: #fff !important; }
+  .report-page .report-demo__chrome,
+  .report-page .report-demo__cta-bar { display: none !important; }
+  .report-page .report-demo { max-width: none; min-height: 0; }
+  .report-page .report-demo__pane { page-break-after: always; }
+  .report-page .report-demo__card {
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+  }
+}

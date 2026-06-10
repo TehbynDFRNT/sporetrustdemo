@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 // Generic, type-file-driven table. Page components just import a type
 // config (from lib/admin/types/<entity>.js) and render <DataTable config={...} />.
@@ -87,6 +88,15 @@ function renderCell(value, column) {
       return fmtJsonish(value);
     case "bool":
       return value === true || value === "true" ? "Yes" : "No";
+    case "linkId":
+      // Renders the value as a link to `${linkBase}/${value}`. Used to open
+      // a workspace from the listing — e.g. inspection rows linking into
+      // /admin/inspections/<id>.
+      return (
+        <Link href={`${column.linkBase || ""}/${value}`} className="admin-table__link">
+          {value}
+        </Link>
+      );
     default:
       return String(value);
   }

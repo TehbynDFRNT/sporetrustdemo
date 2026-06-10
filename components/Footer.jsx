@@ -54,10 +54,10 @@ export default function Footer({
           </p>
           <ul className="foot-accreditation" aria-label="Accreditation">
             <li>
-              <img src="/logos/iicrc.svg" alt="IICRC certified" />
+              <img src="/logos/iicrc.svg" alt="IICRC certified" loading="lazy" />
             </li>
             <li>
-              <img src="/logos/nata.png" alt="NATA-accredited lab partners" />
+              <img src="/logos/nata.png" alt="NATA-accredited lab partners" loading="lazy" />
             </li>
           </ul>
         </div>

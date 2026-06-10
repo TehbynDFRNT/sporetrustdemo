@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sporetrust — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ============ TOKENS (mirrors app/globals.css :root) ============ */
+  :root {
+    --white:      #FFFFFF;
+    --paper:      #F1F0EE;
+    --bone:       #F1F0EE;
+    --grey-50:    #EDEAE5;
+    --grey-100:   #DCD8D2;
+    --grey-200:   #B5B2AB;
+
+    --ink:        #0F1112;
+    --ink-2:      #1A1D1F;
+    --ink-soft:   #45484C;
+    --ink-faint:  #82858A;
+
+    --green:      #2F6F49;
+    --green-soft: #C8D3CB;
+
+    --line:       #E8E5E0;
+    --line-soft:  #F0EDE8;
+
+    --font-body:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-wordmark: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+    --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --r-sm: 4px;  --r-md: 10px;  --r-lg: 16px;  --r-pill: 999px;
+
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+    --space-5:22px; --space-6:28px; --space-7:36px; --space-8:48px;
+    --space-9:64px; --space-10:82px; --space-11:110px; --space-12:140px;
+
+    --wrap-max: 1360px;
+    --wrap-pad: 28px;
+
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-fast: 160ms; --dur-base: 260ms; --dur-slow: 520ms; --dur-reveal: 900ms;
+
+    --elev-1: 0 1px 0 rgba(15,17,18,0.04), 0 2px 6px rgba(15,17,18,0.04);
+    --elev-2: 0 1px 0 rgba(15,17,18,0.05), 0 8px 24px rgba(15,17,18,0.06);
+    --elev-3: 0 2px 0 rgba(15,17,18,0.05), 0 20px 44px rgba(15,17,18,0.10);
+  }
+
+  /* ============ RESET / BASE ============ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* CONTAINER FIX: stop any wide child (code blocks, scroll rows) blowing out the page */
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  code, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ============ LAYOUT WRAPPER (the core container fix) ============ */
+  .wrap {
+    width: 100%;
+    max-width: var(--wrap-max);
+    margin: 0 auto;
+    padding-inline: var(--wrap-pad);
+  }
+  @media (max-width: 720px) { :root { --wrap-pad: 20px; } }
+
+  /* ============ HEADER ============ */
+  .ds-header {
+    position: sticky; top: 0; z-index: 60;
+    background: rgba(241,240,238,0.86);
+    backdrop-filter: saturate(1.1) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .ds-header__bar {
+    display: flex; align-items: center; gap: 20px;
+    min-height: 64px; flex-wrap: wrap;
+  }
+  .brand {
+    font-family: var(--font-wordmark);
+    font-size: 22px; font-weight: 500; letter-spacing: -0.035em;
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; color: var(--ink); margin-right: auto;
+  }
+  .brand-mark { width: 22px; height: 22px; flex: 0 0 auto; }
+  .ds-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .ds-nav a {
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.03em;
+    text-transform: uppercase; text-decoration: none; color: var(--ink-soft);
+    padding: 6px 10px; border-radius: var(--r-pill);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .ds-nav a:hover { background: var(--white); color: var(--ink); }
+
+  /* ============ PAGE TITLE ============ */
+  .ds-hero { padding: clamp(48px, 7vw, 96px) 0 clamp(32px, 4vw, 56px); }
+  .ds-hero h1 {
+    font-size: clamp(40px, 5vw, 60px); font-weight: 500;
+    letter-spacing: -0.038em; line-height: 0.96; margin: 16px 0 0;
+  }
+  .ds-hero p {
+    max-width: 62ch; color: var(--ink-soft);
+    font-size: clamp(17px, 1.3vw, 19px); margin: 20px 0 0;
+  }
+  .ds-meta {
+    display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 28px;
+    font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint);
+    letter-spacing: 0.03em;
+  }
+  .ds-meta span b { color: var(--ink); font-weight: 500; }
+
+  /* ============ SECTION SHELL ============ */
+  section.ds { padding: clamp(40px, 5vw, 72px) 0; border-top: 1px solid var(--line); }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em;
+    text-transform: uppercase; font-weight: 500; color: var(--green);
+    display: inline-block; margin-bottom: 14px;
+  }
+  .ds h2 {
+    font-size: clamp(28px, 3vw, 40px); font-weight: 600;
+    letter-spacing: -0.03em; line-height: 1.0; margin: 0 0 12px;
+  }
+  .ds__intro { max-width: 64ch; color: var(--ink-soft); margin: 0 0 36px; }
+
+  /* ============ GRID HELPERS (auto-fit = never overflow) ============ */
+  .grid { display: grid; gap: var(--space-5); }
+  .grid--swatches { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .grid--cards    { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .grid--two      { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+  /* ============ COLOUR SWATCHES ============ */
+  .swatch {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--r-md); overflow: hidden;
+  }
+  .swatch__chip { height: 92px; width: 100%; }
+  .swatch__body { padding: 12px 14px 14px; }
+  .swatch__name { font-weight: 600; font-size: 14px; }
+  .swatch__meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint); margin-top: 4px; }
+  .swatch__use { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.4; }
+  .swatch--bordered .swatch__chip { box-shadow: inset 0 0 0 1px var(--line); }
+
+  /* ============ TYPE SPECIMENS ============ */
+  .type-row {
+    display: grid; grid-template-columns: 160px 1fr; gap: 24px;
+    padding: 22px 0; border-top: 1px solid var(--line-soft); align-items: baseline;
+  }
+  .type-row:first-child { border-top: 0; }
+  .type-row__label { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.03em; }
+  .type-row__label b { display: block; color: var(--ink); font-size: 13px; margin-bottom: 4px; letter-spacing: 0; }
+  .sp-h1 { font-size: clamp(40px,4.2vw,60px); font-weight: 500; letter-spacing: -0.038em; line-height: 0.96; }
+  .sp-h2 { font-size: clamp(30px,3.3vw,46px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.0; }
+  .sp-h3 { font-size: clamp(22px,2vw,26px); font-weight: 600; letter-spacing: -0.02em; }
+  .sp-h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
+  .sp-body { font-size: 17px; line-height: 1.55; color: var(--ink); max-width: 60ch; }
+  .sp-lede { font-size: clamp(17px,1.35vw,20px); color: var(--ink-soft); line-height: 1.5; max-width: 60ch; }
+  @media (max-width: 640px) { .type-row { grid-template-columns: 1fr; gap: 10px; } }
+
+  /* ============ SPACING SCALE ============ */
+  .space-row { display: flex; align-items: center; gap: 16px; padding: 9px 0; }
+  .space-row__bar { background: var(--green-soft); height: 16px; border-radius: 3px; border: 1px solid var(--green); }
+  .space-row__label { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; }
+  .space-row__label b { color: var(--ink); }
+
+  /* ============ RADII + ELEVATION ============ */
+  .radius-box, .elev-box {
+    background: var(--white); border: 1px solid var(--line); aspect-ratio: 1.6 / 1;
+    display: flex; align-items: flex-end; padding: 12px;
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint);
+  }
+  .radius-box.rs { border-radius: var(--r-sm); }
+  .radius-box.rm { border-radius: var(--r-md); }
+  .radius-box.rl { border-radius: var(--r-lg); }
+  .radius-box.rp { border-radius: var(--r-pill); }
+  .elev-wrap { padding: 8px; }
+  .elev-box { border-radius: var(--r-md); border-color: transparent; }
+  .elev-box.e1 { box-shadow: var(--elev-1); }
+  .elev-box.e2 { box-shadow: var(--elev-2); }
+  .elev-box.e3 { box-shadow: var(--elev-3); }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--ink); color: var(--white);
+    padding: 14px 24px; border-radius: var(--r-pill);
+    text-decoration: none; font-weight: 500; font-size: 14.5px;
+    letter-spacing: -0.005em; border: 0; cursor: pointer; font-family: var(--font-body);
+    transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .btn:hover { background: var(--ink-2); transform: translateY(-1px); }
+  .btn-light { background: var(--white); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+  .btn-light:hover { background: var(--paper); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 22px; border-radius: var(--r-pill);
+    background: transparent; color: var(--ink); text-decoration: none;
+    font-weight: 500; font-size: 14.5px; letter-spacing: -0.005em;
+    border: 1px solid var(--line); cursor: pointer; font-family: var(--font-body);
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn-ghost:hover { background: var(--paper); border-color: var(--ink); }
+  .btn svg, .btn-ghost svg { width: 14px; height: 14px; }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-cluster { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .specimen-note { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
+
+  /* ============ EYEBROW + TAGS ============ */
+  .demo-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; color: var(--green); }
+  .tag-mono { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; }
+  .tag-mono.green { color: var(--green); }
+  .tag-mono.high  { color: var(--ink); }
+  .tag-mono.mod   { color: var(--ink-soft); }
+  .tag-mono.low   { color: var(--green); }
+  .badge {
+    display: inline-block; font-family: var(--font-mono);
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--white); background: var(--green); font-weight: 500;
+    padding: 6px 12px; border-radius: var(--r-pill);
+  }
+  .tag-cluster { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; }
+
+  /* ============ COMPONENT DEMOS ============ */
+  .pcard { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 28px 28px 26px; }
+  .pcard .num { font-family: var(--font-mono); color: var(--green); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; margin-bottom: 24px; display: block; }
+  .pcard h3 { font-size: 23px; margin: 0 0 12px; line-height: 1.15; letter-spacing: -0.02em; }
+  .pcard p { color: var(--ink-soft); font-size: 15.5px; margin: 0; line-height: 1.5; }
+
+  .find-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 18px 22px; display: flex; flex-direction: column; transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .find-card:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -22px rgba(15,17,18,0.16); }
+  .find-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .find-meta .num { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  .find-card h3 { font-size: 22px; margin: 0 0 12px; line-height: 1.1; letter-spacing: -0.02em; }
+  .find-card p { font-size: 15px; color: var(--ink-soft); line-height: 1.5; margin: 0 0 22px; flex: 1; }
+  .find-foot { padding-top: 14px; border-top: 1px solid var(--line-soft); display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-faint); }
+
+  /* Pricing tier */
+  .tier { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 36px 32px 32px; position: relative; }
+  .tier.featured { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .tier.featured h3, .tier.featured .price { color: var(--white); }
+  .tier .badge { position: absolute; top: 0; right: 24px; transform: translateY(-50%); }
+  .tier .tag { font-family: var(--font-mono); font-size: 13px; color: var(--ink-faint); margin-bottom: 18px; }
+  .tier.featured .tag { color: rgba(255,255,255,0.55); }
+  .tier h3 { font-size: 24px; letter-spacing: -0.02em; margin: 0 0 14px; }
+  .tier .price { font-size: 52px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; }
+  .tier .price-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); margin: 4px 0 22px; }
+  .tier.featured .price-sub { color: rgba(255,255,255,0.5); }
+  .tier ul { list-style: none; margin: 0 0 26px; padding: 0; }
+  .tier ul li { font-size: 14.5px; color: var(--ink-soft); padding: 11px 0 11px 26px; border-top: 1px solid var(--line); position: relative; }
+  .tier ul li::before { content: ""; position: absolute; left: 0; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+  .tier.featured ul li { color: rgba(255,255,255,0.78); border-color: rgba(255,255,255,0.15); }
+  .tier.featured ul li::before { background: var(--green-soft); }
+  .tier.featured .btn { background: var(--white); color: var(--ink); }
+  .tier.featured .btn:hover { background: var(--paper); }
+
+  /* Form input (suburb check pattern) */
+  .field-demo { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; max-width: 460px; }
+  .field-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 8px; }
+  .field-input { display: flex; gap: 10px; }
+  .field-input input { flex: 1; min-width: 0; font: inherit; font-size: 15px; padding: 13px 14px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); color: var(--ink); }
+  .field-input input:focus { outline: 2px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+
+  /* FAQ pattern */
+  .faq-list { border-top: 1px solid var(--line); max-width: 760px; }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-item summary { cursor: pointer; list-style: none; padding: 20px 0; font-weight: 600; font-size: 17px; letter-spacing: -0.01em; display: flex; justify-content: space-between; gap: 16px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: "+"; font-family: var(--font-mono); color: var(--green); font-size: 20px; line-height: 1; }
+  .faq-item[open] summary::after { content: "–"; }
+  .faq-item p { margin: 0 0 22px; color: var(--ink-soft); font-size: 15.5px; max-width: 64ch; }
+
+  /* Background tier convention */
+  .tier-band { display: grid; gap: 16px; }
+  .tier-card { border-radius: var(--r-md); padding: 28px; border: 1px solid var(--line); }
+  .tier-card h4 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.01em; }
+  .tier-card p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+  .tier-card .ex { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; opacity: 0.85; }
+  .tier-card.cream { background: var(--bone); color: var(--ink); }
+  .tier-card.cream p { color: var(--ink-soft); }
+  .tier-card.white { background: var(--white); color: var(--ink); }
+  .tier-card.white p { color: var(--ink-soft); }
+  .tier-card.ink { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .tier-card.ink p { color: rgba(255,255,255,0.7); }
+  .tier-card.ink .ex { color: rgba(255,255,255,0.55); }
+
+  /* Feature card — Sentinel inclusions (dark, glowing, 3-up + price foot) */
+  .feature-card { position: relative; background: var(--ink); color: var(--paper); border-radius: var(--r-lg); padding: clamp(28px, 3vw, 48px); box-shadow: var(--elev-3); overflow: hidden; }
+  .feature-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 80% at 100% 0%, rgba(47,111,73,0.14), transparent 55%), radial-gradient(80% 60% at 0% 100%, rgba(200,211,203,0.06), transparent 60%); }
+  .feature-card > * { position: relative; z-index: 1; }
+  .feature-card__lead { max-width: 60ch; }
+  .feature-card__lead h3 { font-size: clamp(24px,2.4vw,30px); font-weight: 500; letter-spacing: -0.025em; color: var(--paper); margin: 12px 0 0; }
+  .feature-card__lead p { color: rgba(241,240,238,0.7); margin: 14px 0 0; font-size: 15px; }
+  .feature-grid { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 2.6vw, 40px); }
+  @media (max-width: 880px) { .feature-grid { grid-template-columns: 1fr; gap: var(--space-6); } }
+  .feature-item { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5) var(--space-5) var(--space-6); border-radius: var(--r-md); background: rgba(241,240,238,0.04); border: 1px solid rgba(241,240,238,0.08); }
+  .feature-item__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .feature-item__num { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; color: rgba(241,240,238,0.4); }
+  .feature-item__value { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: var(--r-pill); background: rgba(200,211,203,0.16); color: var(--green-soft); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .feature-item__title { font-size: 20px; font-weight: 500; letter-spacing: -0.022em; line-height: 1.15; color: var(--paper); margin: var(--space-2) 0 var(--space-1); }
+  .feature-item__copy { margin: 0; font-size: 14px; line-height: 1.55; color: rgba(241,240,238,0.7); }
+  .feature-foot { margin-top: 40px; padding-top: 28px; border-top: 1px solid rgba(241,240,238,0.12); display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: var(--space-7); align-items: center; }
+  @media (max-width: 880px) { .feature-foot { grid-template-columns: 1fr; gap: var(--space-5); } }
+  .feature-foot__price-row { display: flex; align-items: baseline; gap: 8px; }
+  .feature-foot__figure { font-size: clamp(36px,3.2vw,48px); font-weight: 500; letter-spacing: -0.035em; color: var(--paper); line-height: 1; }
+  .feature-foot__meta { font-size: 16px; color: rgba(241,240,238,0.65); }
+  .feature-foot__terms { margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: rgba(241,240,238,0.62); max-width: 56ch; }
+  .feature-foot__cta { justify-self: end; }
+  @media (max-width: 880px) { .feature-foot__cta { justify-self: start; } }
+
+  /* Code blocks — contained, scroll internally rather than stretching the page */
+  pre.code {
+    background: var(--ink); color: #E7E9EA; border-radius: var(--r-md);
+    padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono);
+    font-size: 12.5px; line-height: 1.6; margin: 16px 0 0; max-width: 100%;
+  }
+  pre.code .c { color: var(--green-soft); }
+
+  .callout {
+    background: var(--white); border: 1px solid var(--line); border-left: 3px solid var(--green);
+    border-radius: var(--r-md); padding: 18px 20px; font-size: 14.5px; color: var(--ink-soft); max-width: 760px;
+  }
+  .callout b { color: var(--ink); }
+
+  footer.ds-foot { border-top: 1px solid var(--line); padding: 40px 0 64px; color: var(--ink-faint); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="ds-header">
+  <div class="wrap ds-header__bar">
+    <a class="brand" href="#top">
+      <svg class="brand-mark" viewBox="320 320 384 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sporetrust">
+        <circle cx="384" cy="376" r="45.36" fill="#2A2B2D"/><circle cx="512" cy="376" r="45.36" fill="#3D7355"/><circle cx="640" cy="376" r="45.36" fill="#2A2B2D"/>
+        <circle cx="384" cy="512" r="45.36" fill="#3D7355"/><circle cx="512" cy="512" r="45.36" fill="#3D7355"/><circle cx="640" cy="512" r="45.36" fill="#3D7355"/>
+        <circle cx="384" cy="648" r="45.36" fill="#2A2B2D"/><circle cx="512" cy="648" r="45.36" fill="#3D7355"/><circle cx="640" cy="648" r="45.36" fill="#2A2B2D"/>
+      </svg>Sporetrust</a>
+    <nav class="ds-nav">
+      <a href="#colour">Colour</a>
+      <a href="#type">Type</a>
+      <a href="#spacing">Spacing</a>
+      <a href="#shape">Shape</a>
+      <a href="#motion">Motion</a>
+      <a href="#buttons">Buttons</a>
+      <a href="#tags">Tags</a>
+      <a href="#cards">Cards</a>
+      <a href="#feature">Feature</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#forms">Forms</a>
+      <a href="#faq">FAQ</a>
+      <a href="#backgrounds">Backgrounds</a>
+    </nav>
+  </div>
+</header>
+
+<a id="top"></a>
+<div class="wrap ds-hero">
+  <span class="eyebrow">Design System · v1</span>
+  <h1>Sporetrust Design System</h1>
+  <p>The visual language behind Sporetrust — independent mould &amp; moisture diagnostics for Brisbane &amp; South-East Queensland. Tokens, type, and components documented from the production stylesheet so marketing and the <code>/admin</code> tool stay in sync.</p>
+  <div class="ds-meta">
+    <span>Brand <b>Sporetrust</b></span>
+    <span>Source <b>app/globals.css</b></span>
+    <span>Fonts <b>Geist · Montserrat · JetBrains Mono</b></span>
+    <span>Locale <b>Australian English</b></span>
+  </div>
+</div>
+
+<!-- COLOUR -->
+<section class="ds" id="colour">
+  <div class="wrap">
+    <span class="eyebrow">Tokens</span>
+    <h2>Colour</h2>
+    <p class="ds__intro">A near-monochrome system built on warm off-white (paper) and near-black (ink). Green is the single accent — used sparingly for eyebrows, indicators and primary affordances. Greys are warm, never cold.</p>
+
+    <h4 style="margin:0 0 16px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-faint);">Surfaces &amp; neutrals</h4>
+    <div class="grid grid--swatches">
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--white)"></div><div class="swatch__body"><div class="swatch__name">White</div><div class="swatch__meta">#FFFFFF · --white</div><div class="swatch__use">Solution / methodology sections only.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--paper)"></div><div class="swatch__body"><div class="swatch__name">Paper / Bone</div><div class="swatch__meta">#F1F0EE · --paper</div><div class="swatch__use">Default page + problem-awareness surfaces.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--grey-50)"></div><div class="swatch__body"><div class="swatch__name">Grey 50</div><div class="swatch__meta">#EDEAE5 · --grey-50</div><div class="swatch__use">Media placeholders, subtle fills.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--grey-100)"></div><div class="swatch__body"><div class="swatch__name">Grey 100</div><div class="swatch__meta">#DCD8D2 · --grey-100</div><div class="swatch__use">Dividers on tinted surfaces.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--grey-200)"></div><div class="swatch__body"><div class="swatch__name">Grey 200</div><div class="swatch__meta">#B5B2AB · --grey-200</div><div class="swatch__use">Muted iconography, disabled fills.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--line)"></div><div class="swatch__body"><div class="swatch__name">Line</div><div class="swatch__meta">#E8E5E0 · --line</div><div class="swatch__use">Default borders &amp; rules.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--line-soft)"></div><div class="swatch__body"><div class="swatch__name">Line soft</div><div class="swatch__meta">#F0EDE8 · --line-soft</div><div class="swatch__use">Inner dividers within cards.</div></div></div>
+    </div>
+
+    <h4 style="margin:36px 0 16px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-faint);">Ink &amp; text</h4>
+    <div class="grid grid--swatches">
+      <div class="swatch"><div class="swatch__chip" style="background:var(--ink)"></div><div class="swatch__body"><div class="swatch__name">Ink</div><div class="swatch__meta">#0F1112 · --ink</div><div class="swatch__use">Body text, dark CTA surfaces.</div></div></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--ink-2)"></div><div class="swatch__body"><div class="swatch__name">Ink 2</div><div class="swatch__meta">#1A1D1F · --ink-2</div><div class="swatch__use">Button hover, raised dark fills.</div></div></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--ink-soft)"></div><div class="swatch__body"><div class="swatch__name">Ink soft</div><div class="swatch__meta">#45484C · --ink-soft</div><div class="swatch__use">Secondary copy, ledes.</div></div></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--ink-faint)"></div><div class="swatch__body"><div class="swatch__name">Ink faint</div><div class="swatch__meta">#82858A · --ink-faint</div><div class="swatch__use">Meta, captions, labels.</div></div></div>
+    </div>
+
+    <h4 style="margin:36px 0 16px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-faint);">Accent</h4>
+    <div class="grid grid--swatches">
+      <div class="swatch"><div class="swatch__chip" style="background:var(--green)"></div><div class="swatch__body"><div class="swatch__name">Green</div><div class="swatch__meta">#2F6F49 · --green</div><div class="swatch__use">Accent only — eyebrows, indicators, primary affordance.</div></div></div>
+      <div class="swatch swatch--bordered"><div class="swatch__chip" style="background:var(--green-soft)"></div><div class="swatch__body"><div class="swatch__name">Green soft</div><div class="swatch__meta">#C8D3CB · --green-soft</div><div class="swatch__use">Tints on dark surfaces, bullets.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TYPE -->
+<section class="ds" id="type">
+  <div class="wrap">
+    <span class="eyebrow">Tokens</span>
+    <h2>Typography</h2>
+    <p class="ds__intro">Geist carries body and headings with tight negative tracking. Montserrat is reserved for the wordmark. JetBrains Mono handles eyebrows, labels, tags and numerals — anything that reads as "instrument data".</p>
+
+    <div class="type-row">
+      <div class="type-row__label"><b>H1</b>clamp(40–60px)<br/>w500 · −0.038em</div>
+      <div class="sp-h1">Catch hidden mould with lab-verified testing</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>H2</b>clamp(30–46px)<br/>w600 · −0.03em</div>
+      <div class="sp-h2">No hourly rates. No surprises.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>H3</b>clamp(22–26px)<br/>w600 · −0.02em</div>
+      <div class="sp-h3">Thermal mapping</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>H4</b>19px<br/>w600 · −0.012em</div>
+      <div class="sp-h4">Where moisture and damage were found</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>Lede</b>clamp(17–20px)<br/>ink-soft</div>
+      <div class="sp-lede">Independent inspection, moisture mapping and reporting for tenants, homeowners and property managers.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>Body</b>17px / 1.55<br/>w400</div>
+      <div class="sp-body">A Sporetrust report turns stains, odour, moisture and damage into a record people can act on — before anyone starts selling you the fix.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>Eyebrow</b>mono 12px<br/>uppercase · green</div>
+      <div class="demo-eyebrow">evidence before argument</div>
+    </div>
+    <div class="type-row">
+      <div class="type-row__label"><b>Mono / data</b>tabular-nums</div>
+      <div class="mono" style="font-size:18px;">73 / 100 · Δ −6.3 °C · $695</div>
+    </div>
+  </div>
+</section>
+
+<!-- SPACING -->
+<section class="ds" id="spacing">
+  <div class="wrap">
+    <span class="eyebrow">Tokens</span>
+    <h2>Spacing scale</h2>
+    <p class="ds__intro">A 12-step scale keyed to the site's existing rhythm (22 / 28 / 48 / 82). Section vertical padding is <code>96px</code> desktop, <code>56px</code> mobile. Content wraps at <code>1360px</code> (<code>980px</code> for narrow text columns).</p>
+    <div>
+      <div class="space-row"><div class="space-row__bar" style="width:4px"></div><span class="space-row__label"><b>--space-1</b> &nbsp;4px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:8px"></div><span class="space-row__label"><b>--space-2</b> &nbsp;8px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:12px"></div><span class="space-row__label"><b>--space-3</b> &nbsp;12px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:16px"></div><span class="space-row__label"><b>--space-4</b> &nbsp;16px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:22px"></div><span class="space-row__label"><b>--space-5</b> &nbsp;22px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:28px"></div><span class="space-row__label"><b>--space-6</b> &nbsp;28px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:36px"></div><span class="space-row__label"><b>--space-7</b> &nbsp;36px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:48px"></div><span class="space-row__label"><b>--space-8</b> &nbsp;48px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:64px"></div><span class="space-row__label"><b>--space-9</b> &nbsp;64px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:82px"></div><span class="space-row__label"><b>--space-10</b> &nbsp;82px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:110px"></div><span class="space-row__label"><b>--space-11</b> &nbsp;110px</span></div>
+      <div class="space-row"><div class="space-row__bar" style="width:140px"></div><span class="space-row__label"><b>--space-12</b> &nbsp;140px</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SHAPE -->
+<section class="ds" id="shape">
+  <div class="wrap">
+    <span class="eyebrow">Tokens</span>
+    <h2>Radius &amp; elevation</h2>
+    <p class="ds__intro">Corners are gentle; cards use the medium radius, pills are fully round. Elevation is paper-on-paper and deliberately restrained — three soft steps, never a hard drop shadow.</p>
+
+    <div class="grid grid--two" style="margin-bottom:28px;">
+      <div class="radius-box rs">--r-sm · 4px</div>
+      <div class="radius-box rm">--r-md · 10px</div>
+      <div class="radius-box rl">--r-lg · 16px</div>
+      <div class="radius-box rp">--r-pill · 999px</div>
+    </div>
+
+    <div class="grid grid--two">
+      <div class="elev-wrap"><div class="elev-box e1">--elev-1</div></div>
+      <div class="elev-wrap"><div class="elev-box e2">--elev-2</div></div>
+      <div class="elev-wrap"><div class="elev-box e3">--elev-3</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MOTION -->
+<section class="ds" id="motion">
+  <div class="wrap">
+    <span class="eyebrow">Tokens</span>
+    <h2>Motion</h2>
+    <p class="ds__intro">Two easing curves and four durations. Interactions are quick and confident (160ms); reveals are slow and observed (900ms). Hover lifts are a 1–2px translate, never a bounce.</p>
+    <pre class="code"><span class="c">/* easing */</span>
+--ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+<span class="c">/* duration */</span>
+--dur-fast:   160ms;   <span class="c">/* hover, taps */</span>
+--dur-base:   260ms;   <span class="c">/* card transitions */</span>
+--dur-slow:   520ms;   <span class="c">/* section shifts */</span>
+--dur-reveal: 900ms;   <span class="c">/* scroll reveals, mould growth */</span></pre>
+  </div>
+</section>
+
+<!-- BUTTONS -->
+<section class="ds" id="buttons">
+  <div class="wrap">
+    <span class="eyebrow">Components</span>
+    <h2>Buttons</h2>
+    <p class="ds__intro">Pill-shaped, three variants. Primary (ink) is the default action; light is for use on dark surfaces; ghost is a secondary/tertiary affordance. All carry an optional leading or trailing 14px icon.</p>
+
+    <div class="grid grid--two">
+      <div>
+        <div class="specimen-note">Primary · .btn</div>
+        <div class="btn-cluster" style="margin-top:10px;">
+          <a class="btn" href="#">Book inspection</a>
+          <a class="btn" href="#">Check availability
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <button class="btn" aria-disabled="true" disabled>Disabled</button>
+        </div>
+      </div>
+      <div>
+        <div class="specimen-note">Ghost · .btn-ghost</div>
+        <div class="btn-cluster" style="margin-top:10px;">
+          <a class="btn-ghost" href="#">Take the test</a>
+          <a class="btn-ghost" href="#">Open report demo
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--ink);border-radius:var(--r-md);padding:28px;margin-top:24px;">
+      <div class="specimen-note" style="color:rgba(255,255,255,0.5)">Light · .btn-light — on ink surfaces</div>
+      <div class="btn-cluster" style="margin-top:10px;">
+        <a class="btn btn-light" href="#">Join Sentinel</a>
+        <a class="btn btn-light" href="#">Book Lab-Backed</a>
+      </div>
+    </div>
+
+    <table style="margin-top:28px;border-collapse:collapse;width:100%;font-size:14px;">
+      <thead><tr style="text-align:left;color:var(--ink-faint);font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;">
+        <th style="padding:10px 12px;border-bottom:1px solid var(--line);">State</th>
+        <th style="padding:10px 12px;border-bottom:1px solid var(--line);">Treatment</th>
+      </tr></thead>
+      <tbody style="color:var(--ink-soft);">
+        <tr><td style="padding:11px 12px;border-bottom:1px solid var(--line-soft);"><b style="color:var(--ink)">Default</b></td><td style="padding:11px 12px;border-bottom:1px solid var(--line-soft);">Ink fill, white label, pill radius.</td></tr>
+        <tr><td style="padding:11px 12px;border-bottom:1px solid var(--line-soft);"><b style="color:var(--ink)">Hover</b></td><td style="padding:11px 12px;border-bottom:1px solid var(--line-soft);">Darkens to ink-2, lifts −1px.</td></tr>
+        <tr><td style="padding:11px 12px;border-bottom:1px solid var(--line-soft);"><b style="color:var(--ink)">Focus</b></td><td style="padding:11px 12px;border-bottom:1px solid var(--line-soft);">2px green outline, 1px offset.</td></tr>
+        <tr><td style="padding:11px 12px;"><b style="color:var(--ink)">Disabled</b></td><td style="padding:11px 12px;">40% opacity, no lift, not-allowed cursor.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TAGS -->
+<section class="ds" id="tags">
+  <div class="wrap">
+    <span class="eyebrow">Components</span>
+    <h2>Eyebrows, tags &amp; badges</h2>
+    <p class="ds__intro">Small mono labels do the categorising. Eyebrows in green sit above headings; tags mark step/method numbers and severity; the solid green badge flags the featured pricing tier.</p>
+    <div class="tag-cluster">
+      <span class="demo-eyebrow">how we diagnose</span>
+      <span class="tag-mono green">Thermal</span>
+      <span class="tag-mono high">Severe</span>
+      <span class="tag-mono mod">Moderate</span>
+      <span class="tag-mono low">Low risk</span>
+      <span class="badge">Most booked</span>
+    </div>
+    <p class="specimen-note" style="margin-top:18px;">Severity colour map: high = ink, moderate = ink-soft, low = green. Never use red/amber/green stoplight colours — severity reads through weight and the surrounding data, in keeping with the neutral, evidence-first tone.</p>
+  </div>
+</section>
+
+<!-- CARDS -->
+<section class="ds" id="cards">
+  <div class="wrap">
+    <span class="eyebrow">Components</span>
+    <h2>Cards</h2>
+    <p class="ds__intro">White cards on cream, 10px radius, 1px line border. The problem card (numbered) and the finding/method card (with footer meta) share the same shell with different internal rhythm.</p>
+    <div class="grid grid--cards">
+      <article class="pcard">
+        <span class="num">01 / Hidden</span>
+        <h3>Not all contamination is visible.</h3>
+        <p>Odour, damp materials and elevated indoor spores can show a problem before a wall turns black.</p>
+      </article>
+      <article class="pcard">
+        <span class="num">02 / Standards</span>
+        <h3>Mould can become a liveability issue.</h3>
+        <p>Queensland rentals must meet minimum housing standards during the tenancy, including damp and mould rules.</p>
+      </article>
+      <article class="find-card">
+        <div class="find-meta"><span class="num">M.01</span><span class="tag-mono green">Thermal</span></div>
+        <h3>Thermal mapping</h3>
+        <p>Surface temperature differentials across walls, ceilings, floors and HVAC penetrations.</p>
+        <div class="find-foot"><span>Reveals</span><span class="mono">Hidden moisture</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE CARD -->
+<section class="ds" id="feature">
+  <div class="wrap">
+    <span class="eyebrow">Components</span>
+    <h2>Feature card</h2>
+    <p class="ds__intro">The Sentinel inclusions card — the system's hero product surface. Ink background with a soft dual radial glow, large radius and elev-3, a 3-up grid of numbered inclusion items, and a price/terms/CTA foot. Collapses to a single column under 880px.</p>
+    <div class="feature-card">
+      <div class="feature-card__lead">
+        <span class="demo-eyebrow" style="color:var(--green-soft)">Year-round prevention</span>
+        <h3>Sporetrust Sentinel</h3>
+        <p>Two diagnostic visits a year, a stacked record of your home, and reduced subscriber rates whenever something needs a closer look.</p>
+      </div>
+      <ul class="feature-grid">
+        <li class="feature-item">
+          <div class="feature-item__head"><span class="feature-item__num">01</span><span class="feature-item__value">2× / year</span></div>
+          <div class="feature-item__title">Two annual on-site diagnostics</div>
+          <p class="feature-item__copy">A full thermal, moisture and humidity sweep, twice a year — same Sporetrust protocol, scheduled in advance.</p>
+        </li>
+        <li class="feature-item">
+          <div class="feature-item__head"><span class="feature-item__num">02</span><span class="feature-item__value">Record</span></div>
+          <div class="feature-item__title">Year-on-year property record</div>
+          <p class="feature-item__copy">Each visit stacks into a standing diagnostic history — defensible evidence for insurers, builders or future buyers.</p>
+        </li>
+        <li class="feature-item">
+          <div class="feature-item__head"><span class="feature-item__num">03</span><span class="feature-item__value">Member rate</span></div>
+          <div class="feature-item__title">Member rate on re-checks &amp; lab work</div>
+          <p class="feature-item__copy">Subscriber rate on follow-up re-inspections and lab-backed air sampling when something needs a closer look.</p>
+        </li>
+      </ul>
+      <div class="feature-foot">
+        <div>
+          <div class="feature-foot__price-row"><span class="feature-foot__figure">$22.95</span><span class="feature-foot__meta">per week</span></div>
+          <p class="feature-foot__terms">Priority booking plus a subscriber line for moisture and mould questions between visits. Cancel anytime.</p>
+        </div>
+        <div class="feature-foot__cta"><a class="btn btn-light" href="#">Join Sentinel</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="ds" id="pricing">
+  <div class="wrap">
+    <span class="eyebrow">Patterns</span>
+    <h2>Pricing tiers</h2>
+    <p class="ds__intro">Two-up tier grid that collapses to a single column under 760px. The featured tier inverts to ink with a green "Most booked" badge breaking the top edge.</p>
+    <div class="grid grid--two">
+      <article class="tier">
+        <div class="tag">For most homes &amp; apartments</div>
+        <h3>Rapid Inspection</h3>
+        <div class="price">$695</div>
+        <div class="price-sub">Once-off · GST inc</div>
+        <ul>
+          <li>On-site thermal, moisture &amp; humidity testing</li>
+          <li>Up to 3 areas + whole-of-home walkthrough</li>
+          <li>Severity rating &amp; likely cause per area</li>
+          <li>48-hour digital report, sharable PDF</li>
+        </ul>
+        <a class="btn" href="#">Book Standard</a>
+      </article>
+      <article class="tier featured">
+        <span class="badge">Most booked</span>
+        <div class="tag">When you need defensible evidence</div>
+        <h3>Lab-Backed Diagnostic</h3>
+        <div class="price">$945</div>
+        <div class="price-sub">Once-off · GST inc</div>
+        <ul>
+          <li>Everything in the Rapid Inspection</li>
+          <li>Indoor air sample + outdoor control</li>
+          <li>Lab-analysed spore count &amp; species</li>
+          <li>Suitable for insurance &amp; tribunal</li>
+        </ul>
+        <a class="btn" href="#">Book Lab-Backed</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FORMS -->
+<section class="ds" id="forms">
+  <div class="wrap">
+    <span class="eyebrow">Patterns</span>
+    <h2>Forms &amp; inputs</h2>
+    <p class="ds__intro">The suburb-check pattern is the front door to the booking flow. Inputs sit on paper with a line border; focus rings are green. The leading mono label keeps the instrument-panel tone.</p>
+    <div class="field-demo">
+      <label class="field-label" for="suburb">Suburb</label>
+      <div class="field-input">
+        <input id="suburb" type="text" placeholder="e.g. Coorparoo, QLD" />
+        <button class="btn">Check</button>
+      </div>
+    </div>
+    <p class="specimen-note" style="margin-top:14px;">Inputs use <code>min-width:0</code> inside flex rows so long placeholder text never forces horizontal overflow — a common container break this system guards against.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="ds" id="faq">
+  <div class="wrap">
+    <span class="eyebrow">Patterns</span>
+    <h2>FAQ / disclosure</h2>
+    <p class="ds__intro">Native <code>&lt;details&gt;</code> rows, line-divided, max 760px wide. A mono +/– marker in green signals state. Used for "Before you book" and route-page question sets.</p>
+    <div class="faq-list">
+      <details class="faq-item" open>
+        <summary>Are you a remediation company?</summary>
+        <p>No. We inspect, document and report. If remediation or building work is needed, we can point you toward vetted providers — but we don't clip the ticket on the cleanup.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How long does the on-site assessment take?</summary>
+        <p>Most homes take around 45 minutes. Larger homes or sites with complex history can take longer; we'll let you know in advance.</p>
+      </details>
+      <details class="faq-item">
+        <summary>When do I get the report?</summary>
+        <p>Rapid Inspection reports land in your portal within 48 hours. Lab-Backed reports include an analysis appendix 5–7 days after sampling.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- BACKGROUNDS -->
+<section class="ds" id="backgrounds">
+  <div class="wrap">
+    <span class="eyebrow">Convention · load-bearing</span>
+    <h2>Section background tiers</h2>
+    <p class="ds__intro">The background colour communicates a section's intent before any copy is read. Three tiers, applied consistently. When adding a section, reuse a tier — don't introduce a one-off colour.</p>
+    <div class="tier-band grid--two">
+      <div class="tier-card cream">
+        <h4>Cream — Awareness</h4>
+        <p>Problem awareness, education, framing. The mould-effect canvas attaches here by intent.</p>
+        <div class="ex">.problem-bg · .signs-section · .faq</div>
+      </div>
+      <div class="tier-card white">
+        <h4>White — Solution</h4>
+        <p>Solution education, service communication, methodology.</p>
+        <div class="ex">.solution · .route-page-banner · .faq--white</div>
+      </div>
+      <div class="tier-card ink">
+        <h4>Ink — Intent to act</h4>
+        <p>Direct CTA, product surfaces, "intent to proceed" moments where the goal is action.</p>
+        <div class="ex">.hero · .sentinel-card · .trust-bar</div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:24px;">
+      <b>Why it matters:</b> this convention is load-bearing across both the marketing site and the <code>/admin</code> tool. The reader should sense "am I learning or am I acting?" from the surface alone.
+    </div>
+  </div>
+</section>
+
+<footer class="ds-foot">
+  <div class="wrap">
+    Sporetrust Design System · documented from <code>app/globals.css</code> · Independent mould &amp; moisture diagnostics, Brisbane &amp; SEQ. Australian English throughout ("mould", suburbs not zipcodes).
+  </div>
+</footer>
+
+</body>
+</html>

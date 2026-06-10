@@ -1,0 +1,96 @@
+/* Shared form styling for the equipment admin pages (and any future
+ * admin CRUD). Mounted globally via app/admin/layout.jsx (admin.css imports). */
+
+.admin-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.admin-page-head h1 { margin: 0 0 4px; }
+.admin-page-head p  { margin: 0; color: var(--ink-soft, #45484C); font-size: 13px; }
+
+.admin-back {
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.admin-back:hover { color: var(--ink); }
+
+.admin-form-wrap { max-width: 640px; }
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: var(--paper, #fff);
+  border: 1px solid var(--line, #E8E5E0);
+  border-radius: 12px;
+}
+
+.admin-field { display: flex; flex-direction: column; gap: 4px; }
+.admin-field > span {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.admin-field input[type="text"],
+.admin-field input:not([type]),
+.admin-field input[type="date"],
+.admin-field input[type="number"],
+.admin-field select,
+.admin-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-family: inherit;
+}
+.admin-field input[type="file"] {
+  font-size: 13px;
+}
+.admin-field textarea { resize: vertical; min-height: 64px; }
+.admin-field--inline { flex-direction: row; align-items: center; gap: 10px; }
+.admin-field--inline input { width: auto; }
+
+.admin-form__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.admin-form__thumb {
+  max-width: 200px;
+  max-height: 160px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bone);
+  margin-bottom: 6px;
+}
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
+.admin-btn--primary { background: var(--ink); color: #fff; }
+.admin-btn--primary:hover { background: #000; }
+.admin-btn--primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.admin-btn--ghost   { background: transparent; border-color: var(--line); color: var(--ink); }
+.admin-btn--ghost:hover  { border-color: var(--ink); }
+
+.admin-hint  { font-size: 12px; color: var(--ink-soft); margin: 0; }
+.admin-error { font-size: 13px; color: #8a1c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 10px; margin: 0; }

@@ -185,8 +185,8 @@ function AboutPanel() {
           desc="Independent by design. We don't sell the fix — the report is the product."
         />
         <ul className="mega-panel__accreditation" aria-label="Accreditation">
-          <li><img src="/logos/iicrc-dark.png" alt="IICRC certified" /></li>
-          <li><img src="/logos/nata-dark.png" alt="NATA accredited" /></li>
+          <li><img src="/logos/iicrc-dark.png" alt="IICRC certified" loading="lazy" /></li>
+          <li><img src="/logos/nata-dark.png" alt="NATA accredited" loading="lazy" /></li>
         </ul>
       </div>
 

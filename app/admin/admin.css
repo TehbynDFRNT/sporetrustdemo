@@ -42,8 +42,25 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  padding: 0 8px 6px;
+  padding: 4px 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
 }
+.admin-sidebar__group-label:hover { color: var(--ink); }
+.admin-sidebar__chevron {
+  display: inline-block;
+  font-size: 9px;
+  transform: rotate(-90deg);
+  transition: transform 120ms;
+}
+.admin-sidebar__group-label.is-open .admin-sidebar__chevron { transform: rotate(0deg); }
+.admin-sidebar__group + .admin-sidebar__group { margin-top: 6px; }
 .admin-sidebar nav ul { list-style: none; margin: 0; padding: 0; }
 .admin-sidebar__link {
   display: block;
@@ -81,6 +98,18 @@
   padding: 32px 40px 64px;
   min-width: 0;       /* allows the inner table to scroll horizontally */
 }
+/* globals.css applies `section { padding: 96px 0 }` for the marketing site's
+ * hero/feature blocks. That dumps ~192px of dead space between sibling
+ * sections inside the admin app, which is why every admin landing looked
+ * "super spread out". The admin shell manages its own vertical rhythm via
+ * .ins-shell / .wz / per-section padding — kill the global rule inside it.
+ *
+ * Wrapped in :where() so the reset's specificity stays at (0,0,1) — same
+ * as the globals.css rule, but later-declared so it wins for plain sections,
+ * and low enough that class-based padding (.ins-summary, .wz-step, …) wins
+ * with its (0,1,0) specificity. Without :where() the reset would strip
+ * those cards' padding too and they'd look unstyled. */
+:where(.admin-main) section { padding: 0; position: static; }
 .admin-main h1 {
   font-size: 22px;
   font-weight: 600;
@@ -215,6 +244,15 @@
   color: var(--ink-soft);
   font-size: 12.5px;
 }
+.admin-table__link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.admin-table__link:hover { text-decoration-color: var(--ink); }
 
 /* ---------- Badges ---------- */
 .admin-badge {
@@ -266,9 +304,14 @@
 .admin-badge--sentinel,
 .admin-badge--clearance { background: #EEF1F4; color: #2D3742; border-color: #D6DDE5; }
 
-/* ---------- Hide marketing chrome on /admin/* ---------- */
+/* ---------- Hide marketing chrome on /admin/* ----------
+ * components/Footer.jsx renders a bare <footer> with no class, so the
+ * old `.footer` selector never matched — added the tag selector. (The
+ * /r/* equivalent rules live in app/r/[slug]/report.css since this
+ * stylesheet only loads under /admin.) */
 body[data-admin] .utility-banner,
 body[data-admin] .mega-nav,
+body[data-admin] footer,
 body[data-admin] .footer,
 body[data-admin] .lander-header,
 body[data-admin] .lander-footer,
