@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { captureAttribution, submitLead } from "../lib/leadSubmit";
+import AddressAutocomplete from "./AddressAutocomplete";
 import ArrowIcon from "./icons/ArrowIcon";
 
 /* Full lead-capture section — the catch-all conversion at the bottom of the
@@ -18,6 +19,9 @@ const STEPS = [
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
+  // Structured Places selection (suburb/postcode/lat/lng/placeId) — null until
+  // a suggestion is picked, cleared again if the address is edited afterwards.
+  const addressRef = useRef(null);
 
   useEffect(() => {
     captureAttribution();
@@ -33,8 +37,9 @@ export default function LeadForm() {
         firstName,
         phone: String(data.get("phone") || "").trim(),
         email: String(data.get("email") || "").trim(),
-        suburb: String(data.get("suburb") || "").trim(),
+        address: String(data.get("address") || "").trim(),
         detail: String(data.get("detail") || "").trim(),
+        ...(addressRef.current || {}),
       },
       { form: "enquire" },
     );
@@ -95,8 +100,16 @@ export default function LeadForm() {
                 </div>
               </div>
               <div className="lead-form__field">
-                <label className="lead-form__label" htmlFor="lf-suburb">Suburb</label>
-                <input className="lead-form__input" id="lf-suburb" name="suburb" type="text" autoComplete="address-level2" required />
+                <label className="lead-form__label" htmlFor="lf-address">Property address</label>
+                <AddressAutocomplete
+                  id="lf-address"
+                  name="address"
+                  placeholder="Start typing the rental's address…"
+                  required
+                  onAddress={(location) => {
+                    addressRef.current = location;
+                  }}
+                />
               </div>
               <div className="lead-form__field">
                 <label className="lead-form__label" htmlFor="lf-detail">

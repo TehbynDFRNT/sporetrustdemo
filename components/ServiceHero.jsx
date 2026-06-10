@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { captureAttribution, submitLead } from "../lib/leadSubmit";
+import AddressAutocomplete from "./AddressAutocomplete";
 import ArrowIcon from "./icons/ArrowIcon";
 import ReviewStars from "./ReviewStars";
 
@@ -44,6 +45,9 @@ function CheckGlyph() {
 export default function ServiceHero() {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
+  // Structured Places selection (suburb/postcode/lat/lng/placeId) — null until
+  // a suggestion is picked, cleared again if the address is edited afterwards.
+  const addressRef = useRef(null);
 
   useEffect(() => {
     captureAttribution();
@@ -58,8 +62,9 @@ export default function ServiceHero() {
       {
         firstName,
         phone: String(data.get("phone") || "").trim(),
-        suburb: String(data.get("suburb") || "").trim(),
         email: String(data.get("email") || "").trim(),
+        address: String(data.get("address") || "").trim(),
+        ...(addressRef.current || {}),
       },
       { form: "hero" },
     );
@@ -144,15 +149,21 @@ export default function ServiceHero() {
                     <input className="lead-form__input" id="shf-phone" name="phone" type="tel" autoComplete="tel" required />
                   </div>
                 </div>
-                <div className="lead-form__row">
-                  <div className="lead-form__field">
-                    <label className="lead-form__label" htmlFor="shf-suburb">Suburb</label>
-                    <input className="lead-form__input" id="shf-suburb" name="suburb" type="text" autoComplete="address-level2" required />
-                  </div>
-                  <div className="lead-form__field">
-                    <label className="lead-form__label" htmlFor="shf-email">Email</label>
-                    <input className="lead-form__input" id="shf-email" name="email" type="email" autoComplete="email" required />
-                  </div>
+                <div className="lead-form__field">
+                  <label className="lead-form__label" htmlFor="shf-address">Property address</label>
+                  <AddressAutocomplete
+                    id="shf-address"
+                    name="address"
+                    placeholder="Start typing the rental's address…"
+                    required
+                    onAddress={(location) => {
+                      addressRef.current = location;
+                    }}
+                  />
+                </div>
+                <div className="lead-form__field">
+                  <label className="lead-form__label" htmlFor="shf-email">Email</label>
+                  <input className="lead-form__input" id="shf-email" name="email" type="email" autoComplete="email" required />
                 </div>
                 <button type="submit" className="lead-form__submit">
                   Request my inspection
