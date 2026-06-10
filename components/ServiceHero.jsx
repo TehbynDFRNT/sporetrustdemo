@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { captureAttribution, submitLead } from "../lib/leadSubmit";
+import { captureAttribution, submitLead, validateLead } from "../lib/leadSubmit";
 import AddressAutocomplete from "./AddressAutocomplete";
-import PhoneInput, { normalizeAuPhone } from "./PhoneInput";
+import PhoneInput from "./PhoneInput";
 import ArrowIcon from "./icons/ArrowIcon";
 import ReviewStars from "./ReviewStars";
 
@@ -43,9 +43,14 @@ function CheckGlyph() {
   );
 }
 
+// Visual order of the hero form's fields — first invalid one gets focus.
+const FIELD_IDS = { firstName: "shf-firstName", phone: "shf-phone", address: "shf-address", email: "shf-email" };
+const FIELD_ORDER = ["firstName", "phone", "address", "email"];
+
 export default function ServiceHero() {
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
+  const [errors, setErrors] = useState({});
   // Structured Places selection (suburb/postcode/lat/lng/placeId) — null until
   // a suggestion is picked, cleared again if the address is edited afterwards.
   const addressRef = useRef(null);
@@ -54,23 +59,49 @@ export default function ServiceHero() {
     captureAttribution();
   }, []);
 
+  // Errors appear on submit, clear as soon as the offending field is edited.
+  function handleFormInput(event) {
+    const key = event.target?.name;
+    if (!key || !errors[key]) return;
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const firstName = String(data.get("firstName") || "").trim();
-    setName(firstName);
+    const { errors: nextErrors, values, isValid } = validateLead({
+      firstName: data.get("firstName"),
+      phone: data.get("phone"),
+      email: data.get("email"),
+      address: data.get("address"),
+    });
+
+    if (!isValid) {
+      setErrors(nextErrors);
+      const firstInvalid = FIELD_ORDER.find((key) => nextErrors[key]);
+      if (firstInvalid) document.getElementById(FIELD_IDS[firstInvalid])?.focus();
+      return;
+    }
+
+    setErrors({});
+    setName(values.firstName);
     submitLead(
       {
         audience: String(data.get("audience") || "tenant"),
-        firstName,
-        phone: normalizeAuPhone(data.get("phone")) || String(data.get("phone") || "").trim(),
-        email: String(data.get("email") || "").trim(),
-        address: String(data.get("address") || "").trim(),
+        ...values,
         ...(addressRef.current || {}),
       },
       { form: "hero" },
     );
     setSubmitted(true);
+  }
+
+  function fieldClass(key) {
+    return `lead-form__field${errors[key] ? " has-error" : ""}`;
   }
 
   return (
@@ -140,7 +171,7 @@ export default function ServiceHero() {
                   Same-business-day reply. No obligation, no callout fee.
                 </p>
               </div>
-              <form className="lead-form__form" onSubmit={handleSubmit} noValidate>
+              <form className="lead-form__form" onSubmit={handleSubmit} onInput={handleFormInput} noValidate>
                 <div className="lead-form__field">
                   <span className="lead-form__label" id="shf-audience-label">I am a:</span>
                   <div className="lead-form__split" role="radiogroup" aria-labelledby="shf-audience-label">
@@ -155,30 +186,68 @@ export default function ServiceHero() {
                   </div>
                 </div>
                 <div className="lead-form__row">
-                  <div className="lead-form__field">
+                  <div className={fieldClass("firstName")}>
                     <label className="lead-form__label" htmlFor="shf-firstName">First name</label>
-                    <input className="lead-form__input" id="shf-firstName" name="firstName" type="text" autoComplete="given-name" required />
+                    <input
+                      className="lead-form__input"
+                      id="shf-firstName"
+                      name="firstName"
+                      type="text"
+                      autoComplete="given-name"
+                      required
+                      aria-invalid={errors.firstName ? true : undefined}
+                      aria-describedby={errors.firstName ? "shf-firstName-error" : undefined}
+                    />
+                    {errors.firstName ? (
+                      <p className="lead-form__error" id="shf-firstName-error">{errors.firstName}</p>
+                    ) : null}
                   </div>
-                  <div className="lead-form__field">
+                  <div className={fieldClass("phone")}>
                     <label className="lead-form__label" htmlFor="shf-phone">Phone</label>
-                    <PhoneInput id="shf-phone" name="phone" required />
+                    <PhoneInput
+                      id="shf-phone"
+                      name="phone"
+                      required
+                      aria-invalid={errors.phone ? true : undefined}
+                      aria-describedby={errors.phone ? "shf-phone-error" : undefined}
+                    />
+                    {errors.phone ? (
+                      <p className="lead-form__error" id="shf-phone-error">{errors.phone}</p>
+                    ) : null}
                   </div>
                 </div>
-                <div className="lead-form__field">
+                <div className={fieldClass("address")}>
                   <label className="lead-form__label" htmlFor="shf-address">Property address</label>
                   <AddressAutocomplete
                     id="shf-address"
                     name="address"
                     placeholder="Start typing the rental's address…"
                     required
+                    aria-invalid={errors.address ? true : undefined}
+                    aria-describedby={errors.address ? "shf-address-error" : undefined}
                     onAddress={(location) => {
                       addressRef.current = location;
                     }}
                   />
+                  {errors.address ? (
+                    <p className="lead-form__error" id="shf-address-error">{errors.address}</p>
+                  ) : null}
                 </div>
-                <div className="lead-form__field">
+                <div className={fieldClass("email")}>
                   <label className="lead-form__label" htmlFor="shf-email">Email</label>
-                  <input className="lead-form__input" id="shf-email" name="email" type="email" autoComplete="email" required />
+                  <input
+                    className="lead-form__input"
+                    id="shf-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    aria-invalid={errors.email ? true : undefined}
+                    aria-describedby={errors.email ? "shf-email-error" : undefined}
+                  />
+                  {errors.email ? (
+                    <p className="lead-form__error" id="shf-email-error">{errors.email}</p>
+                  ) : null}
                 </div>
                 <button type="submit" className="lead-form__submit">
                   Request my inspection

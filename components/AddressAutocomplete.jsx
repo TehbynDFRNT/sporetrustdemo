@@ -25,6 +25,7 @@ export default function AddressAutocomplete({
   placeholder = "Street address",
   required = false,
   onAddress,
+  ...rest
 }) {
   const inputRef = useRef(null);
   const autocompleteRef = useRef(null);
@@ -95,6 +96,7 @@ export default function AddressAutocomplete({
 
   return (
     <input
+      {...rest}
       ref={inputRef}
       id={id}
       name={name}

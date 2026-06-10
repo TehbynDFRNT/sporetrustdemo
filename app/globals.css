@@ -6286,6 +6286,19 @@ body:not([data-lander="true"]) > .lander-footer {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(47, 111, 73, 0.12);
 }
+
+/* Error states — set on submit, cleared as soon as the field is edited */
+.lead-form__field.has-error .lead-form__input,
+.lead-form__field.has-error .lead-form__textarea {
+  border-color: #B22F2F;
+  box-shadow: 0 0 0 3px rgba(178, 47, 47, 0.10);
+}
+.lead-form__error {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #B22F2F;
+}
 .lead-form__submit {
   margin-top: var(--space-1);
   display: inline-flex;
