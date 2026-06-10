@@ -4022,6 +4022,16 @@ body:not([data-lander="true"]) > .lander-footer {
   transition: background var(--dur-fast);
 }
 .lander-header__cta:hover { background: var(--ink-2); }
+/* ArrowIcon ships no width/height attrs — without this it collapses to 0. */
+.lander-header__cta svg { width: 13px; height: 13px; flex: 0 0 auto; }
+@media (max-width: 720px) {
+  .lander-header__inner { padding: 12px var(--space-4); gap: var(--space-3); }
+  .lander-header__cta { padding: 9px 14px; font-size: 13px; gap: 6px; }
+}
+@media (max-width: 400px) {
+  .lander-header__cta svg { display: none; }
+  .lander-header .brand { font-size: 20px; }
+}
 
 .lander-footer {
   background: var(--paper);
