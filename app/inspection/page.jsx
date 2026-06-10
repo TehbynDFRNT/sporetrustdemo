@@ -9,6 +9,7 @@ import Timeline from "../../components/Timeline";
 import TrustBadge from "../../components/TrustBadge";
 import ArrowIcon from "../../components/icons/ArrowIcon";
 import CheckIcon from "../../components/icons/CheckIcon";
+import Eyebrow from "../../components/Eyebrow";
 
 /* --------------------------------------------------------------------------
    Paid-media landing page — TENANT template, form arm. The visitor arrives
@@ -460,6 +461,68 @@ export default function InspectionLandingPage() {
             />
           </Reveal>
           <Timeline items={timelineItems} />
+        </div>
+      </section>
+
+      {/* Why Sporetrust — independence, condensed from /why-sporetrust. The
+          reason the report can't be dismissed as a sales pitch. */}
+      <section className="honesty-section">
+        <div className="wrap">
+          <div className="honesty-section__grid">
+            <div className="honesty-section__copy">
+              <Reveal>
+                <Eyebrow>why sporetrust</Eyebrow>
+                <h2 className="honesty-section__title">We don&rsquo;t sell the cleanup.</h2>
+                <p className="lede honesty-section__lede">
+                  The mould inspection industry typically runs on remediation revenue — the company
+                  quoting the inspection often quotes the cleanup. Scope grows.
+                </p>
+                <p className="honesty-section__body">
+                  Sporetrust took the opposite position. Zero revenue from remediation, repair,
+                  fogging or treatment work — we charge for the diagnostic, deliver the evidence,
+                  and step back. So when your landlord or agent reads the report, there&rsquo;s no
+                  angle to dismiss: what&rsquo;s in it is what we found, not what we&rsquo;re trying
+                  to sell next. And it reads the same whoever it lands with — you, the lessor,
+                  or QCAT.
+                </p>
+              </Reveal>
+            </div>
+
+            <Reveal delay={120}>
+              <ul className="credential-stack" role="list">
+                <li className="credential-card">
+                  <span className="credential-card__logo">
+                    <img src="/logos/iicrc-dark.png" alt="" loading="lazy" />
+                  </span>
+                  <div className="credential-card__body">
+                    <span className="credential-card__label">IICRC Certified</span>
+                    <span className="credential-card__sublabel">
+                      Institute of Inspection, Cleaning and Restoration Certification
+                    </span>
+                    <p className="credential-card__desc">
+                      Diagnostics scoped to the IICRC S520 inspection standard — the same playbook
+                      accredited inspectors use worldwide.
+                    </p>
+                  </div>
+                </li>
+                <li className="credential-card">
+                  <span className="credential-card__logo">
+                    <img src="/logos/nata-dark.png" alt="" loading="lazy" />
+                  </span>
+                  <div className="credential-card__body">
+                    <span className="credential-card__label">NATA-Accredited Lab Analysis</span>
+                    <span className="credential-card__sublabel">
+                      National Association of Testing Authorities, Australia
+                    </span>
+                    <p className="credential-card__desc">
+                      Air and surface samples go to a NATA-accredited lab — spore counts and
+                      certificates in the format tribunals and insurers already accept.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </Reveal>
+          </div>
         </div>
       </section>
 
