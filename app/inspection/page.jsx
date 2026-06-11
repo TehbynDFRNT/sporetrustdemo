@@ -53,26 +53,26 @@ export const metadata = {
 const tenantRights = [
   {
     tag: "Standards",
-    figure: "Their job",
+    figure: "Sep 2024",
     label:
-      "QLD rentals must be weatherproof, structurally sound and free of damp or mould caused by the property. Building-defect mould is the lessor's to fix — not yours to tolerate.",
+      "Since 1 September 2024, every QLD rental must be weatherproof, structurally sound and free of damp or mould caused by the property. Building-defect mould is your landlord's to fix — by law.",
     source: "QLD minimum housing standards",
     diagram: "alert",
   },
   {
     tag: "Emergency",
-    figure: "Urgent",
+    figure: "4 weeks",
     label:
-      "Serious damp or mould that affects health can qualify as an emergency repair — work the lessor or agent must action fast, not whenever it suits. Evidence is what makes it urgent on paper.",
+      "Serious damp or mould affecting health can qualify as an emergency repair. If your landlord won't act, QLD law lets you arrange the repair yourself and recover costs up to 4 weeks' rent.",
     source: "RTRA Act — emergency repairs",
     diagram: "clock",
   },
   {
-    tag: "Recoverable",
-    figure: "Refundable",
+    tag: "Tribunal",
+    figure: "$25,000",
     label:
-      "Where the mould is the property's fault, the cost of having it independently documented can be recoverable from the lessor — so the evidence needn't come out of your pocket.",
-    source: "Recoverable where building-caused",
+      "If they still won't move, QCAT can order repairs and compensation — it hears disputes up to $25,000, and an independent report is the evidence it expects. Inspection costs can be claimed back where the building's at fault.",
+    source: "QCAT — minor civil disputes",
     diagram: "invoice",
   },
 ];
@@ -152,20 +152,12 @@ const toldLines = [
 
 const reportItems = [
   [
-    "Building defect vs tenant-caused — settled",
-    "The question that decides who's responsible. Moisture readings and cause analysis answer it on paper, not opinion.",
-  ],
-  [
-    "The likely cause, named",
-    "Leak, roof, waterproofing, ventilation, slab or building defect — so the right repair lands on the right party.",
-  ],
-  [
     "Where the mould is — mapped and dated",
     "Every affected room and surface, with photos, thermal images and moisture readings — dated proof that protects your bond at exit.",
   ],
   [
-    "Liveability & minimum-standards notes",
-    "A plain-English read on whether the property meets its obligations — the language a repair request or QCAT needs.",
+    "Whether the property meets minimum housing standards",
+    "A plain-English read on the legal obligations — the exact language a repair request or QCAT application needs.",
   ],
   [
     "What needs to happen, and how urgently",
@@ -180,25 +172,25 @@ const reportItems = [
 const instruments = [
   [
     "Thermal imaging",
-    "Moisture paths behind walls and ceilings, visible on camera.",
+    "Finds moisture behind walls and ceilings without opening them.",
     "/images/thermal-before-after.jpg",
     "Thermal imaging comparison revealing hidden moisture in a wall",
   ],
   [
     "Moisture metering",
-    "Surface and depth readings that map and date the wetting.",
+    "Surface and depth readings at every suspect point — photographed and logged.",
     "/images/metal-ball-moisture-detector.jpg",
     "Pinless moisture detector reading a damp wall",
   ],
   [
     "Air sampling",
-    "Indoor vs outdoor spore counts that quantify what you're breathing.",
+    "Indoor spore counts compared against an outdoor control — the ratio is the proof.",
     "/images/air-sample.jpg",
     "Air sampling cassette capturing airborne mould spores",
   ],
   [
     "Lab analysis",
-    "AIHA ISO 17025 lab confirmation — counts and species they can't dispute.",
+    "AIHA ISO 17025 lab certificate for spore counts and species — the format QCAT and insurers accept.",
     "/images/lab-testing.jpg",
     "Laboratory analysis of mould samples",
   ],
@@ -228,9 +220,9 @@ const timelineItems = [
   },
   {
     title: "Report in 48 hours.",
-    meta: "Then it's on them",
+    meta: "After the visit",
     copy:
-      "Cause, extent and liveability findings in plain English, formatted to forward straight to your landlord, agent or QCAT. We tell you exactly what to send, and to whom.",
+      "Cause, extent and health-risk findings in plain English, formatted to forward straight to your landlord, agent or QCAT. We tell you exactly what to send, and to whom.",
     signals: ["Landlord-ready", "QCAT-ready", "Recoverable cost"],
   },
 ];
@@ -264,7 +256,7 @@ const faqs = [
   ],
   [
     "Will this sour things with my landlord or agent?",
-    "It usually does the opposite. A standoff is two opinions; a report is a path. Most lessors action repairs once the cause and their obligation are documented — ignoring written evidence is what creates risk for them. Queensland tenancy law also restricts retaliatory action against renters for exercising their rights.",
+    "It usually does the opposite. A standoff is two opinions; a report is a path. Most landlords action repairs once the cause and their obligation are documented — ignoring written evidence is what creates risk for them. Queensland tenancy law also restricts retaliatory action against renters for exercising their rights.",
   ],
   [
     "How long does it take?",
@@ -276,7 +268,7 @@ const faqs = [
   ],
   [
     "Do I have to pay for it?",
-    "You arrange and pay up front, but where the mould is the property's fault the cost can be recoverable from the lessor. We'll talk you through it when we call.",
+    "You arrange and pay up front, but where the mould is the building's fault the cost can be claimed back from your landlord. We'll talk you through it when we call.",
   ],
   [
     "What if you don't find anything serious?",
@@ -309,8 +301,8 @@ export default function InspectionLandingPage() {
           <Reveal>
             <SectionHeader
               eyebrow="is this you?"
-              title="In a rental, the fight isn't the mould. It's whose fault it is."
-              lede="Half of Queensland homes had mould inside 12 months — renters just carry the extra fight over responsibility. Four situations we hear every week; the way out of all of them is the same."
+              title="Stuck with mould your landlord won't fix?"
+              lede="1 in 2 Queensland homes had mould or damp in the past 12 months. In a rental, everything turns on one question — did the building cause it? An independent report answers that in writing. Four situations we hear every week:"
             />
           </Reveal>
           <div className="methodology-grid">
@@ -345,7 +337,7 @@ export default function InspectionLandingPage() {
               eyebrow="your rights as a renter"
               title="In Queensland, mould isn't yours to just live with."
               ledeMax="62ch"
-              lede="Renters have more leverage than most realise — when the mould is the property's fault. The right evidence is what turns 'we'll look into it' into an obligation."
+              lede="Three pieces of QLD tenancy law do the heavy lifting — once the cause is documented. That's what the inspection is for."
             />
           </Reveal>
           <div className="problem-cta">
@@ -368,8 +360,8 @@ export default function InspectionLandingPage() {
           <Reveal>
             <SectionHeader
               eyebrow="what you'll be told"
-              title="Three lines every renter hears."
-              lede="Mould is not a hygiene problem. It's a plumbing, waterproofing or ventilation failure that hasn't been named yet — and every one of these deflections has a measurable answer."
+              title="What they'll tell you — and what the readings show."
+              lede="Mould is a plumbing, waterproofing or ventilation failure — not a housekeeping problem. Every standard brush-off has a measurable answer:"
             />
           </Reveal>
           <div className="told-ledger">
@@ -400,7 +392,7 @@ export default function InspectionLandingPage() {
         <div className="wrap">
           <span className="eyebrow">[ what's in your report ]</span>
           <h2 style={{ marginTop: 28, maxWidth: "32ch" }}>
-            The record your landlord or agent can't wave away.
+            Your report: the cause, who's responsible, and what must happen next.
           </h2>
           <ul className="outcome-chips" role="list">
             <li>Repairs actioned</li>
@@ -426,7 +418,7 @@ export default function InspectionLandingPage() {
           </div>
           <div className="evidence-strip">
             <span className="evidence-strip__kicker">
-              The instruments behind it — readings an agent can&rsquo;t argue with
+              The instruments behind every finding
             </span>
             <ul className="evidence-strip__grid" role="list">
               {instruments.map(([title, copy, image, imageAlt]) => (
@@ -455,8 +447,8 @@ export default function InspectionLandingPage() {
           <Reveal>
             <SectionHeader
               eyebrow="how it works"
-              title="From the form to a forwarded report, inside a week."
-              lede="No callout fee, no treatment upsell, no quote pressure. We diagnose and document — what you do with it stays in your hands."
+              title="Form today. Inspected in days. Report in 48 hours."
+              lede="No callout fee, no treatment upsell, no quote pressure. We diagnose and document — the report does the arguing for you."
               titleMax="28ch"
             />
           </Reveal>
@@ -472,18 +464,16 @@ export default function InspectionLandingPage() {
             <div className="honesty-section__copy">
               <Reveal>
                 <Eyebrow>why sporetrust</Eyebrow>
-                <h2 className="honesty-section__title">We don&rsquo;t sell the cleanup.</h2>
+                <h2 className="honesty-section__title">Why landlords take this report seriously.</h2>
                 <p className="lede honesty-section__lede">
-                  The mould inspection industry typically runs on remediation revenue — the company
-                  quoting the inspection often quotes the cleanup. Scope grows.
+                  Most mould inspections are sold by the company hoping to win the cleanup job — so
+                  the report reads like a quote, and landlords treat it like one.
                 </p>
                 <p className="honesty-section__body">
-                  Sporetrust took the opposite position. Zero revenue from remediation, repair,
-                  fogging or treatment work — we charge for the diagnostic, deliver the evidence,
-                  and step back. So when your landlord or agent reads the report, there&rsquo;s no
-                  angle to dismiss: what&rsquo;s in it is what we found, not what we&rsquo;re trying
-                  to sell next. And it reads the same whoever it lands with — you, the lessor,
-                  or QCAT.
+                  Sporetrust takes zero revenue from remediation, repair, fogging or treatment
+                  work. We charge for the diagnostic, hand over the evidence, and step back.
+                  What&rsquo;s in the report is what we found — not what we&rsquo;re selling next —
+                  and it reads the same whoever it lands with: you, your landlord, or QCAT.
                 </p>
               </Reveal>
             </div>
@@ -541,7 +531,7 @@ export default function InspectionLandingPage() {
               eyebrow="from renters"
               title="Taken seriously. Fixed fast. Bond intact."
               ledeMax="56ch"
-              lede="What tenants say once the report lands in the agent's inbox."
+              lede="The usual ending: the repair gets booked, the blame stops, and the bond comes back in full. What renters say after the report went in:"
             />
           </Reveal>
           <div className="testimonial-grid">
@@ -588,7 +578,7 @@ export default function InspectionLandingPage() {
             <h2>Still weighing it up? The call costs nothing.</h2>
             <p>
               Send the form — we call today, confirm a fixed price, and you decide from there.
-              Often recoverable from the lessor when the building&rsquo;s at fault.
+              Where the building&rsquo;s at fault, the cost can be claimed back from your landlord.
             </p>
           </div>
           <a className="btn btn-light" href="#enquire">

@@ -17,15 +17,15 @@ import ReviewStars from "./ReviewStars";
 const POINTS = [
   {
     title: "Proof it's the building, not you.",
-    copy: "Moisture readings settle 'building defect vs tenant-caused' — so the blame conversation ends.",
+    copy: "Moisture readings show whether it's a building defect or condensation from daily living — on paper.",
   },
   {
-    title: "Independent of your landlord & agent.",
-    copy: "Not their contractor — a neutral third party both sides have to take seriously.",
+    title: "Independent of your landlord and agent.",
+    copy: "We don't work for landlords, agents or repairers — so the findings read as evidence, not a quote.",
   },
   {
-    title: "A report that forces action.",
-    copy: "Cause, extent and liveability notes, formatted for your agent, landlord or QCAT.",
+    title: "Written to be forwarded.",
+    copy: "Cause, extent, photos and urgency in plain English — send it to your agent, landlord or QCAT as-is.",
   },
 ];
 
@@ -111,19 +111,20 @@ export default function ServiceHero() {
           {/* OFFER */}
           <span className="service-hero__eyebrow">[ for renters · mould &amp; damp evidence ]</span>
           <h1 className="service-hero__title" id="service-hero-title">
-            Mould in your rental? Get the evidence your landlord can&rsquo;t argue with.
+            Mould in your rental? Prove it&rsquo;s the building&rsquo;s fault — and get it fixed.
           </h1>
           <p className="service-hero__lede">
-            An independent inspection that documents the cause, the damage, and whether it&rsquo;s a
-            building defect — in plain English, within 48 hours. The record you need to get repairs
-            actioned, meet minimum housing standards, or take to QCAT.
+            A certified inspector spends 45 minutes in your rental with a thermal camera, moisture
+            meter and air sampler. Within 48 hours you get a plain-English report: what&rsquo;s
+            growing, what caused it, and whether the building is to blame — the document that gets
+            repairs ordered, costs claimed back, or a QCAT case made.
           </p>
 
           {/* PERSUASION */}
           <div className="service-hero__proof">
             <ReviewStars className="service-hero__stars" />
             <span className="service-hero__proof-text">
-              Independent &amp; certified — credentials your landlord can&rsquo;t dismiss
+              IICRC-certified inspectors · AIHA ISO 17025 lab partners
             </span>
           </div>
           <ul className="service-hero__points" role="list">
@@ -143,7 +144,7 @@ export default function ServiceHero() {
             </a>
           </div>
           <p className="service-hero__reassurance">
-            No callout fees · IICRC certified · AIHA ISO 17025 labs · Brisbane &amp; SEQ
+            No callout fees · Fixed price on the call · Brisbane &amp; South-East Queensland
           </p>
         </div>
 
@@ -254,8 +255,8 @@ export default function ServiceHero() {
                   <ArrowIcon />
                 </button>
                 <p className="lead-form__note">
-                  Fixed price confirmed on the call — often recoverable from the lessor when the
-                  mould is building-caused.
+                  Fixed price confirmed on the call. If the building&rsquo;s at fault, the cost can
+                  be claimed back from your landlord.
                 </p>
                 <p className="lead-form__note">We&rsquo;ll never share your details.</p>
               </form>

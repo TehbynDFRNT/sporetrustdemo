@@ -84,10 +84,10 @@ export default function LeadForm() {
       <div className="wrap lead-form__wrap">
         <div className="lead-form__intro">
           <span className="eyebrow">[ request your inspection ]</span>
-          <h2 id="lead-form-title">Get the evidence started.</h2>
+          <h2 id="lead-form-title">Tell us what&rsquo;s happening. We&rsquo;ll call you today.</h2>
           <p className="lead-form__lede">
-            Tell us what&rsquo;s happening. We&rsquo;ll confirm fit and come back the same business
-            day — no obligation, no callout fee, independent of any landlord or agent.
+            The form takes a minute — no payment, no calendar, no obligation. A certified
+            inspector calls back the same business day with a fixed price and your earliest visit.
           </p>
           <ol className="lead-form__steps">
             {STEPS.map(([title, copy], i) => (
@@ -212,8 +212,8 @@ export default function LeadForm() {
                 <ArrowIcon />
               </button>
               <p className="lead-form__note">
-                Fixed price confirmed on the call — often recoverable from the lessor when the
-                mould is building-caused.
+                Fixed price confirmed on the call. If the building&rsquo;s at fault, the cost can
+                be claimed back from your landlord.
               </p>
               <p className="lead-form__note">
                 We&rsquo;ll never share your details. Same-business-day reply.
