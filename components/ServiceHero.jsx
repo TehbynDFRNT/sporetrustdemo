@@ -140,7 +140,6 @@ export default function ServiceHero() {
           ) : (
             <>
               <div className="service-hero__form-head">
-                <span className="service-hero__form-kicker">Independent — no ties to landlords or agents</span>
                 <h2 className="service-hero__form-title">Request your inspection</h2>
                 <p className="service-hero__form-sub">
                   Same-business-day reply. No obligation, no callout fee.
