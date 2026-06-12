@@ -311,10 +311,6 @@ export default function InspectionLandingPage() {
                 <figure className="method-media">
                   <img src={card.image} alt={card.imageAlt} loading="lazy" />
                 </figure>
-                <div className="method-meta">
-                  <span className="num">{card.num}</span>
-                  <span className="tag">{card.tag}</span>
-                </div>
                 <h3>{card.title}</h3>
                 <p className="m-measure">{card.measure}</p>
                 <div className="m-divider" />
