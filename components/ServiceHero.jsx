@@ -5,7 +5,6 @@ import { captureAttribution, submitLead, validateLead } from "../lib/leadSubmit"
 import AddressAutocomplete from "./AddressAutocomplete";
 import PhoneInput from "./PhoneInput";
 import ArrowIcon from "./icons/ArrowIcon";
-import ReviewStars from "./ReviewStars";
 
 /* Lead / service hero — offer + persuasion + the conversion itself. The visual
    column carries the lead-capture card (form above the fold) rather than a
@@ -15,18 +14,9 @@ import ReviewStars from "./ReviewStars";
    (evidence angle) — hardcoded, no props; the homeowner page gets its own. */
 
 const POINTS = [
-  {
-    title: "Proof it's the building, not you.",
-    copy: "Moisture readings show whether it's a building defect or condensation from daily living — on paper.",
-  },
-  {
-    title: "Independent of your landlord and agent.",
-    copy: "We don't work for landlords, agents or repairers — so the findings read as evidence, not a quote.",
-  },
-  {
-    title: "Written to be forwarded.",
-    copy: "Cause, extent, photos and urgency in plain English — send it to your agent, landlord or QCAT as-is.",
-  },
+  "Proof it's the building, not you",
+  "Independent of your landlord and agent",
+  "A report your agent or QCAT will act on",
 ];
 
 function CheckGlyph() {
@@ -114,37 +104,21 @@ export default function ServiceHero() {
             Mould in your rental? Prove it&rsquo;s the building&rsquo;s fault — and get it fixed.
           </h1>
           <p className="service-hero__lede">
-            A certified inspector spends 45 minutes in your rental with a thermal camera, moisture
-            meter and air sampler. Within 48 hours you get a plain-English report: what&rsquo;s
-            growing, what caused it, and whether the building is to blame — the document that gets
-            repairs ordered, costs claimed back, or a QCAT case made.
+            An independent inspection that proves what caused your mould — in a plain-English
+            report your landlord, agent or QCAT will act on. In your hands within 48 hours.
           </p>
 
           {/* PERSUASION */}
-          <div className="service-hero__proof">
-            <ReviewStars className="service-hero__stars" />
-            <span className="service-hero__proof-text">
-              IICRC-certified inspectors · AIHA ISO 17025 lab partners
-            </span>
-          </div>
           <ul className="service-hero__points" role="list">
             {POINTS.map((item) => (
-              <li className="service-hero__point" key={item.title}>
+              <li className="service-hero__point" key={item}>
                 <CheckGlyph />
-                <span>
-                  <strong>{item.title}</strong> {item.copy}
-                </span>
+                <span>{item}</span>
               </li>
             ))}
           </ul>
-
-          <div className="service-hero__actions">
-            <a className="service-hero__cta-ghost" href="#how-it-works">
-              See how it works
-            </a>
-          </div>
           <p className="service-hero__reassurance">
-            No callout fees · Fixed price on the call · Brisbane &amp; South-East Queensland
+            IICRC-certified · No callout fees · Brisbane &amp; South-East Queensland
           </p>
         </div>
 
