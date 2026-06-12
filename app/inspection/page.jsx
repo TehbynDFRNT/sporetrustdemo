@@ -390,12 +390,6 @@ export default function InspectionLandingPage() {
           <h2 style={{ marginTop: 28, maxWidth: "32ch" }}>
             Your report: the cause, who's responsible, and what must happen next.
           </h2>
-          <ul className="outcome-chips" role="list">
-            <li>Repairs actioned</li>
-            <li>Bond protected</li>
-            <li>QCAT-ready</li>
-            <li>Cost recoverable</li>
-          </ul>
           <div className="what-grid">
             <div className="report-checks">
               <ul className="what-list">
