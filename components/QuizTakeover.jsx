@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import ArrowIcon from "./icons/ArrowIcon";
 import Brand from "./Brand";
 import Eyebrow from "./Eyebrow";
@@ -125,6 +126,12 @@ export default function QuizTakeover() {
   const [weather, setWeather] = useState(null);
   const [weatherStatus, setWeatherStatus] = useState("idle");
   const returnFocusRef = useRef(null);
+  // /quiz is the quiz's own route: open while on it, route home on close. The
+  // route itself is the history entry, so the modal-history hook stays off here.
+  const pathname = usePathname();
+  const router = useRouter();
+  const isQuizRoute = pathname === "/quiz";
+  const routeOpenedRef = useRef(false);
 
   useEffect(() => {
     function openQuiz() {
@@ -154,6 +161,21 @@ export default function QuizTakeover() {
     };
   }, []);
 
+  // Route is the source of truth on /quiz: open when we land on it, and close
+  // again if the route changes out from under an open quiz (e.g. browser back).
+  useEffect(() => {
+    if (isQuizRoute) {
+      routeOpenedRef.current = true;
+      setOpen(true);
+    } else if (routeOpenedRef.current) {
+      routeOpenedRef.current = false;
+      setOpen(false);
+      setState(freshState());
+      setWeather(null);
+      setWeatherStatus("idle");
+    }
+  }, [isQuizRoute]);
+
   useEffect(() => {
     if (!open) return;
 
@@ -162,7 +184,7 @@ export default function QuizTakeover() {
 
     function handleKeydown(event) {
       if (event.key === "Escape") {
-        setOpen(false);
+        closeQuiz();
       }
     }
 
@@ -210,10 +232,18 @@ export default function QuizTakeover() {
     setState(freshState());
     setWeather(null);
     setWeatherStatus("idle");
+    // On the /quiz route, closing means leaving the route — send them home
+    // (the route, not a modal-history entry, is what "back" pops here).
+    if (isQuizRoute) {
+      routeOpenedRef.current = false;
+      router.push("/");
+      return;
+    }
     window.requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }
 
-  useModalHistory(open, closeQuiz);
+  // Modal-history is only for in-page (modal) opens; /quiz uses real routing.
+  useModalHistory(open && !isQuizRoute, closeQuiz);
 
   function advance() {
     setState((current) => ({ ...current, step: Math.min(current.step + 1, TOTAL_STEPS) }));

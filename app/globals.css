@@ -4054,39 +4054,8 @@ body:not([data-lander="true"]) > .lander-footer {
   align-items: center;
   gap: var(--space-4);
 }
-/* /quiz splash — sits behind the auto-opened quiz takeover; what the visitor
-   sees after closing it (re-open + a way back to the site). */
-.quiz-splash {
-  min-height: 72vh;
-  display: grid;
-  place-items: center;
-  background: var(--paper);
-  padding: var(--section-y) var(--space-6);
-  text-align: center;
-}
-.quiz-splash__inner {
-  max-width: 56ch;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-}
-.quiz-splash__inner h1 {
-  font-size: clamp(30px, 4vw, 46px);
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  margin: var(--space-2) 0 0;
-}
-.quiz-splash .btn { margin-top: var(--space-2); }
-.quiz-splash__back {
-  margin-top: var(--space-2);
-  font-size: 14px;
-  color: var(--ink-soft);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color var(--dur-fast);
-}
-.quiz-splash__back:hover { color: var(--ink); }
+/* /quiz — plain backdrop behind the takeover, which opens itself on this route */
+.quiz-route { min-height: 100vh; background: var(--paper); }
 
 .lander-footer__links a {
   color: var(--ink-soft);

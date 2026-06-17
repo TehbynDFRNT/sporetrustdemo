@@ -1,8 +1,7 @@
-import QuizLauncher from "./QuizLauncher";
-
-/* /quiz — stable, linkable URL for the mould self-check (the ungated quiz).
-   Server component holds the metadata; QuizLauncher (client) opens the
-   globally-mounted takeover on mount. */
+/* /quiz — the mould self-check at its own route. The globally-mounted
+   QuizTakeover (app/layout.jsx) opens itself whenever the path is /quiz and
+   routes home on close, so this page only needs to hold the metadata and a
+   plain backdrop behind the takeover (no splash, no duplicated quiz UI). */
 
 export const metadata = {
   title: "Mould risk self-check · Sporetrust",
@@ -19,5 +18,5 @@ export const metadata = {
 };
 
 export default function QuizPage() {
-  return <QuizLauncher />;
+  return <main className="quiz-route" aria-hidden="true" />;
 }
