@@ -26,7 +26,7 @@ export const metadata = {
   description:
     "Independent thermal, moisture and lab-backed mould inspection for Brisbane & South-East Queensland renters. Proof of cause and whether it's a building defect — the record to get repairs actioned, meet minimum housing standards, or take to QCAT.",
   alternates: {
-    canonical: "/inspection",
+    canonical: "/renting-mould-assessment",
   },
   openGraph: {
     title: "Mould in your rental? Independent, landlord-ready evidence in 48 hours",
