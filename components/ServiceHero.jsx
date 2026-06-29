@@ -110,12 +110,19 @@ export default function ServiceHero() {
 
   return (
     <section className="service-hero" aria-labelledby="service-hero-title">
+      <div
+        className="service-hero__media"
+        role="img"
+        aria-label="Queenslander bedroom interior opening through French doors onto a verandah at golden hour"
+        style={{ backgroundImage: 'url("/images/hero-queenslander.jpg")' }}
+      />
+      <div className="service-hero__veil" aria-hidden="true" />
       <div className="wrap service-hero__wrap">
         <div className="service-hero__content">
           {/* OFFER */}
           <span className="service-hero__eyebrow">[ for renters · mould &amp; damp evidence ]</span>
           <h1 className="service-hero__title" id="service-hero-title">
-            Mould in your rental? Prove it&rsquo;s the building&rsquo;s fault — and get it fixed.
+            Mould complaints ignored? Get lab-backed proof for your landlord or agent in 48 hours.
           </h1>
           <p className="service-hero__lede">
             An independent inspection that proves what caused your mould — in a plain-English

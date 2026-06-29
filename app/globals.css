@@ -5946,15 +5946,48 @@ body:not([data-lander="true"]) > .lander-footer {
 
 /* ---------- SERVICE / LEAD HERO (offer + persuasion + CTA, no price) ---------- */
 .service-hero {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  border-bottom: 1px solid var(--line-soft);
   /* Opt out of the global section padding — the wrap carries the hero's own
      (much tighter) rhythm; stacking both left ~150px of dead air up top. */
   padding: 0;
+}
+
+/* Cinematic image background + legibility veil — mirrors the main site Hero
+   (.hero--cinematic) so the lander shares the brand's hero treatment. The copy
+   reads over the dark-veiled left; the white form card floats over the revealed
+   image on the right. */
+.service-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: contrast(1.04) saturate(1.06);
+  transform: scale(1.02);
+}
+.service-hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(102deg,
+      rgba(15, 17, 18, 0.94) 0%,
+      rgba(15, 17, 18, 0.78) 28%,
+      rgba(15, 17, 18, 0.42) 50%,
+      rgba(15, 17, 18, 0.12) 72%,
+      rgba(15, 17, 18, 0.04) 100%),
+    linear-gradient(180deg,
+      rgba(15, 17, 18, 0.30) 0%,
+      rgba(15, 17, 18, 0) 22%,
+      rgba(15, 17, 18, 0) 68%,
+      rgba(15, 17, 18, 0.55) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .service-hero__media { transform: none; }
 }
 .service-hero__wrap {
   display: grid;
@@ -5965,10 +5998,19 @@ body:not([data-lander="true"]) > .lander-footer {
   padding-bottom: clamp(36px, 5.5vh, 72px);
   max-width: 1520px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 @media (max-width: 980px) {
   .service-hero__wrap { grid-template-columns: 1fr; gap: var(--space-6); }
+  /* Stacked layout: vertical scrim so the copy stays legible over the image
+     regardless of column position (mirrors the main hero's mobile veil). */
+  .service-hero__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(15, 17, 18, 0.42) 0%,
+        rgba(15, 17, 18, 0.62) 42%,
+        rgba(15, 17, 18, 0.9) 100%);
+  }
 }
 
 /* Content — sits directly on paper, editorial, no card chrome */
@@ -5982,15 +6024,15 @@ body:not([data-lander="true"]) > .lander-footer {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--green);
+  color: var(--green-soft);
   font-weight: 500;
 }
 .service-hero__title {
-  font-size: clamp(34px, 4vw, 56px);
+  font-size: clamp(29px, 3.4vw, 48px);
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.02;
-  color: var(--ink);
+  color: var(--paper);
   margin: var(--space-4) 0 0;
   max-width: 20ch;
 }
@@ -5998,7 +6040,7 @@ body:not([data-lander="true"]) > .lander-footer {
   margin: var(--space-5) 0 0;
   font-size: clamp(15px, 1.2vw, 17px);
   line-height: 1.55;
-  color: var(--ink-soft);
+  color: rgba(241, 240, 238, 0.84);
   max-width: 56ch;
 }
 .service-hero__proof {
@@ -6029,11 +6071,11 @@ body:not([data-lander="true"]) > .lander-footer {
   align-items: start;
   font-size: 14.5px;
   line-height: 1.5;
-  color: var(--ink-soft);
+  color: rgba(241, 240, 238, 0.82);
 }
 .service-hero__point strong {
   font-weight: 500;
-  color: var(--ink);
+  color: var(--paper);
   letter-spacing: -0.005em;
 }
 .service-hero__check {
@@ -6041,7 +6083,7 @@ body:not([data-lander="true"]) > .lander-footer {
   height: 16px;
   flex: 0 0 auto;
   margin-top: 3px;
-  color: var(--green);
+  color: var(--green-soft);
   fill: none;
 }
 .service-hero__actions {
@@ -6088,7 +6130,7 @@ body:not([data-lander="true"]) > .lander-footer {
   font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: 0.04em;
-  color: var(--ink-faint);
+  color: rgba(241, 240, 238, 0.6);
 }
 
 /* Form card — the conversion holds the hero's visual slot (reuses .lead-form__card chrome) */
@@ -6097,6 +6139,9 @@ body:not([data-lander="true"]) > .lander-footer {
   width: 100%;
   max-width: 520px;
   justify-self: end;
+  /* The section base is now light text (over the dark hero); the white form
+     card must re-establish dark text for its own contents. */
+  color: var(--ink);
 }
 .service-hero__form-head { margin-bottom: var(--space-5); }
 .service-hero__form-kicker {
