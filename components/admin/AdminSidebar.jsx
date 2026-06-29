@@ -27,6 +27,7 @@ const NAV = [
     label: "Data",
     defaultOpen: false,
     items: [
+      { href: "/admin/data/leads",                label: "Leads" },
       { href: "/admin/data/customers",            label: "Customers" },
       { href: "/admin/data/properties",           label: "Properties" },
       { href: "/admin/data/inspections",          label: "Inspections" },
