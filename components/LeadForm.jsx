@@ -23,6 +23,8 @@ const FIELD_ORDER = ["firstName", "phone", "email", "address"];
 
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [name, setName] = useState("");
   const [errors, setErrors] = useState({});
   // Structured Places selection (suburb/postcode/lat/lng/placeId) — null until
@@ -44,7 +46,7 @@ export default function LeadForm() {
     });
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const { errors: nextErrors, values, isValid } = validateLead({
@@ -62,8 +64,9 @@ export default function LeadForm() {
     }
 
     setErrors({});
-    setName(values.firstName);
-    submitLead(
+    setSubmitError("");
+    setSubmitting(true);
+    const result = await submitLead(
       {
         audience: String(data.get("audience") || "tenant"),
         ...values,
@@ -72,7 +75,16 @@ export default function LeadForm() {
       },
       { form: "enquire" },
     );
-    setSubmitted(true);
+    setSubmitting(false);
+
+    if (result.ok) {
+      setName(values.firstName);
+      setSubmitted(true);
+    } else {
+      setSubmitError(
+        "Sorry — we couldn't send that just now. Please try again, or call us on 1300 SPORE.",
+      );
+    }
   }
 
   function fieldClass(key) {
@@ -207,10 +219,13 @@ export default function LeadForm() {
                   placeholder="Visible mould, a smell, a leak, a landlord who's stopped responding…"
                 />
               </div>
-              <button type="submit" className="lead-form__submit">
-                Request my inspection
+              <button type="submit" className="lead-form__submit" disabled={submitting}>
+                {submitting ? "Sending…" : "Request my inspection"}
                 <ArrowIcon />
               </button>
+              {submitError ? (
+                <p className="lead-form__error" role="alert">{submitError}</p>
+              ) : null}
               <p className="lead-form__note">
                 Fixed price confirmed on the call. If the building&rsquo;s at fault, the cost can
                 be claimed back from your landlord.

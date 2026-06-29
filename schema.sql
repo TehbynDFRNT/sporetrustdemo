@@ -209,6 +209,15 @@ CREATE TABLE customers (
   email               TEXT NOT NULL,
   name                TEXT NOT NULL,
   phone               TEXT,
+  -- Address on file + geocode. Captured at first touch (the lead form), so a
+  -- customer has a location before any property/inspection exists. The
+  -- SPECIFIC inspected address still lives on properties, per inspection.
+  address_line        TEXT,
+  postcode            TEXT,
+  state               TEXT DEFAULT 'QLD',
+  google_place_id     TEXT,
+  lat                 NUMERIC(9, 6),
+  lng                 NUMERIC(9, 6),
   customer_type       TEXT NOT NULL DEFAULT 'individual'
                        CHECK (customer_type IN ('individual', 'property_manager', 'business')),
   notes               TEXT,
@@ -239,6 +248,36 @@ CREATE UNIQUE INDEX properties_addr_uq
 CREATE UNIQUE INDEX properties_place_id_uq
   ON properties (google_place_id) WHERE google_place_id IS NOT NULL;
 CREATE INDEX properties_postcode ON properties (postcode);
+
+
+-- Leads: a marketing enquiry event + its ad attribution, pointing at a
+-- customer. Identity + address live on customers (no snapshot). Deliberately
+-- minimal — no pipeline status (TBD) and no inspection link (derivable later
+-- via customer). `message` is the only per-enquiry free text with no other home.
+CREATE TABLE leads (
+  lead_id       BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  customer_id   BIGINT NOT NULL REFERENCES customers(customer_id) ON DELETE CASCADE,
+  audience      TEXT NOT NULL DEFAULT 'tenant'
+                  CHECK (audience IN ('tenant', 'homeowner', 'property_manager')),
+  message       TEXT,
+
+  -- Attribution (paid-media; the data with no other home)
+  utm_source    TEXT,
+  utm_medium    TEXT,
+  utm_campaign  TEXT,
+  utm_content   TEXT,
+  utm_term      TEXT,
+  gclid         TEXT,
+  fbclid        TEXT,
+  landing_page  TEXT,
+  form          TEXT,
+
+  submitted_at  TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX leads_customer     ON leads (customer_id);
+CREATE INDEX leads_created_at   ON leads (created_at);
+CREATE INDEX leads_utm_campaign ON leads (utm_campaign) WHERE utm_campaign IS NOT NULL;
 
 
 -- =====================================================================
