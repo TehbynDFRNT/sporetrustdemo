@@ -1,3 +1,4 @@
+import MetaViewContent from "../../components/MetaViewContent";
 import ServiceHero from "../../components/ServiceHero";
 import FaqAccordion from "../../components/FaqAccordion";
 import LeadForm from "../../components/LeadForm";
@@ -292,6 +293,7 @@ const faqSchema = {
 export default function InspectionLandingPage() {
   return (
     <main>
+      <MetaViewContent contentName="Inspection landing (renters)" contentCategory="mould_inspection" />
       {/* Offer + persuasion + the form itself, above the fold. */}
       <ServiceHero />
 

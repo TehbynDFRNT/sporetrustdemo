@@ -3,6 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ArrowIcon from "./icons/ArrowIcon";
 import PostcodeAutocomplete from "./PostcodeAutocomplete";
+import {
+  completeRegistration as fbCompleteRegistration,
+  mirrorServerEvent,
+  schedule as fbSchedule,
+} from "../lib/meta-pixel";
+import { buildMetaUserData, getMetaBrowserIdentifiers, upsertMetaJourneyCache } from "../lib/meta-funnel";
 
 const formatter = new Intl.DateTimeFormat("en-AU", {
   weekday: "short",
@@ -213,7 +219,40 @@ export default function BookingForm({ initialLocation = null, lookupNonce = 0 })
         throw new Error(payload.error || "Could not create the booking.");
       }
 
-      setSubmittedBooking(payload.booking || {});
+      const booking = payload.booking || {};
+      setSubmittedBooking(booking);
+
+      // Meta: Schedule (appointment booked) + CompleteRegistration (service
+      // signup) — deduplicated browser Pixel + CAPI, keyed to the Cal booking uid.
+      try {
+        const externalId = booking.uid ? String(booking.uid) : undefined;
+        const browserIds = getMetaBrowserIdentifiers(new URLSearchParams(window.location.search));
+        const journey = upsertMetaJourneyCache({
+          identity: {
+            firstName: form.name,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            postcode: form.postcode,
+            placeId: form.placeId,
+            externalId,
+          },
+          browserIds,
+        });
+        const user = buildMetaUserData({ identity: journey.identity, browserIds, externalId });
+        const contentName = "Mould inspection booking";
+        const contentCategory = "mould_inspection";
+        const customData = { content_name: contentName, content_category: contentCategory };
+        const schedEventId = `schedule_${externalId ?? "x"}`;
+        fbSchedule({ contentName, contentCategory, eventId: schedEventId });
+        void mirrorServerEvent({ eventName: "Schedule", eventId: schedEventId, user, customData });
+        const regEventId = `complete_registration_${externalId ?? "x"}`;
+        fbCompleteRegistration({ contentName, contentCategory, eventId: regEventId });
+        void mirrorServerEvent({ eventName: "CompleteRegistration", eventId: regEventId, user, customData });
+      } catch (metaErr) {
+        console.warn("[booking] Meta pixel/CAPI fire failed", metaErr);
+      }
+
       setStep(4);
     } catch (bookingError) {
       setError(bookingError.message || "Could not create the booking.");
