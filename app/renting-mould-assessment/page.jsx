@@ -52,7 +52,7 @@ export const metadata = {
 
 const tenantRights = [
   {
-    tag: "Standards",
+    tag: "Liveability Issue",
     figure: "Sep 2024",
     label:
       "Since 1 September 2024, every QLD rental must be weatherproof, structurally sound and free of damp or mould caused by the property. Building-defect mould is your landlord's to fix — by law.",
@@ -60,7 +60,7 @@ const tenantRights = [
     diagram: "alert",
   },
   {
-    tag: "Emergency",
+    tag: "Emergency Fix",
     figure: "4 weeks",
     label:
       "Serious damp or mould affecting health can qualify as an emergency repair. If your landlord won't act, QLD law lets you arrange the repair yourself and recover costs up to 4 weeks' rent.",
@@ -68,7 +68,7 @@ const tenantRights = [
     diagram: "clock",
   },
   {
-    tag: "Tribunal",
+    tag: "You're Protected",
     figure: "$25,000",
     label:
       "If they still won't move, QCAT can order repairs and compensation — it hears disputes up to $25,000, and an independent report is the evidence it expects. Inspection costs can be claimed back where the building's at fault.",
@@ -331,7 +331,7 @@ export default function InspectionLandingPage() {
             <SectionHeader
               align="center"
               eyebrow="your rights as a renter"
-              title="In Queensland, mould isn't yours to just live with."
+              title="Mould is now a legal liveability issue. But owners need evidence."
               ledeMax="62ch"
               lede="Three pieces of QLD tenancy law do the heavy lifting — once the cause is documented. That's what the inspection is for."
             />
@@ -356,7 +356,7 @@ export default function InspectionLandingPage() {
           <Reveal>
             <SectionHeader
               eyebrow="what you'll be told"
-              title="What they'll tell you — and what the readings show."
+              title="Evidence to put an end to the blame game."
               lede="Mould is a plumbing, waterproofing or ventilation failure — not a housekeeping problem. Every standard brush-off has a measurable answer:"
             />
           </Reveal>
@@ -388,7 +388,7 @@ export default function InspectionLandingPage() {
         <div className="wrap">
           <span className="eyebrow">[ what's in your report ]</span>
           <h2 style={{ marginTop: 28, maxWidth: "32ch" }}>
-            Your report: the cause, who's responsible, and what must happen next.
+            A lab-backed report in 48 hours.
           </h2>
           <div className="what-grid">
             <div className="report-checks">
@@ -437,7 +437,7 @@ export default function InspectionLandingPage() {
           <Reveal>
             <SectionHeader
               eyebrow="how it works"
-              title="Form today. Inspected in days. Report in 48 hours."
+              title="Get evidence of mould in days."
               lede="No callout fee, no treatment upsell, no quote pressure. We diagnose and document — the report does the arguing for you."
               titleMax="28ch"
             />
@@ -454,7 +454,7 @@ export default function InspectionLandingPage() {
             <div className="honesty-section__copy">
               <Reveal>
                 <Eyebrow>why sporetrust</Eyebrow>
-                <h2 className="honesty-section__title">Why landlords take this report seriously.</h2>
+                <h2 className="honesty-section__title">A report your landlord has to act on.</h2>
                 <p className="lede honesty-section__lede">
                   Most mould inspections are sold by the company hoping to win the cleanup job — so
                   the report reads like a quote, and landlords treat it like one.
