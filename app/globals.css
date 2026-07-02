@@ -7476,6 +7476,27 @@ body:has(.quiz-takeover--page) > .lander-footer {
 }
 .gq-screen--results .quiz-step--results { text-align: center; }
 .gq-screen--results .quiz-result__header { align-items: center; }
+/* The overlay's score block is left-aligned with a full-width label pill —
+   re-lay it centered for the page: figure + denom side by side, the risk
+   pill centred on its own row. */
+.gq-screen--results .quiz-result__score {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: center;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 10px;
+}
+.gq-screen--results .quiz-result__score-label {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: max-content;
+}
+/* No footer on the results screen — drop the footer clearance so the page
+   doesn't end in dead space. */
+.gq-flow:has(.gq-screen--results) .gq-main {
+  padding-bottom: 48px;
+}
 
 /* Fixed footer: Back / Continue with the progress bar on its top edge. */
 .gq-footer {
