@@ -10,6 +10,8 @@ function clean(value, max = 500) {
 }
 
 function num(value) {
+  // Empty string coerces to 0 via Number() — treat missing as null, not 0,0.
+  if (value == null || value === "") return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 }

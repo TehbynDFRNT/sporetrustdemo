@@ -7231,6 +7231,33 @@ body:not([data-lander="true"]) > .lander-footer {
     box-shadow var(--dur-fast) var(--ease-out);
 }
 
+/* Gate step (gated lander /mould-risk-check) — lead capture between the last
+   question and the results. Field chrome reuses .lead-form__*; layout only. */
+.quiz-gate__form {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 480px;
+}
+.quiz-gate__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+@media (max-width: 640px) {
+  .quiz-gate__row { grid-template-columns: 1fr; }
+}
+.quiz-gate__submit {
+  align-self: flex-start;
+  justify-content: center;
+}
+.quiz-gate__note {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
 .quiz-option:hover {
   border-color: var(--ink-soft);
   background: var(--paper);

@@ -19,6 +19,7 @@ const VIEW_CONTENT_PAGES = {
   "/mould-prevention": "Mould prevention",
   "/how-it-works": "How it works",
   "/quiz": "Mould self-check quiz",
+  "/mould-risk-check": "Mould risk check (gated quiz)",
 };
 
 // No pixel at all on internal admin + customer report pages.

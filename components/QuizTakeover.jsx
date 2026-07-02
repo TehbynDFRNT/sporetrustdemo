@@ -6,12 +6,14 @@ import ArrowIcon from "./icons/ArrowIcon";
 import Brand from "./Brand";
 import Eyebrow from "./Eyebrow";
 import FeatureCard from "./FeatureCard";
+import PhoneInput from "./PhoneInput";
 import PostcodeAutocomplete from "./PostcodeAutocomplete";
 import TrustBadge from "./TrustBadge";
 import { trustBadges } from "../lib/landingContent";
 import { fetchWeatherSummary } from "../lib/weather";
 import { findNearestMouldRegion, locationRiskLevel } from "../lib/mouldIndex";
 import { scoreQuiz } from "../lib/quizScoring";
+import { captureAttribution, submitLead, validateLead } from "../lib/leadSubmit";
 import { useModalHistory } from "./useModalHistory";
 
 const OPEN_BOOKING_EVENT = "sporetrust:open-booking";
@@ -120,17 +122,25 @@ function freshState() {
   return { step: 1, location: EMPTY_LOCATION, answers: { ...EMPTY_ANSWERS } };
 }
 
+// Paid-media landing-page test: same quiz, but a lead-capture gate sits
+// between the last question and the results screen. Route-detected so the
+// organic /quiz stays ungated.
+const GATED_QUIZ_ROUTE = "/mould-risk-check";
+
 export default function QuizTakeover() {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(freshState);
   const [weather, setWeather] = useState(null);
   const [weatherStatus, setWeatherStatus] = useState("idle");
+  // Gated route only: results stay hidden until the lead form saves.
+  const [unlocked, setUnlocked] = useState(false);
   const returnFocusRef = useRef(null);
   // /quiz is the quiz's own route: open while on it, route home on close. The
   // route itself is the history entry, so the modal-history hook stays off here.
   const pathname = usePathname();
   const router = useRouter();
-  const isQuizRoute = pathname === "/quiz";
+  const isGatedQuizRoute = pathname === GATED_QUIZ_ROUTE;
+  const isQuizRoute = pathname === "/quiz" || isGatedQuizRoute;
   const routeOpenedRef = useRef(false);
 
   useEffect(() => {
@@ -167,14 +177,18 @@ export default function QuizTakeover() {
     if (isQuizRoute) {
       routeOpenedRef.current = true;
       setOpen(true);
+      // Gated lander: bank the UTM/click-id params before anything else so the
+      // gate's lead submit can attribute back to the ad.
+      if (isGatedQuizRoute) captureAttribution();
     } else if (routeOpenedRef.current) {
       routeOpenedRef.current = false;
       setOpen(false);
       setState(freshState());
       setWeather(null);
       setWeatherStatus("idle");
+      setUnlocked(false);
     }
-  }, [isQuizRoute]);
+  }, [isQuizRoute, isGatedQuizRoute]);
 
   useEffect(() => {
     if (!open) return;
@@ -232,6 +246,7 @@ export default function QuizTakeover() {
     setState(freshState());
     setWeather(null);
     setWeatherStatus("idle");
+    setUnlocked(false);
     // On the /quiz route, closing means leaving the route — send them home
     // (the route, not a modal-history entry, is what "back" pops here).
     if (isQuizRoute) {
@@ -320,17 +335,27 @@ export default function QuizTakeover() {
               suburbLabel={state.location.label}
             />
           ) : onResults ? (
-            <ResultsStep
-              answers={state.answers}
-              weather={weather}
-              regionalIndex={regionalIndex}
-            />
+            isGatedQuizRoute && !unlocked ? (
+              <GateStep
+                location={state.location}
+                answers={state.answers}
+                weather={weather}
+                regionalIndex={regionalIndex}
+                onUnlock={() => setUnlocked(true)}
+              />
+            ) : (
+              <ResultsStep
+                answers={state.answers}
+                weather={weather}
+                regionalIndex={regionalIndex}
+              />
+            )
           ) : (
             <PlaceholderStep step={state.step} />
           )}
         </div>
 
-        {onResults ? (
+        {onResults && (!isGatedQuizRoute || unlocked) ? (
           <>
             <BreakdownCard
               answers={state.answers}
@@ -465,6 +490,164 @@ function LocationSignals({ weather, regionalIndex }) {
         </div>
       ) : null}
     </aside>
+  );
+}
+
+/* Lead-capture gate (gated lander only). Sits between the last question and
+   the results screen: the score is computed but withheld until the form saves.
+   Reuses the lander lead plumbing — submitLead persists via /api/lead and only
+   fires the Meta Lead on a confirmed save. The quiz suburb (with geocode) is
+   submitted as the address, and the score + answers ride along in `detail` so
+   every quiz lead lands with its risk context attached. */
+function GateStep({ location, answers, weather, regionalIndex, onUnlock }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const place = placeShortName(location.label);
+
+  function handleInput(event) {
+    const key = event.target?.name;
+    if (!key || !errors[key]) return;
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const { errors: nextErrors, values, isValid } = validateLead({
+      firstName: data.get("firstName"),
+      phone: data.get("phone"),
+      email: data.get("email"),
+      address: location.label, // suburb from step 1 — not asked again
+    });
+
+    if (!isValid) {
+      setErrors(nextErrors);
+      const firstInvalid = ["firstName", "phone", "email"].find((key) => nextErrors[key]);
+      if (firstInvalid) document.getElementById(`qg-${firstInvalid}`)?.focus();
+      return;
+    }
+
+    const result = scoreQuiz({ answers, weather, regionalIndex });
+    const answerSummary = QUESTIONS.map((q) => `${q.eyebrow}: ${answers[q.key] ?? "—"}`).join(", ");
+
+    setErrors({});
+    setSubmitError("");
+    setSubmitting(true);
+    const outcome = await submitLead(
+      {
+        audience: String(data.get("audience") || "tenant"),
+        ...values,
+        // Only send geocode fields the autocomplete actually filled — empty
+        // strings coerce to 0 in the API's Number() and save as lat/lng 0,0.
+        postcode: location.postcode || undefined,
+        placeId: location.placeId || undefined,
+        lat: location.lat || undefined,
+        lng: location.lng || undefined,
+        detail: `Mould risk quiz — score ${result.score}/100 (${result.level.label}). Suburb: ${location.label}. ${answerSummary}.`,
+      },
+      { form: "quiz" },
+    );
+    setSubmitting(false);
+
+    if (outcome.ok) {
+      onUnlock();
+    } else {
+      setSubmitError(
+        "Sorry — we couldn't save that just now. Please try again, or call us on 1300 SPORE.",
+      );
+    }
+  }
+
+  return (
+    <div className="quiz-step quiz-step--gate">
+      <header className="quiz-step__header">
+        <Eyebrow>Your result is ready</Eyebrow>
+        <h2 className="quiz-step__title">Unlock your mould risk score.</h2>
+        <p className="quiz-step__lede">
+          See your score and the plain-English read for {place} — and a certified
+          inspector can walk you through what it means. Free, no obligation.
+        </p>
+      </header>
+
+      <form className="quiz-gate__form" onSubmit={handleSubmit} onInput={handleInput} noValidate>
+        <div className="lead-form__field">
+          <span className="lead-form__label" id="qg-audience-label">I am a:</span>
+          <div className="lead-form__split" role="radiogroup" aria-labelledby="qg-audience-label">
+            <label className="lead-form__split-opt">
+              <input type="radio" name="audience" value="tenant" defaultChecked />
+              <span>Tenant</span>
+            </label>
+            <label className="lead-form__split-opt">
+              <input type="radio" name="audience" value="homeowner" />
+              <span>Homeowner</span>
+            </label>
+          </div>
+        </div>
+        <div className="quiz-gate__row">
+          <div className={`lead-form__field${errors.firstName ? " has-error" : ""}`}>
+            <label className="lead-form__label" htmlFor="qg-firstName">First name</label>
+            <input
+              className="lead-form__input"
+              id="qg-firstName"
+              name="firstName"
+              type="text"
+              autoComplete="given-name"
+              required
+              aria-invalid={errors.firstName ? true : undefined}
+              aria-describedby={errors.firstName ? "qg-firstName-error" : undefined}
+            />
+            {errors.firstName ? (
+              <p className="lead-form__error" id="qg-firstName-error">{errors.firstName}</p>
+            ) : null}
+          </div>
+          <div className={`lead-form__field${errors.phone ? " has-error" : ""}`}>
+            <label className="lead-form__label" htmlFor="qg-phone">Phone</label>
+            <PhoneInput
+              id="qg-phone"
+              name="phone"
+              required
+              aria-invalid={errors.phone ? true : undefined}
+              aria-describedby={errors.phone ? "qg-phone-error" : undefined}
+            />
+            {errors.phone ? (
+              <p className="lead-form__error" id="qg-phone-error">{errors.phone}</p>
+            ) : null}
+          </div>
+        </div>
+        <div className={`lead-form__field${errors.email ? " has-error" : ""}`}>
+          <label className="lead-form__label" htmlFor="qg-email">Email</label>
+          <input
+            className="lead-form__input"
+            id="qg-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? "qg-email-error" : undefined}
+          />
+          {errors.email ? (
+            <p className="lead-form__error" id="qg-email-error">{errors.email}</p>
+          ) : null}
+        </div>
+        <button type="submit" className="quiz-step__continue quiz-gate__submit" disabled={submitting}>
+          {submitting ? "Unlocking…" : "Show my result"}
+          <ArrowIcon />
+        </button>
+        {submitError ? (
+          <p className="lead-form__error" role="alert">{submitError}</p>
+        ) : null}
+        <p className="quiz-gate__note">
+          No spam, no lock-in — we&rsquo;ll never share your details.
+        </p>
+      </form>
+    </div>
   );
 }
 
