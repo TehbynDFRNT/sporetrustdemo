@@ -7432,6 +7432,40 @@ body:has(.quiz-takeover--page) > .lander-footer {
   font-size: 12.5px;
   color: var(--ink-faint);
 }
+/* The shared PostcodeAutocomplete has no styles of its own (they're scoped to
+   .hero-form / the quiz overlay) — dress it as a lead-form field in the gate. */
+.gq-gate .postcode-autocomplete-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.gq-gate .postcode-autocomplete-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.gq-gate .postcode-autocomplete input[type="text"] {
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  width: 100%;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.gq-gate .postcode-autocomplete input[type="text"]:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(47, 111, 73, 0.12);
+}
+.gq-gate .postcode-autocomplete input[type="text"]::placeholder { color: var(--ink-faint); }
+.gq-gate .lead-form__field.has-error .postcode-autocomplete input[type="text"] {
+  border-color: #B22F2F;
+  box-shadow: 0 0 0 3px rgba(178, 47, 47, 0.10);
+}
 
 /* Results screen — stack the shared results pieces in the page column. */
 .gq-screen--results {
