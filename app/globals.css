@@ -7311,7 +7311,7 @@ body:has(.quiz-takeover--page) > .lander-footer {
   text-align: left;
 }
 @media (max-width: 640px) {
-  .gq-options { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gq-options { grid-template-columns: 1fr; gap: 12px; }
 }
 
 /* Image option cards — the reference quiz's core mechanic: photo on top,
@@ -7389,8 +7389,8 @@ body:has(.quiz-takeover--page) > .lander-footer {
   color: var(--ink-soft);
 }
 @media (max-width: 640px) {
-  .gq-card__sub { display: none; } /* keep mobile cards compact, image + title carry it */
-  .gq-card__body { padding: 9px 11px 10px; }
+  /* Single-column cards have the width for sublabels — keep them. */
+  .gq-card__body { padding: 10px 12px 11px; }
 }
 .gq-option-dot {
   width: 20px;
