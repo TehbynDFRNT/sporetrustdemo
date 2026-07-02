@@ -4,25 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import ArrowIcon from "./icons/ArrowIcon";
 import Eyebrow from "./Eyebrow";
 import FeatureCard from "./FeatureCard";
-import PhoneInput from "./PhoneInput";
 import PostcodeAutocomplete from "./PostcodeAutocomplete";
 import TrustBadge from "./TrustBadge";
 import { trustBadges } from "../lib/landingContent";
 import { fetchWeatherSummary } from "../lib/weather";
 import { findNearestMouldRegion, locationRiskLevel } from "../lib/mouldIndex";
 import { scoreQuiz } from "../lib/quizScoring";
-import { submitLead, validateLead } from "../lib/leadSubmit";
 
-/* The quiz itself — location step → six questions → (optional lead gate) →
-   results. Extracted from QuizTakeover so it can render either inside the
-   overlay (organic /quiz + #quiz triggers) or directly as page content
-   (/mould-risk-check, the gated paid lander) without the overlay's
-   mount-after-hydration flash. Overlay concerns (open/close, scroll lock,
-   chrome) live in the wrapper; this component owns state + steps + scoring.
+/* The organic quiz — location step → six questions → results. Extracted from
+   QuizTakeover so the overlay stays a thin shell. The gated paid lander
+   (/mould-risk-check) uses GatedQuizFlow instead (different structure: no
+   opening location step, footer navigation, lead gate at the end) but shares
+   QUESTIONS + the results components exported here.
 
    Props:
-   - gated:  insert GateStep between the last question and results; the score
-             stays withheld until the lead form saves.
    - onBook: called with the quiz location when the results banner CTA is
              clicked (wrappers decide how to hand off to BookingTakeover). */
 
@@ -128,12 +123,10 @@ function freshState() {
   return { step: 1, location: EMPTY_LOCATION, answers: { ...EMPTY_ANSWERS } };
 }
 
-export default function QuizFlow({ gated = false, onBook }) {
+export default function QuizFlow({ onBook }) {
   const [state, setState] = useState(freshState);
   const [weather, setWeather] = useState(null);
   const [weatherStatus, setWeatherStatus] = useState("idle");
-  // Gated flow only: results stay hidden until the lead form saves.
-  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     if (!state.location.lat || !state.location.lng) {
@@ -194,7 +187,6 @@ export default function QuizFlow({ gated = false, onBook }) {
   const showSignalsOnQuestion =
     !!currentQuestion && (regionalIndex || (weatherReady && weather.wetDays > 10));
   const onResults = state.step >= RESULTS_STEP;
-  const resultsRevealed = onResults && (!gated || unlocked);
 
   return (
     <>
@@ -222,27 +214,17 @@ export default function QuizFlow({ gated = false, onBook }) {
               suburbLabel={state.location.label}
             />
           ) : onResults ? (
-            gated && !unlocked ? (
-              <GateStep
-                location={state.location}
-                answers={state.answers}
-                weather={weather}
-                regionalIndex={regionalIndex}
-                onUnlock={() => setUnlocked(true)}
-              />
-            ) : (
-              <ResultsStep
-                answers={state.answers}
-                weather={weather}
-                regionalIndex={regionalIndex}
-              />
-            )
+            <ResultsStep
+              answers={state.answers}
+              weather={weather}
+              regionalIndex={regionalIndex}
+            />
           ) : (
             <PlaceholderStep step={state.step} />
           )}
         </div>
 
-        {resultsRevealed ? (
+        {onResults ? (
           <>
             <BreakdownCard
               answers={state.answers}
@@ -345,7 +327,7 @@ function QuestionStep({ question, selected, onAnswer, weather, regionalIndex, su
   );
 }
 
-function placeShortName(label) {
+export function placeShortName(label) {
   const beforeComma = String(label || "").split(",")[0].trim();
   const cleaned = beforeComma.replace(/\s+(QLD|NSW|VIC|TAS|SA|WA|NT|ACT)(\s+\d{4})?$/i, "").trim();
   return cleaned || "your suburb";
@@ -380,165 +362,7 @@ function LocationSignals({ weather, regionalIndex }) {
   );
 }
 
-/* Lead-capture gate (gated flow only). Sits between the last question and
-   the results screen: the score is computed but withheld until the form saves.
-   Reuses the lander lead plumbing — submitLead persists via /api/lead and only
-   fires the Meta Lead on a confirmed save. The quiz suburb (with geocode) is
-   submitted as the address, and the score + answers ride along in `detail` so
-   every quiz lead lands with its risk context attached. */
-function GateStep({ location, answers, weather, regionalIndex, onUnlock }) {
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [errors, setErrors] = useState({});
-
-  const place = placeShortName(location.label);
-
-  function handleInput(event) {
-    const key = event.target?.name;
-    if (!key || !errors[key]) return;
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const { errors: nextErrors, values, isValid } = validateLead({
-      firstName: data.get("firstName"),
-      phone: data.get("phone"),
-      email: data.get("email"),
-      address: location.label, // suburb from step 1 — not asked again
-    });
-
-    if (!isValid) {
-      setErrors(nextErrors);
-      const firstInvalid = ["firstName", "phone", "email"].find((key) => nextErrors[key]);
-      if (firstInvalid) document.getElementById(`qg-${firstInvalid}`)?.focus();
-      return;
-    }
-
-    const result = scoreQuiz({ answers, weather, regionalIndex });
-    const answerSummary = QUESTIONS.map((q) => `${q.eyebrow}: ${answers[q.key] ?? "—"}`).join(", ");
-
-    setErrors({});
-    setSubmitError("");
-    setSubmitting(true);
-    const outcome = await submitLead(
-      {
-        audience: String(data.get("audience") || "tenant"),
-        ...values,
-        // Only send geocode fields the autocomplete actually filled — empty
-        // strings coerce to 0 in the API's Number() and save as lat/lng 0,0.
-        postcode: location.postcode || undefined,
-        placeId: location.placeId || undefined,
-        lat: location.lat || undefined,
-        lng: location.lng || undefined,
-        detail: `Mould risk quiz — score ${result.score}/100 (${result.level.label}). Suburb: ${location.label}. ${answerSummary}.`,
-      },
-      { form: "quiz" },
-    );
-    setSubmitting(false);
-
-    if (outcome.ok) {
-      onUnlock();
-    } else {
-      setSubmitError(
-        "Sorry — we couldn't save that just now. Please try again, or call us on 1300 SPORE.",
-      );
-    }
-  }
-
-  return (
-    <div className="quiz-step quiz-step--gate">
-      <header className="quiz-step__header">
-        <Eyebrow>Your result is ready</Eyebrow>
-        <h2 className="quiz-step__title">Unlock your mould risk score.</h2>
-        <p className="quiz-step__lede">
-          See your score and the plain-English read for {place} — and a certified
-          inspector can walk you through what it means. Free, no obligation.
-        </p>
-      </header>
-
-      <form className="quiz-gate__form" onSubmit={handleSubmit} onInput={handleInput} noValidate>
-        <div className="lead-form__field">
-          <span className="lead-form__label" id="qg-audience-label">I am a:</span>
-          <div className="lead-form__split" role="radiogroup" aria-labelledby="qg-audience-label">
-            <label className="lead-form__split-opt">
-              <input type="radio" name="audience" value="tenant" defaultChecked />
-              <span>Tenant</span>
-            </label>
-            <label className="lead-form__split-opt">
-              <input type="radio" name="audience" value="homeowner" />
-              <span>Homeowner</span>
-            </label>
-          </div>
-        </div>
-        <div className="quiz-gate__row">
-          <div className={`lead-form__field${errors.firstName ? " has-error" : ""}`}>
-            <label className="lead-form__label" htmlFor="qg-firstName">First name</label>
-            <input
-              className="lead-form__input"
-              id="qg-firstName"
-              name="firstName"
-              type="text"
-              autoComplete="given-name"
-              required
-              aria-invalid={errors.firstName ? true : undefined}
-              aria-describedby={errors.firstName ? "qg-firstName-error" : undefined}
-            />
-            {errors.firstName ? (
-              <p className="lead-form__error" id="qg-firstName-error">{errors.firstName}</p>
-            ) : null}
-          </div>
-          <div className={`lead-form__field${errors.phone ? " has-error" : ""}`}>
-            <label className="lead-form__label" htmlFor="qg-phone">Phone</label>
-            <PhoneInput
-              id="qg-phone"
-              name="phone"
-              required
-              aria-invalid={errors.phone ? true : undefined}
-              aria-describedby={errors.phone ? "qg-phone-error" : undefined}
-            />
-            {errors.phone ? (
-              <p className="lead-form__error" id="qg-phone-error">{errors.phone}</p>
-            ) : null}
-          </div>
-        </div>
-        <div className={`lead-form__field${errors.email ? " has-error" : ""}`}>
-          <label className="lead-form__label" htmlFor="qg-email">Email</label>
-          <input
-            className="lead-form__input"
-            id="qg-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            aria-invalid={errors.email ? true : undefined}
-            aria-describedby={errors.email ? "qg-email-error" : undefined}
-          />
-          {errors.email ? (
-            <p className="lead-form__error" id="qg-email-error">{errors.email}</p>
-          ) : null}
-        </div>
-        <button type="submit" className="quiz-step__continue quiz-gate__submit" disabled={submitting}>
-          {submitting ? "Unlocking…" : "Show my result"}
-          <ArrowIcon />
-        </button>
-        {submitError ? (
-          <p className="lead-form__error" role="alert">{submitError}</p>
-        ) : null}
-        <p className="quiz-gate__note">
-          No spam, no lock-in — we&rsquo;ll never share your details.
-        </p>
-      </form>
-    </div>
-  );
-}
-
-function ResultsStep({ answers, weather, regionalIndex }) {
+export function ResultsStep({ answers, weather, regionalIndex }) {
   const result = useMemo(
     () => scoreQuiz({ answers, weather, regionalIndex }),
     [answers, weather, regionalIndex]
@@ -560,7 +384,7 @@ function ResultsStep({ answers, weather, regionalIndex }) {
   );
 }
 
-function BreakdownCard({ answers, weather, regionalIndex }) {
+export function BreakdownCard({ answers, weather, regionalIndex }) {
   const result = useMemo(
     () => scoreQuiz({ answers, weather, regionalIndex }),
     [answers, weather, regionalIndex]
@@ -645,7 +469,7 @@ function BreakdownCard({ answers, weather, regionalIndex }) {
   );
 }
 
-function ResultsBanner({ suburbLabel, onBook }) {
+export function ResultsBanner({ suburbLabel, onBook }) {
   const place = placeShortName(suburbLabel);
 
   function handleBookClick(event) {

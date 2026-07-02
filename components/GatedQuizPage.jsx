@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Brand from "./Brand";
-import QuizFlow from "./QuizFlow";
+import GatedQuizFlow from "./GatedQuizFlow";
 import { captureAttribution } from "../lib/leadSubmit";
 
 const OPEN_BOOKING_EVENT = "sporetrust:open-booking";
@@ -30,7 +30,7 @@ export default function GatedQuizPage() {
         <Brand />
       </header>
 
-      <QuizFlow gated onBook={bookFromQuiz} />
+      <GatedQuizFlow onBook={bookFromQuiz} />
     </div>
   );
 }
