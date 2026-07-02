@@ -35,6 +35,37 @@ const TOTAL_STEPS = QUESTIONS.length + 1; // + gate
 const EMPTY_LOCATION = { label: "", postcode: "", placeId: "", lat: "", lng: "" };
 const EMPTY_ANSWERS = Object.fromEntries(QUESTIONS.map((q) => [q.key, null]));
 
+// Every option renders as an IMAGE CARD (the reference quiz's core mechanic);
+// "not sure" options get the neutral grey card instead, per the same pattern.
+// Keyed `${question.key}.${option.value}`. Mix of existing site imagery and
+// generated cards under /images/quiz/.
+const OPTION_MEDIA = {
+  "leak.none": { image: "/images/quiz/q-leak-none.jpg" },
+  "leak.minor": { image: "/images/quiz/q-leak-minor.jpg" },
+  "leak.major": { image: "/images/quiz/q-leak-major.jpg" },
+  "leak.unsure": { neutral: true },
+  "damp.none": { image: "/images/quiz/q-damp-none.jpg" },
+  "damp.suspect": { image: "/images/sign-condensation.png" },
+  "damp.confirmed": { image: "/images/sign-splitting-paint.png" },
+  "damp.unsure": { neutral: true },
+  "spotting.none": { image: "/images/quiz/q-spotting-none.jpg" },
+  "spotting.one": { image: "/images/quiz/q-spotting-one.jpg" },
+  "spotting.multiple": { image: "/images/quiz/q-spotting-multiple.jpg" },
+  "spotting.unsure": { neutral: true },
+  "smells.none": { image: "/images/quiz/q-smells-none.jpg" },
+  "smells.occasional": { image: "/images/quiz/q-smells-occasional.jpg" },
+  "smells.persistent": { image: "/images/quiz/q-smells-persistent.jpg" },
+  "smells.unsure": { neutral: true },
+  "health.none": { image: "/images/quiz/q-health-none.jpg" },
+  "health.sometimes": { image: "/images/quiz/q-health-sometimes.jpg" },
+  "health.home": { image: "/images/quiz/q-health-home.jpg" },
+  "health.ongoing": { image: "/images/quiz/q-health-ongoing.jpg" },
+  "history.none": { image: "/images/quiz/q-history-none.jpg" },
+  "history.diy": { image: "/images/quiz/q-history-diy.jpg" },
+  "history.professional": { image: "/images/partner-remediation.jpg" },
+  "history.recurring": { image: "/images/sign-returning-mould.png" },
+};
+
 export default function GatedQuizFlow({ onBook }) {
   const [screen, setScreen] = useState(0); // 0..5 questions, 6 gate, 7 results
   const [answers, setAnswers] = useState({ ...EMPTY_ANSWERS });
@@ -48,6 +79,23 @@ export default function GatedQuizFlow({ onBook }) {
   const onGate = screen === GATE_INDEX;
   const onResults = screen > GATE_INDEX;
   const currentQuestion = screen < QUESTIONS.length ? QUESTIONS[screen] : null;
+
+  // Warm the next two screens' card images so they paint instantly on
+  // Continue (the reference quiz's rolling preload buffer). Current screen's
+  // images load eagerly via the <img> tags themselves.
+  const preloadedRef = useRef(new Set());
+  useEffect(() => {
+    for (const q of [QUESTIONS[screen + 1], QUESTIONS[screen + 2]]) {
+      if (!q) continue;
+      for (const option of q.options) {
+        const media = OPTION_MEDIA[`${q.key}.${option.value}`];
+        if (!media?.image || preloadedRef.current.has(media.image)) continue;
+        preloadedRef.current.add(media.image);
+        const img = new window.Image();
+        img.src = media.image;
+      }
+    }
+  }, [screen]);
 
   // Weather hydrates once the gate's suburb pick supplies coordinates.
   useEffect(() => {
@@ -160,33 +208,37 @@ export default function GatedQuizFlow({ onBook }) {
   }
 
   const nextLabel = onGate ? "Show my result" : "Continue";
-  const stepNumber = Math.min(screen + 1, TOTAL_STEPS);
 
   return (
     <div className="gq-flow">
       <main className="gq-main">
         {currentQuestion ? (
           <div className="gq-screen" key={currentQuestion.key}>
-            <span className="gq-step-count">
-              {String(stepNumber).padStart(2, "0")} / {String(TOTAL_STEPS).padStart(2, "0")}
-            </span>
-            <Eyebrow className="gq-eyebrow">{currentQuestion.eyebrow}</Eyebrow>
+            <Eyebrow className="gq-eyebrow">Sporetrust Mould Risk Assessment</Eyebrow>
             <h2 className="gq-title">{currentQuestion.title}</h2>
             {currentQuestion.lede ? <p className="gq-lede">{currentQuestion.lede}</p> : null}
 
             <div className="gq-options" role="radiogroup" aria-label={currentQuestion.title}>
               {currentQuestion.options.map((option) => {
                 const selected = answers[currentQuestion.key] === option.value;
+                const media = OPTION_MEDIA[`${currentQuestion.key}.${option.value}`] || { neutral: true };
                 return (
                   <button
                     key={option.value}
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    className={`quiz-option${selected ? " quiz-option--selected" : ""}`}
+                    className={`gq-card${selected ? " gq-card--selected" : ""}`}
                     onClick={() => selectOption(currentQuestion.key, option.value)}
                   >
-                    <span className="gq-option-head">
+                    <span className={`gq-card__media${media.neutral ? " gq-card__media--neutral" : ""}`} aria-hidden="true">
+                      {media.neutral ? (
+                        <span className="gq-card__neutral-label">Not sure</span>
+                      ) : (
+                        <img src={media.image} alt="" />
+                      )}
+                    </span>
+                    <span className="gq-card__body">
                       <span className={`gq-option-dot${selected ? " gq-option-dot--on" : ""}`} aria-hidden="true">
                         {selected ? (
                           <svg viewBox="0 0 12 12" fill="none">
@@ -194,9 +246,11 @@ export default function GatedQuizFlow({ onBook }) {
                           </svg>
                         ) : null}
                       </span>
-                      <span className="quiz-option__title">{option.title}</span>
+                      <span className="gq-card__text">
+                        <span className="gq-card__title">{option.title}</span>
+                        <span className="gq-card__sub">{option.sub}</span>
+                      </span>
                     </span>
-                    <span className="quiz-option__sub">{option.sub}</span>
                   </button>
                 );
               })}
@@ -204,9 +258,6 @@ export default function GatedQuizFlow({ onBook }) {
           </div>
         ) : onGate ? (
           <div className="gq-screen gq-screen--gate" key="gate">
-            <span className="gq-step-count">
-              {String(TOTAL_STEPS).padStart(2, "0")} / {String(TOTAL_STEPS).padStart(2, "0")}
-            </span>
             <Eyebrow className="gq-eyebrow">Your result is ready</Eyebrow>
             <h2 className="gq-title">Unlock your mould risk score.</h2>
             <p className="gq-lede">

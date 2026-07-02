@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Brand from "./Brand";
 import GatedQuizFlow from "./GatedQuizFlow";
 import { captureAttribution } from "../lib/leadSubmit";
 
@@ -25,11 +24,9 @@ export default function GatedQuizPage() {
   }
 
   return (
+    // No header chrome — the reference quiz drops straight into question 1;
+    // branding lives in the per-screen eyebrow line.
     <div className="quiz-takeover quiz-takeover--page" aria-label="Mould risk check">
-      <header className="quiz-takeover-chrome">
-        <Brand />
-      </header>
-
       <GatedQuizFlow onBook={bookFromQuiz} />
     </div>
   );
