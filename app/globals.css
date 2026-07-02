@@ -6813,6 +6813,29 @@ body:not([data-lander="true"]) > .lander-footer {
   to   { opacity: 1; }
 }
 
+/* Page variant (/mould-risk-check): the quiz rendered as the page itself
+   rather than a fixed overlay. Same chrome/progress/body styles apply; only
+   the positioning changes. Height still pins to the viewport — the body row
+   scrolls internally exactly like the overlay. */
+.quiz-takeover--page {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  height: 100dvh;
+  animation: none;
+}
+
+/* Hide the standard site chrome on the quiz page at first CSS paint — the
+   body[data-*] mechanism only kicks in after hydration, which is exactly the
+   flash this page exists to avoid. Mirrors the data-lander rules above. */
+body:has(.quiz-takeover--page) > .utility-banner,
+body:has(.quiz-takeover--page) > .mega-nav,
+body:has(.quiz-takeover--page) > footer:not(.lander-footer),
+body:has(.quiz-takeover--page) > .lander-header,
+body:has(.quiz-takeover--page) > .lander-footer {
+  display: none;
+}
+
 .quiz-takeover-chrome {
   height: 64px;
   padding: 0 clamp(18px, 2.4vw, 34px);

@@ -1,8 +1,11 @@
+import GatedQuizPage from "../../components/GatedQuizPage";
+
 /* /mould-risk-check — the GATED quiz as a paid-media landing page test.
-   Identical takeover flow to /quiz, except the globally-mounted QuizTakeover
-   inserts a lead-capture gate between the last question and the results
-   screen (detected by this pathname). Same pattern as /quiz: the takeover
-   opens itself on this route, so the page is metadata + a plain backdrop. */
+   Unlike /quiz (which opens the QuizTakeover overlay over a backdrop page),
+   this route renders the quiz directly as server-rendered page content so
+   paid visitors never see the standard site chrome flash before the quiz
+   initialises. The lead gate sits between the last question and the results
+   (see components/QuizFlow.jsx GateStep). */
 
 export const metadata = {
   title: "Free 30-second mould risk check · Sporetrust",
@@ -23,5 +26,9 @@ export const metadata = {
 };
 
 export default function MouldRiskCheckPage() {
-  return <main className="quiz-route" aria-hidden="true" />;
+  return (
+    <main>
+      <GatedQuizPage />
+    </main>
+  );
 }
