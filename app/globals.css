@@ -7432,6 +7432,12 @@ body:has(.quiz-takeover--page) > .lander-footer {
   font-size: 12.5px;
   color: var(--ink-faint);
 }
+/* White field surfaces — the default paper inputs disappear against the
+   paper page background. */
+.gq-gate .lead-form__input,
+.gq-gate .lead-form__split {
+  background: var(--white);
+}
 /* The shared PostcodeAutocomplete has no styles of its own (they're scoped to
    .hero-form / the quiz overlay) — dress it as a lead-form field in the gate. */
 .gq-gate .postcode-autocomplete-field {
@@ -7449,7 +7455,7 @@ body:has(.quiz-takeover--page) > .lander-footer {
   font: inherit;
   font-size: 15px;
   color: var(--ink);
-  background: var(--paper);
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: 11px 14px;
@@ -7496,6 +7502,24 @@ body:has(.quiz-takeover--page) > .lander-footer {
    doesn't end in dead space. */
 .gq-flow:has(.gq-screen--results) .gq-main {
   padding-bottom: 48px;
+}
+/* The booking FeatureCard is sized for full-width page sections (56% text
+   column, 44px title) — inside the results column the title wraps hard and
+   the stat figures break mid-word. Rescale for the narrower context. */
+.gq-screen--results .feature-card {
+  min-height: 420px;
+}
+.gq-screen--results .feature-card__content {
+  max-width: 62%;
+}
+.gq-screen--results .feature-card__title {
+  font-size: clamp(24px, 2.3vw, 32px);
+}
+.gq-screen--results .feature-card__stat-figure {
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .gq-screen--results .feature-card__content { max-width: 100%; }
 }
 
 /* Fixed footer: Back / Continue with the progress bar on its top edge. */
