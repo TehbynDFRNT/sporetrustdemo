@@ -9,6 +9,7 @@ import { fetchWeatherSummary } from "../lib/weather";
 import { findNearestMouldRegion } from "../lib/mouldIndex";
 import { scoreQuiz } from "../lib/quizScoring";
 import { submitLead, validateLead } from "../lib/leadSubmit";
+import { trackCustom } from "../lib/meta-pixel";
 import {
   QUESTIONS,
   ResultsStep,
@@ -96,6 +97,27 @@ export default function GatedQuizFlow({ onBook }) {
       }
     }
   }, [screen]);
+
+  // Funnel breadcrumbs for the paid test: PageView/ViewContent cover arrival
+  // and Lead covers the gate submit, but everything in between is invisible in
+  // Ads Manager without these. Fired once per screen per session (revisiting
+  // via Back doesn't re-fire), so drop-off reads cleanly step by step.
+  const firedFunnelStepsRef = useRef(new Set());
+  useEffect(() => {
+    if (screen === 0 || onResults) return; // arrival + Lead already tracked
+    if (firedFunnelStepsRef.current.has(screen)) return;
+    firedFunnelStepsRef.current.add(screen);
+    if (onGate) {
+      trackCustom("QuizGateView", { quiz: "mould-risk-check" });
+      return;
+    }
+    if (screen === 1) trackCustom("QuizStart", { quiz: "mould-risk-check" });
+    trackCustom("QuizStep", {
+      quiz: "mould-risk-check",
+      step: screen, // questions completed so far (1..5)
+      total: QUESTIONS.length,
+    });
+  }, [screen, onGate, onResults]);
 
   // Weather hydrates once the gate's suburb pick supplies coordinates.
   useEffect(() => {
