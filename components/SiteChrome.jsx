@@ -16,7 +16,7 @@ import UtilityBanner from "./UtilityBanner";
    document.addEventListener cleanups race and kill every interactive surface.
    MegaNav also stays a direct child of <body> so its `position: sticky`
    containing block is the full page, not a wrapper div. */
-const LANDER_PATHS = new Set(["/renting-mould-assessment"]);
+const LANDER_PATHS = new Set(["/renting-mould-assessment", "/homeowner-mould-inspection"]);
 
 function isLanderPath(pathname) {
   return LANDER_PATHS.has(pathname);
