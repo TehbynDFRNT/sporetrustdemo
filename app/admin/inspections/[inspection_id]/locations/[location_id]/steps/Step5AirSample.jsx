@@ -17,7 +17,7 @@ import { EquipmentChipSelect } from "./Step4Moisture";
 // The intake-time evidence photo (canister with ID legible while the pump
 // is running) is the field-side companion to the slide images the lab
 // returns later.
-export default function Step5AirSample({ row, queryKey, inspectionId, locationId, kit }) {
+export default function Step5AirSample({ row, queryKey, inspectionId, locationId, kit, stepNumber }) {
   const qc = useQueryClient();
   // PostgREST collapses to-one embeds (UNIQUE FK) to a single object,
   // not an array. Normalise both shapes here so we don't care upstream.
@@ -50,7 +50,7 @@ export default function Step5AirSample({ row, queryKey, inspectionId, locationId
   if (!air) {
     return (
       <section className="wz-step">
-        <h2 className="wz-step__h">5 · Air sample</h2>
+        <h2 className="wz-step__h">{stepNumber} · Air sample</h2>
         <p className="wz-step__p">
           One sample per location, on a lab-issued slide. Document the canister ID and take an
           evidence photo while it's intaking — slide images attach later when the lab returns.
@@ -167,7 +167,7 @@ function AirSampleEditor({ air, queryKey, inspectionId, locationId, samplerKit, 
 
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">5 · Air sample</h2>
+      <h2 className="wz-step__h">{stepNumber} · Air sample</h2>
       <p className="wz-step__p">Lab-issued slide. Read the canister ID off the label and enter it below.</p>
 
       <div className="wz-field">

@@ -1,9 +1,9 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAutosaveRow } from "../../../../../../lib/admin/useAutosaveRow";
 import { useImageUpload, imageUrl } from "../../../../../../lib/admin/useImageUpload";
@@ -40,7 +40,7 @@ const ROOM_STEPS = [
   { key: 5, label: "Air sample" },
   { key: 6, label: "Findings" },
   { key: 7, label: "Sources" },
-  { key: 8, label: "Wrap" },
+  { key: 8, label: "Finish" },
 ];
 const OUTDOOR_STEPS = [
   { key: 1, label: "Setup" },
@@ -48,11 +48,23 @@ const OUTDOOR_STEPS = [
   { key: 5, label: "Air sample" },
 ];
 
+// useSearchParams() requires a Suspense boundary to satisfy the App Router.
 export default function LocationWizardPage() {
+  return (
+    <Suspense fallback={<div className="ins-shell"><p className="ins-empty">Loading location…</p></div>}>
+      <LocationWizardInner />
+    </Suspense>
+  );
+}
+
+function LocationWizardInner() {
   const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const qc = useQueryClient();
   const inspectionId = String(params?.inspection_id ?? "");
   const locationId = String(params?.location_id ?? "");
-  const [step, setStep] = useState(1);
 
   const queryKey = useMemo(() => ["admin-location", locationId], [locationId]);
 
@@ -91,6 +103,58 @@ export default function LocationWizardPage() {
     invalidate: queryKey,
   });
 
+  // Creating the next room mirrors the landing's createLocation mutation.
+  // On success we push straight into the new location's wizard at step 1 —
+  // this is the room-loop chaining that kills the hub round-trip.
+  const createRoom = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/sample-locations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inspection_id: Number(inspectionId), name: "Untitled location" }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || `Create → ${res.status}`);
+      return json;
+    },
+    onSuccess: (json) => {
+      qc.invalidateQueries({ queryKey: ["admin-inspection", inspectionId] });
+      const newId = json?.row?.sample_location_id;
+      if (newId) router.push(`/admin/inspections/${inspectionId}/locations/${newId}?step=1`);
+    },
+  });
+
+  const row = data?.row;
+
+  // ── Step derivation (lives in the URL as ?step=N so refresh / back-swipe
+  // survives). Outdoor-control locations use a subset of the step keys. We
+  // snap whatever's in the URL into the allowed set. Note: the number in the
+  // URL is the internal step *key* (so ?step=8 is Finish for a room); the
+  // number shown in the UI is the position in the active STEPS array.
+  const isOutdoor = Boolean(row?.is_outdoor_control);
+  const STEPS = isOutdoor ? OUTDOOR_STEPS : ROOM_STEPS;
+  const stepKeys = STEPS.map((s) => s.key);
+  const rawStep = Number(searchParams.get("step"));
+  const step = stepKeys.includes(rawStep) ? rawStep : stepKeys[0];
+  const stepIndex = Math.max(0, stepKeys.indexOf(step));
+  const stepNumber = stepIndex + 1;
+  const onFirst = stepIndex === 0;
+  const onLast = stepIndex === stepKeys.length - 1;
+
+  function goToStep(nextKey) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("step", String(nextKey));
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  // Normalise the URL once the row is loaded: if ?step is missing or out of
+  // range, canonicalise it to the resolved step so reloads are stable.
+  useEffect(() => {
+    if (!row) return;
+    if (searchParams.get("step") !== String(step)) goToStep(step);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [row, step]);
+
   if (isLoading) {
     return <div className="ins-shell"><p className="ins-empty">Loading location…</p></div>;
   }
@@ -103,7 +167,6 @@ export default function LocationWizardPage() {
     );
   }
 
-  const row = data?.row;
   if (!row) {
     return (
       <div className="ins-shell">
@@ -116,22 +179,6 @@ export default function LocationWizardPage() {
   const captures = row.image_captures || [];
   const visible = captures.find((c) => c.capture_kind === "visible" && c.pair_group === 1);
   const thermal = captures.find((c) => c.capture_kind === "thermal" && c.pair_group === 1);
-
-  // Outdoor-control locations skip thermal / moisture / findings / sources /
-  // mould-pressure-tier — they only carry a wide visible reference shot and
-  // the baseline air sample.
-  const isOutdoor = Boolean(row.is_outdoor_control);
-  const STEPS = isOutdoor ? OUTDOOR_STEPS : ROOM_STEPS;
-  const stepKeys = STEPS.map((s) => s.key);
-  const stepIndex = Math.max(0, stepKeys.indexOf(step));
-  const onFirst = stepIndex === 0;
-  const onLast = stepIndex === stepKeys.length - 1;
-
-  // If somehow `step` falls outside the allowed set (e.g. coming from
-  // localStorage of a previous run), snap it back into range.
-  if (!stepKeys.includes(step)) {
-    setTimeout(() => setStep(stepKeys[0]), 0);
-  }
 
   return (
     <div className="wz">
@@ -150,15 +197,15 @@ export default function LocationWizardPage() {
           <SaveIndicator status={save.status} lastSavedAt={save.lastSavedAt} />
         </div>
         <ol className="wz__steps">
-          {STEPS.map((s) => (
+          {STEPS.map((s, i) => (
             <li key={s.key}>
               <button
                 type="button"
-                className={`wz__step ${step === s.key ? "is-active" : ""} ${s.key < step ? "is-done" : ""}`}
-                onClick={() => setStep(s.key)}
-                aria-label={`Step ${s.key}: ${s.label}`}
+                className={`wz__step ${step === s.key ? "is-active" : ""} ${i < stepIndex ? "is-done" : ""}`}
+                onClick={() => goToStep(s.key)}
+                aria-label={`Step ${i + 1}: ${s.label}`}
               >
-                <span className="wz__step-num">{s.key}</span>
+                <span className="wz__step-num">{i + 1}</span>
                 <span className="wz__step-label">{s.label}</span>
               </button>
             </li>
@@ -167,7 +214,7 @@ export default function LocationWizardPage() {
       </header>
 
       <main className="wz__body">
-        {step === 1 ? <Step1Identity row={row} save={save} /> : null}
+        {step === 1 ? <Step1Identity row={row} save={save} stepNumber={stepNumber} /> : null}
         {step === 2 ? (
           <Step2Visible
             row={row}
@@ -175,6 +222,7 @@ export default function LocationWizardPage() {
             inspectionId={inspectionId}
             locationId={locationId}
             upload={upload}
+            stepNumber={stepNumber}
           />
         ) : null}
         {step === 3 ? (
@@ -184,22 +232,62 @@ export default function LocationWizardPage() {
             visible={visible}
             save={save}
             upload={upload}
+            stepNumber={stepNumber}
           />
         ) : null}
         {step === 4 ? (
-          <Step4Moisture row={row} queryKey={queryKey} inspectionId={inspectionId} locationId={locationId} kit={kit} />
+          <Step4Moisture row={row} queryKey={queryKey} inspectionId={inspectionId} locationId={locationId} kit={kit} stepNumber={stepNumber} />
         ) : null}
         {step === 5 ? (
-          <Step5AirSample row={row} queryKey={queryKey} inspectionId={inspectionId} locationId={locationId} kit={kit} />
+          <Step5AirSample row={row} queryKey={queryKey} inspectionId={inspectionId} locationId={locationId} kit={kit} stepNumber={stepNumber} />
         ) : null}
         {step === 6 ? (
-          <Step6Findings row={row} queryKey={queryKey} locationId={locationId} />
+          <Step6Findings row={row} queryKey={queryKey} locationId={locationId} stepNumber={stepNumber} />
         ) : null}
         {step === 7 ? (
-          <Step7Sources row={row} queryKey={queryKey} locationId={locationId} />
+          <Step7Sources row={row} queryKey={queryKey} locationId={locationId} stepNumber={stepNumber} />
         ) : null}
         {step === 8 ? (
-          <Step8Wrap row={row} save={save} inspectionId={inspectionId} />
+          <Step8Wrap
+            row={row}
+            save={save}
+            inspectionId={inspectionId}
+            stepNumber={stepNumber}
+            onAddNextRoom={() => createRoom.mutate()}
+            addingRoom={createRoom.isPending}
+            addRoomError={createRoom.error}
+          />
+        ) : null}
+
+        {/* Outdoor path terminal action block. The outdoor wizard's last step
+            (Air sample) otherwise dead-ends — the shared footer's Continue is
+            disabled with nowhere to go. Give it a proper hand-off into the
+            first room instead. */}
+        {isOutdoor && onLast ? (
+          <section className="wz-step wz-terminal">
+            <h2 className="wz-step__h">Outdoor baseline done</h2>
+            <p className="wz-step__p">
+              The outdoor control is captured — that's the baseline every indoor reading gets
+              compared to. Start the first room now.
+            </p>
+            <button
+              type="button"
+              className="ins-btn ins-btn--primary ins-btn--block ins-btn--xl"
+              onClick={() => createRoom.mutate()}
+              disabled={createRoom.isPending}
+            >
+              {createRoom.isPending ? "Creating…" : "Start first room →"}
+            </button>
+            {createRoom.isError ? (
+              <p className="ins-error">{String(createRoom.error?.message || createRoom.error)}</p>
+            ) : null}
+            <Link
+              href={`/admin/inspections/${inspectionId}`}
+              className="ins-btn ins-btn--ghost ins-btn--block wz-terminal__ghost"
+            >
+              Back to inspection
+            </Link>
+          </section>
         ) : null}
       </main>
 
@@ -207,7 +295,7 @@ export default function LocationWizardPage() {
         <button
           type="button"
           className="ins-btn ins-btn--ghost"
-          onClick={() => setStep(stepKeys[Math.max(0, stepIndex - 1)])}
+          onClick={() => goToStep(stepKeys[Math.max(0, stepIndex - 1)])}
           disabled={onFirst}
         >
           ← Back
@@ -215,7 +303,7 @@ export default function LocationWizardPage() {
         <button
           type="button"
           className="ins-btn ins-btn--primary"
-          onClick={() => setStep(stepKeys[Math.min(stepKeys.length - 1, stepIndex + 1)])}
+          onClick={() => goToStep(stepKeys[Math.min(stepKeys.length - 1, stepIndex + 1)])}
           disabled={onLast}
         >
           Continue →
@@ -228,7 +316,7 @@ export default function LocationWizardPage() {
 // ─────────────────────────────────────────────────────────────────────────
 // Step 1 — Identity (name + outdoor-control)
 // ─────────────────────────────────────────────────────────────────────────
-function Step1Identity({ row, save }) {
+function Step1Identity({ row, save, stepNumber }) {
   const [name, setName] = useState(row.name || "");
   const isOutdoor = Boolean(row.is_outdoor_control);
 
@@ -242,7 +330,7 @@ function Step1Identity({ row, save }) {
 
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">1 · {isOutdoor ? "Outdoor control setup" : "Identify the location"}</h2>
+      <h2 className="wz-step__h">{stepNumber} · {isOutdoor ? "Outdoor control setup" : "Identify the location"}</h2>
       <p className="wz-step__p">
         {isOutdoor
           ? "This is the inspection's outdoor baseline. Only the wide visible shot and air sample steps apply — everything else is per-room."
@@ -279,10 +367,10 @@ function Step1Identity({ row, save }) {
 // ─────────────────────────────────────────────────────────────────────────
 // Step 2 — Visible photo (wide aperture, cold-spot centred, ≥2m back)
 // ─────────────────────────────────────────────────────────────────────────
-function Step2Visible({ row, visible, inspectionId, locationId, upload }) {
+function Step2Visible({ row, visible, inspectionId, locationId, upload, stepNumber }) {
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">2 · Wide visible shot</h2>
+      <h2 className="wz-step__h">{stepNumber} · Wide visible shot</h2>
       <p className="wz-step__p">
         Centre the cold spot in the frame, stand back at least 2 m (or as far as the room allows),
         and shoot wide. This becomes the canvas you'll pin moisture readings on later.
@@ -302,7 +390,7 @@ function Step2Visible({ row, visible, inspectionId, locationId, upload }) {
 // ─────────────────────────────────────────────────────────────────────────
 // Step 3 — Thermal photo + ΔT °C
 // ─────────────────────────────────────────────────────────────────────────
-function Step3Thermal({ row, thermal, visible, save, upload }) {
+function Step3Thermal({ row, thermal, visible, save, upload, stepNumber }) {
   const [delta, setDelta] = useState(row.thermal_delta_c ?? "");
 
   useEffect(() => {
@@ -311,7 +399,7 @@ function Step3Thermal({ row, thermal, visible, save, upload }) {
 
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">3 · Thermal pair + ΔT</h2>
+      <h2 className="wz-step__h">{stepNumber} · Thermal pair + ΔT</h2>
       <p className="wz-step__p">
         Take the matching thermal capture from the same position. Read the ΔT against the
         room reference (warmer ambient minus the cold spot) — this stores on the location row.

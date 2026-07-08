@@ -12,9 +12,9 @@ const CATEGORIES = [
   "condensation", "unknown",
 ];
 
-// Step 8 — Ranked likely sources per location. The technician's hypothesis
+// Step 7 — Ranked likely sources per location. The technician's hypothesis
 // for what's causing the moisture pattern in this room.
-export default function Step8Sources({ row, queryKey, locationId }) {
+export default function Step7Sources({ row, queryKey, locationId, stepNumber }) {
   const qc = useQueryClient();
   const sources = (row.location_sources || [])
     .slice()
@@ -36,7 +36,7 @@ export default function Step8Sources({ row, queryKey, locationId }) {
 
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">7 · Likely sources</h2>
+      <h2 className="wz-step__h">{stepNumber} · Likely sources</h2>
       <p className="wz-step__p">
         What's causing this — ranked. Primary is the lead hypothesis; secondary / tertiary
         are alternates worth noting. The whole-inspection scope of works (next page) reads from this.

@@ -121,7 +121,7 @@ export default function WrapUpPage() {
           <Link href={`/admin/inspections/${inspectionId}`} className="ins-back">← Inspection</Link>
           <span className={`ins-badge ins-badge--${inspection.status}`}>{inspection.status}</span>
         </div>
-        <h1 className="ins-title">Wrap up</h1>
+        <h1 className="ins-title">Finish visit</h1>
         <p className="ins-subtitle">
           {locations.length} location{locations.length === 1 ? "" : "s"} captured ·
           {" "}{inspection.customers?.name || "—"} · {inspection.properties?.address_line || "—"}
@@ -163,6 +163,8 @@ export default function WrapUpPage() {
           <p className="ins-error">{String(addScope.error?.message || addScope.error)}</p>
         ) : null}
       </section>
+
+      <ReadinessSection locations={locations} />
 
       <section className="ins-section">
         <div className="ins-section__head">
@@ -209,6 +211,57 @@ function ScrollToHash({ deps }) {
     return () => window.cancelAnimationFrame(id);
   }, [deps]);
   return null;
+}
+
+// Non-blocking readiness roll-up. One row per room with the same four checks
+// as the landing chips. Rooms fully covered show ✓; missing bits are listed.
+// This NEVER blocks completion — it's a warning surface only.
+const READY_LABELS = { photo: "visible photo", thermal: "ΔT", tier: "tier", note: "note" };
+
+function roomReadiness(loc) {
+  const captures = Array.isArray(loc.image_captures) ? loc.image_captures : [];
+  const findings = Array.isArray(loc.location_findings) ? loc.location_findings : [];
+  return {
+    photo: captures.some((c) => c.capture_kind === "visible"),
+    thermal: loc.thermal_delta_c != null,
+    tier: Boolean(loc.mould_pressure_tier),
+    note: findings.length >= 1,
+  };
+}
+
+function ReadinessSection({ locations }) {
+  const rooms = (locations || []).filter((l) => !l.is_outdoor_control);
+  if (rooms.length === 0) return null;
+  return (
+    <section className="ins-section">
+      <div className="ins-section__head">
+        <h2>Readiness</h2>
+      </div>
+      <p className="wrap-hint">
+        A quick check per room — nothing here blocks completion, it just flags what a room
+        is still missing before the report gets written.
+      </p>
+      <ul className="wrap-ready-list">
+        {rooms.map((loc) => {
+          const r = roomReadiness(loc);
+          const missing = Object.keys(READY_LABELS).filter((k) => !r[k]);
+          const ready = missing.length === 0;
+          return (
+            <li key={loc.sample_location_id} className="wrap-ready-row">
+              <span className="wrap-ready-row__name">{loc.name || "Untitled location"}</span>
+              {ready ? (
+                <span className="wrap-ready-row__ok">✓ ready</span>
+              ) : (
+                <span className="wrap-ready-row__missing">
+                  missing: {missing.map((k) => READY_LABELS[k]).join(", ")}
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
 }
 
 function ScopeItemCard({ item, trades, queryKey }) {

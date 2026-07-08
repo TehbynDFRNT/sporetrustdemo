@@ -321,6 +321,17 @@ function KitGate({ techKit, inspectionKitIds, onToggle, onConfirm, isConfirming,
             ? `Confirm kit (${inspectionKitIds.size} item${inspectionKitIds.size === 1 ? "" : "s"})`
             : "Select at least one piece of kit"}
       </button>
+      {/* Escape hatch — when no kit is assigned (e.g. technician unassigned)
+          the gate would otherwise hard-block. Let the tech skip and start;
+          kit can be reconciled later from the recap. */}
+      <button
+        type="button"
+        className="ins-btn ins-btn--ghost ins-btn--block"
+        onClick={onConfirm}
+        disabled={isConfirming}
+      >
+        Skip kit for now
+      </button>
       {confirmError ? <p className="ins-error">{String(confirmError?.message || confirmError)}</p> : null}
     </section>
   );
@@ -354,7 +365,7 @@ function PreStartView({ techKit, inspectionKitIds, onToggle, onStart, isStarting
           type="button"
           className="ins-btn ins-btn--primary ins-btn--block ins-btn--xl"
           onClick={onStart}
-          disabled={isStarting || itemCount === 0}
+          disabled={isStarting}
         >
           {isStarting ? "Starting…" : "Start inspection →"}
         </button>
@@ -649,23 +660,26 @@ function InProgressView({
 
         {hasRooms ? (
           <ul className="ins-loc-list">
-            {roomLocations.map((loc) => (
-              <li key={loc.sample_location_id}>
-                <Link
-                  href={`/admin/inspections/${inspectionId}/locations/${loc.sample_location_id}`}
-                  className="ins-loc-card"
-                >
-                  <div className="ins-loc-card__name">{loc.name}</div>
-                  <div className="ins-loc-card__meta">
-                    {loc.mould_pressure_tier
-                      ? <span>Tier: {loc.mould_pressure_tier}</span>
-                      : <span className="ins-muted">No tier yet</span>}
-                    {loc.thermal_delta_c != null ? <span>ΔT {loc.thermal_delta_c}°C</span> : null}
-                  </div>
-                  <span className="ins-loc-card__chev">›</span>
-                </Link>
-              </li>
-            ))}
+            {roomLocations.map((loc) => {
+              const r = readiness(loc);
+              return (
+                <li key={loc.sample_location_id}>
+                  <Link
+                    href={`/admin/inspections/${inspectionId}/locations/${loc.sample_location_id}`}
+                    className="ins-loc-card"
+                  >
+                    <div className="ins-loc-card__name">{loc.name}</div>
+                    <div className="ins-ready" aria-label="Readiness">
+                      <span className={`ins-ready__chip ${r.photo ? "is-on" : "is-off"}`} title="Visible photo">📷</span>
+                      <span className={`ins-ready__chip ${r.thermal ? "is-on" : "is-off"}`} title="Thermal ΔT">ΔT</span>
+                      <span className={`ins-ready__chip ${r.tier ? "is-on" : "is-off"}`} title="Mould pressure tier">tier</span>
+                      <span className={`ins-ready__chip ${r.note ? "is-on" : "is-off"}`} title="Finding note">note</span>
+                    </div>
+                    <span className="ins-loc-card__chev">›</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p className="ins-empty">No rooms captured yet. Add the first one once you've done the outdoor baseline.</p>
@@ -702,7 +716,7 @@ function InProgressView({
             href={`/admin/inspections/${inspectionId}/wrap-up`}
             className="ins-btn ins-btn--primary ins-btn--block"
           >
-            Wrap up inspection →
+            Finish visit →
           </Link>
           <p className="ins-hint">Set the scope of works and tap "Mark inspection completed" to stop the timer.</p>
         </section>
@@ -779,6 +793,20 @@ function KitGrid({ techKit, inspectionKitIds, onToggle, compact }) {
       })}
     </ul>
   );
+}
+
+// Per-room readiness — the four checks surfaced as presence chips on the
+// landing cards and rolled up on the wrap-up checklist. Pure derivation off
+// the inspection embed (image_captures + location_findings added there).
+export function readiness(loc) {
+  const captures = Array.isArray(loc.image_captures) ? loc.image_captures : [];
+  const findings = Array.isArray(loc.location_findings) ? loc.location_findings : [];
+  return {
+    photo: captures.some((c) => c.capture_kind === "visible"),
+    thermal: loc.thermal_delta_c != null,
+    tier: Boolean(loc.mould_pressure_tier),
+    note: findings.length >= 1,
+  };
 }
 
 function categoryIcon(c) {

@@ -14,7 +14,7 @@ const config = {
     "properties(address_line, postcode, state, lat, lng)",
     "technician:technicians!inspections_technician_id_fkey(name, role)",
     "signoff:technicians!inspections_signed_off_by_technician_id_fkey(name, role)",
-    "sample_locations(sample_location_id, name, is_outdoor_control, mould_pressure_tier, thermal_delta_c, display_order, sampled_at, moisture_readings(moisture_reading_id, level), air_samples(air_sample_id, lab_sample_id))",
+    "sample_locations(sample_location_id, name, is_outdoor_control, mould_pressure_tier, thermal_delta_c, display_order, sampled_at, moisture_readings(moisture_reading_id, level), air_samples(air_sample_id, lab_sample_id), image_captures(image_capture_id, capture_kind), location_findings(finding_id))",
     "scope_items(scope_item_id, trade_category_id, scope_tier, cost_min, cost_max, detail, display_order, trade_categories(name, group_label))",
     // The technician's kit checked off for this inspection. We embed two
     // levels deep so the wizard's chip select can render image + name +

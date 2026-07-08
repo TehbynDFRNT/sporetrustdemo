@@ -25,7 +25,7 @@ const SUPABASE_EQUIPMENT_BASE =
 //
 // kit: this inspection's checked-off equipment (filtered to
 // moisture_meter category for the per-reading chip select).
-export default function Step4Moisture({ row, queryKey, inspectionId, locationId, kit }) {
+export default function Step4Moisture({ row, queryKey, inspectionId, locationId, kit, stepNumber }) {
   const qc = useQueryClient();
   const readings = (row.moisture_readings || [])
     .slice()
@@ -108,7 +108,7 @@ export default function Step4Moisture({ row, queryKey, inspectionId, locationId,
 
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">4 · Moisture readings</h2>
+      <h2 className="wz-step__h">{stepNumber} · Moisture readings</h2>
       <p className="wz-step__p">
         Tap the image where you took a reading. We create a pin + a fresh card below.
         Tap an existing pin to jump to its details. Fill in the meter chip, value, depth, and evidence.

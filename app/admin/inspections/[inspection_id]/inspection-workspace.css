@@ -546,3 +546,30 @@
   background: var(--ink, #14181c);
   color: #fff;
 }
+
+/* ── Readiness chips (compact presence indicators on room cards) ──────── */
+.ins-ready {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ins-ready__chip {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line, #E8E5E0);
+  white-space: nowrap;
+}
+.ins-ready__chip.is-on {
+  background: #eef6f0;
+  border-color: #cfe6d6;
+  color: #1d6b3a;
+}
+.ins-ready__chip.is-off {
+  background: transparent;
+  color: var(--ink-soft, #45484C);
+  opacity: 0.4;
+}

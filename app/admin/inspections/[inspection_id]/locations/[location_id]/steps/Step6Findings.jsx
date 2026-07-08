@@ -5,10 +5,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useAutosaveRow } from "../../../../../../../lib/admin/useAutosaveRow";
 
-// Step 7 — Narrative findings per location. Usually one entry, but the
+// Step 6 — Narrative findings per location. Usually one entry, but the
 // schema allows multiple ordered observations (e.g. "morning visible
 // staining" plus "afternoon thermal anomaly").
-export default function Step7Findings({ row, queryKey, locationId }) {
+export default function Step6Findings({ row, queryKey, locationId, stepNumber }) {
   const qc = useQueryClient();
   const findings = (row.location_findings || [])
     .slice()
@@ -30,7 +30,7 @@ export default function Step7Findings({ row, queryKey, locationId }) {
 
   return (
     <section className="wz-step">
-      <h2 className="wz-step__h">6 · Findings</h2>
+      <h2 className="wz-step__h">{stepNumber} · Findings</h2>
       <p className="wz-step__p">
         Plain-English observation per location. This is what carries through to the report's narrative
         section — "what did the technician actually see".

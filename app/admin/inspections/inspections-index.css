@@ -230,3 +230,91 @@
   background: #f0f0ee;
   color: var(--ink-soft, #45484c);
 }
+
+/* ── Sign-off → publish form ──────────────────────────────────────────────
+ * Each queue card expands into this review form: severity + executive
+ * summary. One primary action publishes the report in a single PATCH. */
+.insp-card__actions { flex-wrap: wrap; }
+
+.insp-card__actions button {
+  appearance: none;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #e4e4e0;
+  background: #fff;
+  color: var(--ink, #0f1112);
+  cursor: pointer;
+}
+.insp-card__actions button:hover:not(:disabled) { border-color: #c9c9c4; }
+.insp-card__actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.signoff-form__publish {
+  background: var(--ink, #0f1112) !important;
+  border-color: var(--ink, #0f1112) !important;
+  color: var(--paper, #fff) !important;
+}
+.signoff-form__publish:disabled { opacity: 0.45; }
+.signoff-form__cancel { color: var(--ink-faint, #82858a) !important; }
+
+.signoff-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ececea;
+}
+.signoff-form__field { display: flex; flex-direction: column; gap: 4px; }
+.signoff-form__field > span {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft, #45484c);
+}
+.signoff-form__field select,
+.signoff-form__field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--line, #e4e4e0);
+  background: #fff;
+  color: var(--ink, #0f1112);
+}
+.signoff-form__field textarea { resize: vertical; min-height: 92px; line-height: 1.45; }
+
+.signoff-success {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 4px 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #E9F2EC;
+  border: 1px solid #C8DECF;
+  color: #2F6F49;
+  font-size: 12.5px;
+}
+.signoff-success a {
+  font-weight: 600;
+  color: #2F6F49;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.signoff-success__dismiss {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: #2F6F49;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  margin-left: auto;
+  padding: 2px 4px;
+}

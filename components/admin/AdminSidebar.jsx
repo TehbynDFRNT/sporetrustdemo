@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Two groups:
 //   - Workspace: workflow-oriented jump-off points. CRM and Inspections are
@@ -46,6 +46,27 @@ const NAV = [
 export default function AdminSidebar() {
   const pathname = usePathname() || "";
 
+  // Mobile off-canvas drawer. Desktop (≥768px) ignores this entirely via CSS —
+  // the sidebar is a static sticky column there. On mobile the slim top bar's
+  // hamburger toggles `drawerOpen`, sliding the same <aside> in from the left.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Close the drawer whenever the route changes (a nav tap navigated us).
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  // Body scroll lock while the drawer is open (mobile only — harmless on
+  // desktop where the drawer is never open).
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [drawerOpen]);
+
   // Lazy-init: open if defaultOpen, or if the current route lives in this
   // group. Lazy init runs once on mount; later toggles drive state directly.
   const [openGroups, setOpenGroups] = useState(() => {
@@ -62,7 +83,35 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="admin-sidebar" aria-label="Admin navigation">
+    <>
+      {/* Slim fixed top bar — mobile only (CSS-hidden on desktop). Carries the
+          brand + a hamburger that toggles the drawer. */}
+      <div className="admin-topbar">
+        <Link href="/admin" className="admin-topbar__brand">Sporetrust · admin</Link>
+        <button
+          type="button"
+          className="admin-topbar__toggle"
+          aria-label={drawerOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={drawerOpen}
+          onClick={() => setDrawerOpen((o) => !o)}
+        >
+          <span aria-hidden>{drawerOpen ? "✕" : "☰"}</span>
+        </button>
+      </div>
+
+      {/* Backdrop — only mounted while the drawer is open (mobile). Tap to close. */}
+      {drawerOpen ? (
+        <div
+          className="admin-sidebar-backdrop"
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden
+        />
+      ) : null}
+
+      <aside
+        className={`admin-sidebar${drawerOpen ? " is-open" : ""}`}
+        aria-label="Admin navigation"
+      >
       <div className="admin-sidebar__brand">
         <Link href="/admin">Sporetrust · admin</Link>
       </div>
@@ -108,5 +157,6 @@ export default function AdminSidebar() {
         Auth: <span className="admin-sidebar__foot-pill">unconfigured</span>
       </div>
     </aside>
+    </>
   );
 }

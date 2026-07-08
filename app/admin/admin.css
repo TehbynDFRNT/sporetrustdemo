@@ -317,3 +317,108 @@ body[data-admin] .lander-header,
 body[data-admin] .lander-footer,
 body[data-admin] .sticky-cta { display: none !important; }
 body[data-admin] { background: var(--paper); }
+
+/* =====================================================================
+   Mobile shell (< 768px)
+   ---------------------------------------------------------------------
+   Desktop is unchanged: .admin-root stays a sticky 260px + 1fr grid.
+   On phones the 260px column would eat the viewport, so we collapse to a
+   single column and turn the sidebar into an off-canvas drawer driven by
+   a slim fixed top bar (rendered by AdminSidebar). Same DOM both
+   breakpoints — visibility is media-query driven, only the drawer
+   open/close is stateful.
+   ===================================================================== */
+
+/* The top bar + backdrop only exist for the mobile drawer. Hidden on desktop
+   so they don't become stray grid items in the .admin-root grid. */
+.admin-topbar { display: none; }
+.admin-sidebar-backdrop { display: none; }
+
+@media (max-width: 767px) {
+  .admin-root {
+    grid-template-columns: 1fr;
+  }
+
+  /* Slim fixed top bar with brand + hamburger. */
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    padding: 0 14px;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    z-index: 1000;
+  }
+  .admin-topbar__brand {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-size: 15px;
+  }
+  .admin-topbar__toggle {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Sidebar becomes an off-canvas drawer sliding in from the left. */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: min(280px, 84vw);
+    z-index: 1002;
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 16px rgba(15, 17, 18, 0.12);
+  }
+  .admin-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .admin-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 17, 18, 0.4);
+    z-index: 1001;
+  }
+
+  /* Clear the fixed top bar and tighten side padding for a narrow viewport. */
+  .admin-main {
+    padding: 68px 16px 48px;
+  }
+
+  /* Page heads / toolbars that were desktop flex rows stack on mobile. */
+  .admin-page-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .admin-table-block__head {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-table-block__meta {
+    align-items: flex-start;
+  }
+}
