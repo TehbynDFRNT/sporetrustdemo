@@ -36,8 +36,8 @@ const TRIGGER_ATTR = {
 
 const CONTACT = [
   { label: "Service area", value: "Brisbane & South-East Queensland" },
-  { label: "Bookings", value: "hello@sporetrust.com.au" },
-  { label: "Phone", value: "07 0000 0000" },
+  { label: "Email", value: "contact@sporetrust.com.au", href: "mailto:contact@sporetrust.com.au" },
+  { label: "Phone", value: "07 4802 3011", href: "tel:+61748023011" },
 ];
 
 export default function Footer({
@@ -91,7 +91,7 @@ export default function Footer({
             {CONTACT.map((item) => (
               <div key={item.label}>
                 <dt>{item.label}</dt>
-                <dd>{item.value}</dd>
+                <dd>{item.href ? <a href={item.href}>{item.value}</a> : item.value}</dd>
               </div>
             ))}
           </dl>
