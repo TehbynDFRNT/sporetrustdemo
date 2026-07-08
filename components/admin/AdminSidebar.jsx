@@ -18,6 +18,7 @@ const NAV = [
     label: "Workspace",
     defaultOpen: true,
     items: [
+      { href: "/admin/crm",           label: "CRM board" },
       { href: "/admin/inspections",   label: "Inspections" },
       { href: "/admin/today",         label: "Today's run-sheet" },
       { href: "/admin/queue/signoff", label: "Sign-off queue" },
@@ -28,6 +29,8 @@ const NAV = [
     defaultOpen: false,
     items: [
       { href: "/admin/data/leads",                label: "Leads" },
+      { href: "/admin/data/crm-cards",            label: "CRM cards" },
+      { href: "/admin/data/touchpoints",          label: "Touchpoints" },
       { href: "/admin/data/customers",            label: "Customers" },
       { href: "/admin/data/properties",           label: "Properties" },
       { href: "/admin/data/inspections",          label: "Inspections" },
