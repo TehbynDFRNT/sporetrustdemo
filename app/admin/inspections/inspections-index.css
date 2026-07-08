@@ -4,6 +4,65 @@
  * indigo rule). Muted buckets de-emphasise themselves so closed work
  * doesn't compete with the active pipeline. */
 
+/* ── View switcher (Pipeline | Today | Sign-off) ──────────────────────────
+ * Segmented control in the page head. Mirrors the CRM board's .crm-viewswitch
+ * pattern (app/admin/crm/crm.css) but kept self-contained with an insp- prefix
+ * so the two pages stay decoupled. */
+
+.insp-viewswitch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: #f0f0ee;
+  border: 1px solid #e4e4e0;
+  border-radius: 9px;
+}
+.insp-viewswitch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 7px;
+  color: var(--ink-faint, #82858a);
+  cursor: pointer;
+}
+.insp-viewswitch__btn.is-active {
+  background: #fff;
+  border-color: #e4e4e0;
+  color: var(--ink, #0f1112);
+  box-shadow: 0 1px 3px rgba(15, 17, 18, 0.06);
+}
+.insp-viewswitch__badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #854d0e;
+}
+
+/* ── Per-view toolbar (Today tech filter / Sign-off signer picker) ───────── */
+.insp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+.insp-toolbar__note {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-faint, #82858a);
+}
+
 .insp-bucket { margin-bottom: 8px; }
 .insp-bucket__head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .insp-bucket__title {
@@ -61,6 +120,7 @@
   padding: 10px;
 }
 .insp-col--muted { opacity: 0.75; }
+.insp-col--wide { flex-basis: 440px; min-width: 440px; max-width: 100%; }
 
 .insp-col__head {
   display: flex;
@@ -114,6 +174,17 @@
 .insp-card:hover { border-color: #c9c9c4; box-shadow: 0 1px 4px rgba(15, 17, 18, 0.06); }
 .insp-card--active  { border-left: 3px solid #d9a441; }
 .insp-card--signoff { border-left: 3px solid #6366f1; }
+
+/* Static (non-link) card — the Sign-off tile carries its own Review link +
+ * inline Sign off button, so the tile itself isn't a navigable <a>. */
+.insp-card--static { cursor: default; }
+.insp-card--static:hover { border-color: #e4e4e0; box-shadow: none; }
+.insp-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
 
 .insp-card__name {
   display: flex;

@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 // Two groups:
-//   - Workspace: workflow-oriented jump-off points (inspections, run-sheet,
-//     sign-off queue). Default open. These are the surfaces the team
-//     spends time in day-to-day.
+//   - Workspace: workflow-oriented jump-off points. CRM and Inspections are
+//     each a single page with in-page tabs (Inspections = Pipeline / Today /
+//     Sign-off), so the sidebar stays to the top-level surfaces. Default open.
 //   - Data: reference / inspection-records tables. Default collapsed —
 //     they're for visibility and audit, not where you build inspections.
 //
@@ -20,8 +20,6 @@ const NAV = [
     items: [
       { href: "/admin/crm",           label: "CRM" },
       { href: "/admin/inspections",   label: "Inspections" },
-      { href: "/admin/today",         label: "Today's run-sheet" },
-      { href: "/admin/queue/signoff", label: "Sign-off queue" },
     ],
   },
   {
