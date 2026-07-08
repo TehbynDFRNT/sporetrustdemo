@@ -394,6 +394,7 @@ function Composer({ cardId, customer, onSaved }) {
 
 function TimelineItem({ tp, onChanged }) {
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
 
   async function patch(patchBody) {
     setBusy(true);
@@ -409,8 +410,24 @@ function TimelineItem({ tp, onChanged }) {
     }
   }
 
+  async function sendNow() {
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}/send`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || `Send → ${res.status}`);
+    } catch (e) {
+      setErr(String(e?.message || e));
+    } finally {
+      setBusy(false);
+      onChanged();
+    }
+  }
+
   const liClass = tp.origin === "ai" ? "tl--ai" : `tl--${tp.channel}`;
   const pending = ["draft", "approved"].includes(tp.status);
+  const sendable = pending && ["sms", "email"].includes(tp.channel);
 
   return (
     <li className={liClass}>
@@ -430,18 +447,36 @@ function TimelineItem({ tp, onChanged }) {
       {tp.outcome_notes ? <p className="crm-tl__body crm-tl__body--muted">↳ {tp.outcome_notes}</p> : null}
       {tp.ai_reasoning ? <p className="crm-tl__body crm-tl__body--muted">AI: {tp.ai_reasoning}</p> : null}
       {tp.error ? <p className="crm-error">{tp.error}</p> : null}
-      {pending ? (
+      {pending || tp.status === "failed" ? (
         <div className="crm-tl__actions">
-          {tp.status === "draft" ? (
+          {sendable ? (
+            <button type="button" className="crm-btn" disabled={busy} onClick={() => void sendNow()}>
+              Send now
+            </button>
+          ) : null}
+          {tp.status === "draft" && !sendable ? (
             <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
               Approve
             </button>
           ) : null}
-          <button type="button" className="crm-btn crm-btn--danger" disabled={busy} onClick={() => patch({ status: "cancelled" })}>
-            Dismiss
-          </button>
+          {tp.status === "draft" && sendable ? (
+            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
+              Approve (scheduled)
+            </button>
+          ) : null}
+          {tp.status === "failed" ? (
+            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
+              Retry
+            </button>
+          ) : null}
+          {pending ? (
+            <button type="button" className="crm-btn crm-btn--danger" disabled={busy} onClick={() => patch({ status: "cancelled" })}>
+              Dismiss
+            </button>
+          ) : null}
         </div>
       ) : null}
+      {err ? <p className="crm-error">{err}</p> : null}
     </li>
   );
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ensureCrmCard, logSystemTouchpoint } from "../../../lib/crm/cards";
+import { notifyOwnerNewLead } from "../../../lib/crm/notify";
 import { ensureProperty, linkCustomerProperty } from "../../../lib/properties";
 import { createServerSupabaseClient } from "../../../lib/supabase";
 
@@ -129,6 +130,20 @@ export async function POST(request) {
         card_id,
         `New ${audience} lead via ${clean(body.form, 50) ?? "form"} — ${clean(body.landing_page || body.page) ?? "unknown page"}`,
       );
+      const notified = await notifyOwnerNewLead({
+        customer: { name, email, phone, address_line: addressFields.address_line, postcode: addressFields.postcode },
+        lead: {
+          audience,
+          message: clean(body.detail || body.message, 2000),
+          form: clean(body.form, 50),
+          landing_page: clean(body.landing_page || body.page),
+          utm_source: clean(body.utm_source),
+        },
+        cardId: card_id,
+      });
+      if (notified) {
+        await logSystemTouchpoint(supabase, card_id, "Owner notified by email");
+      }
     } catch (crmErr) {
       console.error("[api/lead] CRM plumbing failed:", crmErr?.message || crmErr);
     }
