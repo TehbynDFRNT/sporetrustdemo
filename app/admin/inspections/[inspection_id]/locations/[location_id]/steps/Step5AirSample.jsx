@@ -78,11 +78,12 @@ export default function Step5AirSample({ row, queryKey, inspectionId, locationId
       locationId={locationId}
       samplerKit={samplerKit}
       capturesById={capturesById}
+      stepNumber={stepNumber}
     />
   );
 }
 
-function AirSampleEditor({ air, queryKey, inspectionId, locationId, samplerKit, capturesById }) {
+function AirSampleEditor({ air, queryKey, inspectionId, locationId, samplerKit, capturesById, stepNumber }) {
   const save = useAutosaveRow({
     endpoint: `/api/admin/air-samples/${air.air_sample_id}`,
     invalidate: queryKey,

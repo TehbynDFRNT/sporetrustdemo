@@ -6,23 +6,28 @@
  */
 
 .wz {
+  --ins-radius: 14px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
   min-height: calc(100vh - 24px);
   max-width: 760px;
   margin: 0 auto;
-  background: var(--bone, #faf7f1);
+  padding: 16px;
+  color: var(--ink, #14181c);
+  background: var(--bone, #F1F0EE);
 }
 
-/* ── Header (sticky) ─────────────────────────────────────────────────── */
+/* ── Header (white card, matches landing .ins-header) ─────────────────── */
 
 .wz__header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--paper, #fff);
-  border-bottom: 1px solid var(--line, #E8E5E0);
-  padding: 12px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: var(--ins-radius);
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #E8E5E0);
 }
 
 .wz__back {
@@ -39,11 +44,11 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 10px;
-  margin: 4px 0 10px;
+  margin: 2px 0 4px;
 }
 
 .wz__name {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.01em;
   display: inline-flex;
@@ -73,12 +78,12 @@
 .wz__steps {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 4px 0 0;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding-bottom: 8px;
+  padding-bottom: 2px;
   scroll-snap-type: x mandatory;
 }
 .wz__steps::-webkit-scrollbar { display: none; }
@@ -99,7 +104,13 @@
   white-space: nowrap;
   min-height: 36px;
 }
-.wz__step.is-done { color: var(--ink, #14181c); }
+/* Done = subtle green tint (mirrors landing readiness .is-on chips). */
+.wz__step.is-done {
+  background: #eef6f0;
+  border-color: #cfe6d6;
+  color: #1d6b3a;
+}
+/* Active = ink fill (mirrors the admin view-switch active state). */
 .wz__step.is-active {
   background: var(--ink, #14181c);
   color: #fff;
@@ -118,6 +129,10 @@
   font-size: 11px;
   font-weight: 700;
 }
+.wz__step.is-done .wz__step-num {
+  background: #cfe6d6;
+  color: #1d6b3a;
+}
 .wz__step.is-active .wz__step-num {
   background: rgba(255,255,255,0.18);
   color: #fff;
@@ -128,28 +143,31 @@
 
 .wz__body {
   flex: 1;
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
+/* White step card — matches landing .ins-section--card. */
 .wz-step {
-  background: var(--paper, #fff);
+  background: var(--white, #fff);
   border: 1px solid var(--line, #E8E5E0);
-  border-radius: 14px;
-  padding: 18px 16px;
+  border-radius: var(--ins-radius, 14px);
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-.wz-step--stub { background: #faf7f1; }
+.wz-step--stub { background: var(--paper, #F1F0EE); }
 
+/* Step heading adopts the section-head treatment (number + title). */
 .wz-step__h {
   margin: 0;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft, #45484C);
 }
 .wz-step__p {
   margin: 0;
@@ -329,8 +347,10 @@
   z-index: 10;
   display: flex;
   gap: 10px;
-  padding: 10px 16px;
-  background: var(--paper, #fff);
+  margin: 4px -16px -16px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  background: var(--white, #fff);
   border-top: 1px solid var(--line, #E8E5E0);
 }
 .wz__footer .ins-btn { flex: 1; }
