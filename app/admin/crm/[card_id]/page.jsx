@@ -470,9 +470,38 @@ function TimelineItem({ tp, onChanged }) {
     }
   }
 
+  // Stage moves must APPLY (patch the card's stage), not just flip to
+  // "approved" — nothing downstream ever processes an approved system
+  // touchpoint, so a bare approve strands it. Mirrors the queue page.
+  async function applyStageMove() {
+    const stage = tp.template_key.slice("stage:".length);
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/admin/crm-cards/${tp.card_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage }),
+      });
+      if (!res.ok) throw new Error(`Stage move → ${res.status}`);
+      await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "logged" }),
+      });
+    } catch (e) {
+      setErr(String(e?.message || e));
+    } finally {
+      setBusy(false);
+      onChanged();
+    }
+  }
+
   const liClass = tp.origin === "ai" ? "tl--ai" : `tl--${tp.channel}`;
   const pending = ["draft", "approved"].includes(tp.status);
   const sendable = pending && ["sms", "email"].includes(tp.channel);
+  const isStageMove = tp.channel === "system" && tp.template_key?.startsWith("stage:");
+  const isCallDraft = tp.channel === "call" && tp.status === "draft";
 
   return (
     <li className={liClass}>
@@ -499,9 +528,14 @@ function TimelineItem({ tp, onChanged }) {
               Send now
             </button>
           ) : null}
-          {tp.status === "draft" && !sendable ? (
-            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
-              Approve
+          {isStageMove && pending ? (
+            <button type="button" className="crm-btn" disabled={busy} onClick={() => void applyStageMove()}>
+              Apply move
+            </button>
+          ) : null}
+          {isCallDraft ? (
+            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "logged" })}>
+              Mark done
             </button>
           ) : null}
           {tp.status === "draft" && sendable ? (

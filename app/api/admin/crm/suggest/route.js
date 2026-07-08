@@ -54,16 +54,20 @@ export async function POST(request) {
     return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
   }
 
-  // Existing pending AI draft → return it instead of paying for a new one.
-  const { data: existing } = await supabase
+  // Existing pending AI action → return it instead of paying for a new one.
+  // "approved" counts as pending too: an approved-but-unsent action is still
+  // the card's next step (the unique index only covers drafts, so without
+  // this check an approved action + a fresh suggest = two queued actions).
+  const { data: existingRows } = await supabase
     .from("touchpoints")
     .select("*")
     .eq("card_id", cardId)
     .eq("origin", "ai")
-    .eq("status", "draft")
-    .maybeSingle();
-  if (existing) {
-    return NextResponse.json({ touchpoint: existing, existing: true });
+    .in("status", ["draft", "approved"])
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (existingRows?.[0]) {
+    return NextResponse.json({ touchpoint: existingRows[0], existing: true });
   }
 
   let context;

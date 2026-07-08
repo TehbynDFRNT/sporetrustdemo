@@ -150,7 +150,7 @@ function QueueItem({ tp, onChanged }) {
       {tp.ai_reasoning ? <p className="crm-tl__body crm-tl__body--muted">AI: {tp.ai_reasoning}</p> : null}
       {tp.error ? <p className="crm-error">{tp.error}</p> : null}
       <div className="crm-tl__actions">
-        {isStageMove && tp.status === "draft" ? (
+        {isStageMove && ["draft", "approved"].includes(tp.status) ? (
           <button type="button" className="crm-btn" disabled={busy} onClick={() => void applyStageMove()}>
             Apply move
           </button>
