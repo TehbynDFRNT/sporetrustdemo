@@ -7,7 +7,7 @@ const DEFAULT_INCLUSIONS = [
     copy: "thermal, moisture and humidity inspection across walls, ceilings, plumbing and HVAC",
   },
   {
-    title: "NATA-lab air sampling",
+    title: "AIHA-lab air sampling",
     copy: "indoor + outdoor control samples with lab-analysed spore count and species profile",
   },
   {
@@ -40,7 +40,7 @@ export default function DiagnosticHero({
   pricing = {
     figure: "$945",
     meta: "Lab-Backed Diagnostic · GST inc",
-    sub: "On-site protocol + NATA-lab analysis. Plain-English digital report within 48 hours.",
+    sub: "On-site protocol + AIHA-lab analysis (ISO/IEC 17025). Plain-English digital report within 48 hours.",
     pill: "Most booked",
   },
   cta = { label: "Book diagnostic", href: "#book" },
@@ -50,7 +50,7 @@ export default function DiagnosticHero({
     kicker: "Independent",
     label: "Of remediation and repair",
   },
-  proof = "IICRC certified · NATA-accredited lab partners",
+  proof = "IICRC certified · AIHA-accredited lab partners (ISO/IEC 17025)",
 }) {
   return (
     <section className="diagnostic-hero" aria-labelledby="diagnostic-hero-title">

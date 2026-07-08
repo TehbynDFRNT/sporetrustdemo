@@ -260,7 +260,7 @@ export default function ContractorPartnersPage() {
             ]}
             primaryCta={{ label: "Book diagnosis", href: "#book" }}
             secondaryCta={{ label: "See the report", href: "/#report" }}
-            footnote="Brisbane & SEQ · IICRC certified · NATA-accredited lab analysis available."
+            footnote="Brisbane & SEQ · IICRC certified · AIHA-accredited lab analysis (ISO/IEC 17025) available."
             image="/images/partner-repair.jpg"
             imageAlt="Vetted repair contractor finishing prepared drywall after remediation"
           />

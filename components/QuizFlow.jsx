@@ -488,7 +488,7 @@ export function ResultsBanner({ suburbLabel, onBook }) {
           { figure: "48 hr", label: "Plain-English report with cause, extent and a defensible cost range." },
         ]}
         primaryCta={{ label: "Book inspection", href: "#", onClick: handleBookClick }}
-        footnote="No callout fees · independent of remediation · IICRC certified · NATA-accredited lab analysis available."
+        footnote="No callout fees · independent of remediation · IICRC certified · AIHA-accredited lab analysis (ISO/IEC 17025) available."
         image="/images/book-diagnostic-banner.jpg"
         imageAlt="Sporetrust mould and moisture diagnostic"
       />

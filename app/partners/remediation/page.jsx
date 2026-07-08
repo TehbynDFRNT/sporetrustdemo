@@ -290,7 +290,7 @@ export default function RemediationPartnersPage() {
             ]}
             primaryCta={{ label: "Book diagnosis", href: "#book" }}
             secondaryCta={{ label: "See the report", href: "/#report" }}
-            footnote="Brisbane & SEQ · IICRC certified · NATA-accredited lab analysis available."
+            footnote="Brisbane & SEQ · IICRC certified · AIHA-accredited lab analysis (ISO/IEC 17025) available."
             image="/images/partner-remediation.jpg"
             imageAlt="Remediation specialist removing mould under containment, with HEPA-vacuumed equipment and full PPE"
           />

@@ -11,7 +11,7 @@ export default function SiteFooter() {
           <a href="#faq">FAQ</a>
           <a href="#book">Book</a>
         </div>
-        <div className="foot-meta">&copy; 2026 Sporetrust Diagnostics - Brisbane & SEQ</div>
+        <div className="foot-meta">&copy; 2026 DFRNT Group Pty Ltd t/a Sporetrust &middot; ABN 21 679 198 317 &middot; Brisbane & SEQ</div>
       </div>
     </footer>
   );

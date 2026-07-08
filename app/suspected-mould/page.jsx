@@ -434,7 +434,7 @@ export default function SuspectedMouldPage() {
             ]}
             primaryCta={{ label: "Book inspection", href: "#book" }}
             secondaryCta={{ label: "See the pricing", href: "/#pricing" }}
-            footnote="No callout fees · independent of remediation · IICRC certified · NATA-accredited lab analysis available."
+            footnote="No callout fees · independent of remediation · IICRC certified · AIHA-accredited lab analysis (ISO/IEC 17025) available."
             image="/images/book-diagnostic-banner.jpg"
             imageAlt="Sporetrust mould and moisture diagnostic"
           />

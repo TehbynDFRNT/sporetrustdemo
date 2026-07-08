@@ -178,15 +178,20 @@ export default function VisibleMouldPage() {
                 </li>
                 <li className="credential-card">
                   <span className="credential-card__logo">
-                    <img src="/logos/nata-dark.png" alt="" loading="lazy" />
+                    {/* No AIHA asset on hand — neutral ISO/IEC 17025 mark instead of the wrong emblem. */}
+                    <svg viewBox="0 0 48 48" aria-hidden="true">
+                      <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.35" />
+                      <text x="24" y="21" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="11" fontWeight="600" fill="currentColor">ISO</text>
+                      <text x="24" y="33" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="currentColor">17025</text>
+                    </svg>
                   </span>
                   <div className="credential-card__body">
-                    <span className="credential-card__label">NATA-Accredited Lab Analysis</span>
+                    <span className="credential-card__label">AIHA-Accredited Lab Analysis</span>
                     <span className="credential-card__sublabel">
-                      National Association of Testing Authorities, Australia
+                      AIHA-LAP accredited · ISO/IEC 17025
                     </span>
                     <p className="credential-card__desc">
-                      Air samples and surface tape lifts go to a NATA-accredited lab. Spore counts, species identification and certificates of analysis meet the standard insurers, tribunals and courts already use.
+                      Air and surface samples go to an AIHA-accredited lab under ISO/IEC 17025 — spore counts and certificates in the format tribunals and insurers already accept.
                     </p>
                   </div>
                 </li>
@@ -213,7 +218,7 @@ export default function VisibleMouldPage() {
             ]}
             primaryCta={{ label: "Book inspection", href: "#book" }}
             secondaryCta={{ label: "See the pricing", href: "/#pricing" }}
-            footnote="No callout fees · independent of remediation · IICRC certified · NATA-accredited lab analysis available."
+            footnote="No callout fees · independent of remediation · IICRC certified · AIHA-accredited lab analysis (ISO/IEC 17025) available."
             image="/images/thermal-imaging.jpg"
             imageAlt="Sporetrust inspector using thermal imaging equipment in a Queenslander interior"
           />

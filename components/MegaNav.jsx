@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import ArrowIcon from "./icons/ArrowIcon";
 import Brand from "./Brand";
 import SentinelMark from "./SentinelMark";
+import AihaLabMark from "./AihaLabMark";
 
 function isHashHref(href) {
   return typeof href === "string" && href.startsWith("#");
@@ -186,7 +187,7 @@ function AboutPanel() {
         />
         <ul className="mega-panel__accreditation" aria-label="Accreditation">
           <li><img src="/logos/iicrc-dark.png" alt="IICRC certified" loading="lazy" /></li>
-          <li><img src="/logos/nata-dark.png" alt="NATA accredited" loading="lazy" /></li>
+          <li><AihaLabMark /></li>
         </ul>
       </div>
 

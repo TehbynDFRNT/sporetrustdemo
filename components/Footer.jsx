@@ -1,4 +1,5 @@
 import Brand from "./Brand";
+import AihaLabMark from "./AihaLabMark";
 
 const FOOTER_COLUMNS = [
   {
@@ -41,7 +42,7 @@ const CONTACT = [
 ];
 
 export default function Footer({
-  meta = "© 2026 Sporetrust Diagnostics · Brisbane & SEQ",
+  meta = "© 2026 DFRNT Group Pty Ltd t/a Sporetrust · ABN 21 679 198 317 · Brisbane & SEQ",
 }) {
   return (
     <footer>
@@ -57,7 +58,7 @@ export default function Footer({
               <img src="/logos/iicrc.svg" alt="IICRC certified" loading="lazy" />
             </li>
             <li>
-              <img src="/logos/nata.png" alt="NATA-accredited lab partners" loading="lazy" />
+              <AihaLabMark />
             </li>
           </ul>
         </div>

@@ -17,7 +17,7 @@ const DEFAULT_INCLUSIONS = [
   },
   {
     title: "AI- and lab-confirmed reporting.",
-    copy: "Digital classification plus NATA-accredited sampling — evidence that holds up.",
+    copy: "Digital classification plus AIHA-accredited lab sampling (ISO/IEC 17025) — evidence that holds up.",
   },
   {
     title: "Vetted remediation & repair pathway.",

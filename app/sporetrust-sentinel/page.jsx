@@ -148,7 +148,7 @@ const sentinelMethods = [
     image: "/images/air-sample.jpg",
     imageAlt: "Air sampling cassette used for mould spore capture",
     measure:
-      "Continuous hygrometer logging across the visit, with optional indoor and outdoor control air samples to a NATA-accredited lab.",
+      "Continuous hygrometer logging across the visit, with optional indoor and outdoor control air samples to an AIHA-accredited lab (ISO/IEC 17025).",
     reveals: "Humidity load and airborne spore count.",
   },
   {
@@ -232,7 +232,7 @@ export default function SporetrustSentinelPage() {
     <main>
         <SentinelHero />
 
-        <TrustBar ratingLabel="IICRC certified · NATA-accredited lab partners · Independent of remediation" />
+        <TrustBar ratingLabel="IICRC certified · AIHA-accredited lab partners (ISO/IEC 17025) · Independent of remediation" />
 
         <section className="solution">
           <div className="wrap">

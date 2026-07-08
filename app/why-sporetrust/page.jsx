@@ -68,7 +68,7 @@ const diagnosisPillars = [
   {
     key: "lab",
     tag: "Lab",
-    desc: "Optional NATA-accredited sampling for claim- and tribunal-ready evidence.",
+    desc: "Optional AIHA-accredited lab sampling (ISO/IEC 17025) for claim- and tribunal-ready evidence.",
     Glyph: LabGlyph,
   },
 ];
@@ -259,15 +259,20 @@ export default function WhySporetrustPage() {
                   </li>
                   <li className="credential-card">
                     <span className="credential-card__logo">
-                      <img src="/logos/nata-dark.png" alt="" loading="lazy" />
+                      {/* No AIHA asset on hand — neutral ISO/IEC 17025 mark instead of the wrong emblem. */}
+                      <svg viewBox="0 0 48 48" aria-hidden="true">
+                        <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.35" />
+                        <text x="24" y="21" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="11" fontWeight="600" fill="currentColor">ISO</text>
+                        <text x="24" y="33" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="currentColor">17025</text>
+                      </svg>
                     </span>
                     <div className="credential-card__body">
-                      <span className="credential-card__label">NATA-Accredited Lab Analysis</span>
+                      <span className="credential-card__label">AIHA-Accredited Lab Analysis</span>
                       <span className="credential-card__sublabel">
-                        National Association of Testing Authorities, Australia
+                        AIHA-LAP accredited · ISO/IEC 17025
                       </span>
                       <p className="credential-card__desc">
-                        Air samples and surface tape lifts go to a NATA-accredited lab. Spore counts, species identification and certificates of analysis meet the standard insurers, tribunals and courts already use.
+                        Air and surface samples go to an AIHA-accredited lab under ISO/IEC 17025 — spore counts and certificates in the format tribunals and insurers already accept.
                       </p>
                     </div>
                   </li>

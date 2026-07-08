@@ -1,3 +1,5 @@
+import AihaLabMark from "./AihaLabMark";
+
 const DEFAULT_LOGOS = [
   {
     key: "iicrc",
@@ -5,9 +7,8 @@ const DEFAULT_LOGOS = [
     alt: "IICRC certified — Institute of Inspection, Cleaning and Restoration Certification",
   },
   {
-    key: "nata",
-    src: "/logos/nata.png",
-    alt: "NATA accredited laboratory analysis — National Association of Testing Authorities, Australia",
+    key: "aiha",
+    mark: "aiha",
   },
 ];
 
@@ -29,7 +30,11 @@ export default function TrustLogos({
             key={logo.key || logo.src}
             className={`trust-logos__item trust-logos__item--${logo.key || ""}`}
           >
-            <img src={logo.src} alt={logo.alt} loading="lazy" decoding="async" />
+            {logo.mark === "aiha" ? (
+              <AihaLabMark />
+            ) : (
+              <img src={logo.src} alt={logo.alt} loading="lazy" decoding="async" />
+            )}
           </li>
         ))}
       </ul>
