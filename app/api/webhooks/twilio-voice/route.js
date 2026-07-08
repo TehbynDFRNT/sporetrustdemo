@@ -1,4 +1,5 @@
 import { verifyTwilioSignature } from "../../../../lib/twilio";
+import { isVoiceConfigured, VOICE_IDENTITY } from "../../../../lib/twilioVoice";
 import { normalizeAuPhone } from "../../../../lib/phone";
 import { ensureCrmCard } from "../../../../lib/crm/cards";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
@@ -32,12 +33,18 @@ const FALLBACK_SAY =
   "Send us a text on this number with your name and suburb, and we'll call you back as soon as we're free.";
 
 function buildTwiml() {
-  const forwardTo = process.env.CALL_FORWARD_TO;
-  if (forwardTo) {
+  // Ring every available endpoint at once — the browser dialler (when the
+  // Voice app is configured) and CALL_FORWARD_TO — first to answer wins.
+  const targets = [
+    isVoiceConfigured() ? `<Client>${xmlEscape(VOICE_IDENTITY)}</Client>` : null,
+    process.env.CALL_FORWARD_TO ? `<Number>${xmlEscape(process.env.CALL_FORWARD_TO)}</Number>` : null,
+  ].filter(Boolean);
+
+  if (targets.length > 0) {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say language="en-AU">Thanks for calling Sporetrust, connecting you now.</Say>
-  <Dial timeout="25">${xmlEscape(forwardTo)}</Dial>
+  <Dial timeout="25">${targets.join("")}</Dial>
   <Say language="en-AU">${xmlEscape(FALLBACK_SAY)}</Say>
 </Response>`;
   }

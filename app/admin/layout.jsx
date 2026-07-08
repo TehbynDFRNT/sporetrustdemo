@@ -1,5 +1,6 @@
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import QueryProvider from "../../components/admin/QueryProvider";
+import DiallerProvider from "../../components/admin/voice/DiallerProvider";
 import "./admin.css";
 import "./admin-forms.css";
 
@@ -16,10 +17,12 @@ import "./admin-forms.css";
 export default function AdminLayout({ children }) {
   return (
     <QueryProvider>
-      <div className="admin-root">
-        <AdminSidebar />
-        <main className="admin-main">{children}</main>
-      </div>
+      <DiallerProvider>
+        <div className="admin-root">
+          <AdminSidebar />
+          <main className="admin-main">{children}</main>
+        </div>
+      </DiallerProvider>
     </QueryProvider>
   );
 }

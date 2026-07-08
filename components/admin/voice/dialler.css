@@ -1,0 +1,81 @@
+/* Floating call bar — bottom-right of every admin page while a call is
+ * live (or an error needs dismissing). Dark surface so it reads as a
+ * device, not a page panel. */
+
+.dialler-bar {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #14181c;
+  color: #f4f2ee;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+}
+
+.dialler-bar__label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.dialler-bar__label--error {
+  color: #fca5a5;
+  font-weight: 500;
+  max-width: 360px;
+  white-space: normal;
+}
+
+.dialler-bar__pulse,
+.dialler-bar__live {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex: none;
+}
+
+.dialler-bar__pulse {
+  background: #fbbf24;
+  animation: dialler-pulse 1s ease-in-out infinite;
+}
+
+.dialler-bar__live {
+  background: #34d399;
+}
+
+@keyframes dialler-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Buttons inside the bar inherit .crm-btn styles where crm.css is loaded;
+ * these overrides keep them legible on the dark surface everywhere else. */
+.dialler-bar button {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: inherit;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dialler-bar button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dialler-bar button.crm-btn--call {
+  background: #2f6b3a;
+  border-color: #2f6b3a;
+}
+
+.dialler-bar button.crm-btn--danger {
+  background: #7f1d1d;
+  border-color: #7f1d1d;
+}
