@@ -80,6 +80,7 @@ export default function CrmCardPage({ params }) {
         </div>
 
         <div>
+          <SuggestPanel cardId={card.card_id} onDone={refresh} />
           <Composer cardId={card.card_id} customer={customer} onSaved={refresh} />
           <section className="crm-panel">
             <h2>Timeline ({touchpoints.length})</h2>
@@ -197,6 +198,50 @@ function ContextPanel({ card, customer, properties, inspections, onChanged }) {
           Auto mode — AI-suggested SMS/email send without approval
         </label>
       </div>
+    </section>
+  );
+}
+
+/* ── AI suggestion ─────────────────────────────────────────────────────── */
+
+function SuggestPanel({ cardId, onDone }) {
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+  const [err, setErr] = useState("");
+
+  async function suggest() {
+    setBusy(true);
+    setErr("");
+    setNote("");
+    try {
+      const res = await fetch("/api/admin/crm/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ card_id: cardId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || `Suggest → ${res.status}`);
+      if (data.existing) setNote("A pending AI suggestion already exists — it's in the timeline below.");
+      else if (data.snoozed_until) setNote(`AI chose to wait — card snoozed until ${new Date(data.snoozed_until).toLocaleString("en-AU")}.`);
+      else setNote("Suggestion drafted — review it in the timeline below.");
+    } catch (e) {
+      setErr(String(e?.message || e));
+    } finally {
+      setBusy(false);
+      onDone();
+    }
+  }
+
+  return (
+    <section className="crm-panel" style={{ marginBottom: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+        <h2 style={{ margin: 0 }}>Next action</h2>
+        <button type="button" className="crm-btn" disabled={busy} onClick={() => void suggest()}>
+          {busy ? "Thinking…" : "Suggest next action"}
+        </button>
+      </div>
+      {note ? <p className="crm-note" style={{ marginTop: 8 }}>{note}</p> : null}
+      {err ? <p className="crm-error" style={{ marginTop: 8 }}>{err}</p> : null}
     </section>
   );
 }
