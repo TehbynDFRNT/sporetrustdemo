@@ -210,32 +210,40 @@ export default function InspectionLandingPage() {
       <header className="ins-header">
         <div className="ins-header__top">
           <Link href="/admin/data/inspections" className="ins-back">← All inspections</Link>
-          <span className={`ins-badge ins-badge--${row.status}`}>{row.status}</span>
+          <div className="ins-header__badges">
+            <span className={`ins-badge ins-badge--${row.status}`}>{row.status}</span>
+            <span className={`ins-badge ins-badge--report-${row.report_status}`}>{row.report_status}</span>
+          </div>
         </div>
         <h1 className="ins-title">{row.customers?.name || "Unknown customer"}</h1>
         <p className="ins-subtitle">
           {row.properties?.address_line}{row.properties?.postcode ? ` · ${row.properties.postcode}` : ""}
         </p>
-        <dl className="ins-meta">
-          <div><dt>Scheduled</dt><dd>{fmtWhen(row.scheduled_at)}</dd></div>
-          <div><dt>Type</dt><dd>{row.inspection_type}</dd></div>
-          <div>
-            <dt>Technician</dt>
-            <dd>
+        <div className="ins-chips">
+          <span className="ins-chip">
+            <span className="ins-chip__label">Scheduled</span>
+            <span className="ins-chip__value">{fmtWhen(row.scheduled_at)}</span>
+          </span>
+          <span className="ins-chip">
+            <span className="ins-chip__label">Type</span>
+            <span className="ins-chip__value">{row.inspection_type}</span>
+          </span>
+          <span className="ins-chip">
+            <span className="ins-chip__label">Tech</span>
+            <span className="ins-chip__value">
               {row.technician?.name || <span className="ins-muted">unassigned</span>}
-              {row.technician?.role ? <span className="ins-meta__sub"> · {row.technician.role}</span> : null}
-            </dd>
-          </div>
+              {row.technician?.role ? <span className="ins-chip__sub"> · {row.technician.role}</span> : null}
+            </span>
+          </span>
           {started ? (
-            <div>
-              <dt>{completed ? "Duration" : "Elapsed"}</dt>
-              <dd>
+            <span className={`ins-chip ${completed ? "" : "ins-chip--live"}`}>
+              <span className="ins-chip__label">{completed ? "Duration" : "Elapsed"}</span>
+              <span className="ins-chip__value">
                 <ElapsedValue startedAt={row.started_at} completedAt={row.completed_at} />
-              </dd>
-            </div>
+              </span>
+            </span>
           ) : null}
-          <div><dt>Report</dt><dd>{row.report_status}</dd></div>
-        </dl>
+        </div>
       </header>
 
       {!kitConfirmed ? (
@@ -290,7 +298,7 @@ export default function InspectionLandingPage() {
 function KitGate({ techKit, inspectionKitIds, onToggle, onConfirm, isConfirming, confirmError }) {
   const someSelected = inspectionKitIds.size > 0;
   return (
-    <section className="ins-section">
+    <section className="ins-section ins-section--card">
       <div className="ins-section__head">
         <h2>1 · Today's kit</h2>
         <span className="ins-section__count">{inspectionKitIds.size}/{techKit.length}</span>
@@ -343,7 +351,7 @@ function PreStartView({ techKit, inspectionKitIds, onToggle, onStart, isStarting
   const itemCount = inspectionKitIds.size;
   return (
     <>
-      <section className="ins-section">
+      <section className="ins-section ins-section--card">
         <div className="ins-section__head">
           <h2>1 · Today's kit ✓</h2>
           <span className="ins-section__count">{itemCount}</span>
@@ -360,7 +368,7 @@ function PreStartView({ techKit, inspectionKitIds, onToggle, onStart, isStarting
         />
       </section>
 
-      <section className="ins-section">
+      <section className="ins-section ins-section--card">
         <button
           type="button"
           className="ins-btn ins-btn--primary ins-btn--block ins-btn--xl"
@@ -407,7 +415,9 @@ function CompletedView({ inspectionId, row, techKit, inspectionKitIds, outdoorCo
   return (
     <>
       {/* ── Summary card ── */}
-      <section className="ins-summary">
+      <section className="ins-section ins-section--card">
+        <div className="ins-section__head"><h2>Summary</h2></div>
+        <div className="ins-summary">
         <SummaryItem label="Severity">
           {row.report_severity
             ? <span className={`ins-badge ins-badge--sev-${row.report_severity}`}>{row.report_severity}</span>
@@ -446,11 +456,12 @@ function CompletedView({ inspectionId, row, techKit, inspectionKitIds, outdoorCo
             <p className="ins-summary__prose">{row.report_summary}</p>
           </div>
         ) : null}
+        </div>
       </section>
 
       {/* ── Outdoor control (one-liner) ── */}
       {outdoorControl ? (
-        <section className="ins-section ins-section--tight">
+        <section className="ins-section ins-section--tight ins-section--card">
           <div className="ins-section__head"><h2>Outdoor control</h2></div>
           <Link
             href={`/admin/inspections/${inspectionId}/locations/${outdoorControl.sample_location_id}`}
@@ -468,7 +479,7 @@ function CompletedView({ inspectionId, row, techKit, inspectionKitIds, outdoorCo
       ) : null}
 
       {/* ── Rooms (compact rows) ── */}
-      <section className="ins-section ins-section--tight">
+      <section className="ins-section ins-section--tight ins-section--card">
         <div className="ins-section__head">
           <h2>Rooms</h2>
           <span className="ins-section__count">{roomLocations.length}</span>
@@ -505,7 +516,7 @@ function CompletedView({ inspectionId, row, techKit, inspectionKitIds, outdoorCo
       </section>
 
       {/* ── Scope of works ── */}
-      <section className="ins-section ins-section--tight">
+      <section className="ins-section ins-section--tight ins-section--card">
         <div className="ins-section__head">
           <h2>Scope of works</h2>
           <Link
@@ -551,7 +562,7 @@ function CompletedView({ inspectionId, row, techKit, inspectionKitIds, outdoorCo
       </section>
 
       {/* ── Equipment used (footer chip strip) ── */}
-      <section className="ins-section ins-section--tight">
+      <section className="ins-section ins-section--tight ins-section--card">
         <div className="ins-section__head"><h2>Equipment used</h2></div>
         {inspectionKitIds.size === 0 ? (
           <p className="ins-empty ins-empty--compact">No kit recorded.</p>
@@ -614,9 +625,9 @@ function InProgressView({
       ) : null}
 
       {/* Outdoor control — inspection-level capture, surfaces above rooms */}
-      <section className="ins-section">
+      <section className="ins-section ins-section--card">
         <div className="ins-section__head">
-          <h2>2 · Outdoor control</h2>
+          <h2>1 · Outdoor control</h2>
           {outdoorControl ? <span className="ins-section__count">captured</span> : null}
         </div>
         {outdoorControl ? (
@@ -652,9 +663,9 @@ function InProgressView({
       </section>
 
       {/* Rooms */}
-      <section className="ins-section">
+      <section className="ins-section ins-section--card">
         <div className="ins-section__head">
-          <h2>3 · Rooms</h2>
+          <h2>2 · Rooms</h2>
           <span className="ins-section__count">{roomLocations.length}</span>
         </div>
 
@@ -695,23 +706,9 @@ function InProgressView({
         </button>
       </section>
 
-      {/* Today's kit (recap, adjustable mid-visit unless completed) */}
-      <section className="ins-section">
-        <div className="ins-section__head">
-          <h2>Kit recap</h2>
-          <span className="ins-section__count">{inspectionKitIds.size}</span>
-        </div>
-        <KitGrid
-          techKit={techKit}
-          inspectionKitIds={inspectionKitIds}
-          onToggle={isCompleted ? () => {} : onToggleKit}
-          compact
-        />
-      </section>
-
       {/* Wrap-up entry */}
       {hasRooms && !isCompleted ? (
-        <section className="ins-section">
+        <section className="ins-section ins-section--card">
           <Link
             href={`/admin/inspections/${inspectionId}/wrap-up`}
             className="ins-btn ins-btn--primary ins-btn--block"
@@ -721,6 +718,26 @@ function InProgressView({
           <p className="ins-hint">Set the scope of works and tap "Mark inspection completed" to stop the timer.</p>
         </section>
       ) : null}
+
+      {/* Kit — reference material mid-visit, not a step. Collapsed by default;
+          still fully toggleable when expanded (unless completed). */}
+      <details className="ins-kit-disclosure">
+        <summary>
+          Kit
+          <span className="ins-kit-disclosure__count">
+            {inspectionKitIds.size} item{inspectionKitIds.size === 1 ? "" : "s"}
+          </span>
+          <span className="ins-kit-disclosure__chev" aria-hidden>›</span>
+        </summary>
+        <div className="ins-kit-disclosure__body">
+          <KitGrid
+            techKit={techKit}
+            inspectionKitIds={inspectionKitIds}
+            onToggle={isCompleted ? () => {} : onToggleKit}
+            compact
+          />
+        </div>
+      </details>
     </>
   );
 }

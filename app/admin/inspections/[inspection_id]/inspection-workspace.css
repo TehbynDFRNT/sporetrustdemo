@@ -34,7 +34,7 @@
   gap: 6px;
   padding: 16px;
   border-radius: var(--ins-radius);
-  background: var(--paper, #fff);
+  background: var(--white, #fff);
   border: 1px solid var(--line, #E8E5E0);
 }
 
@@ -45,6 +45,7 @@
   gap: 8px;
   margin-bottom: 4px;
 }
+.ins-header__badges { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .ins-meta__time {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -70,32 +71,42 @@
   color: var(--ink-soft, #45484C);
 }
 
-.ins-meta {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px 16px;
-  margin: 10px 0 0;
+/* Header meta chips (replaces the old dl grid) */
+.ins-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 0;
 }
-@media (min-width: 560px) {
-  .ins-meta { grid-template-columns: repeat(4, 1fr); }
+.ins-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line, #E8E5E0);
+  background: var(--bone, #F1F0EE);
+  font-size: 12px;
+  line-height: 1.2;
 }
-.ins-meta > div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.ins-meta dt {
+.ins-chip__label {
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--ink-soft, #45484C);
+  flex: none;
 }
-.ins-meta dd {
-  margin: 0;
-  font-size: 13px;
+.ins-chip__value {
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.ins-meta__sub { font-size: 11px; font-weight: 400; color: var(--ink-soft, #45484C); }
+.ins-chip__sub { font-size: 11px; font-weight: 400; color: var(--ink-soft, #45484C); }
+.ins-chip--live { background: #fef3c7; border-color: #fde68a; color: #854d0e; }
+.ins-chip--live .ins-chip__label { color: #92600b; }
 
 .ins-badge {
   font-size: 11px;
@@ -168,16 +179,24 @@
 .ins-section__edit:hover { border-bottom-color: var(--ink, #0F1112); }
 .ins-section--tight { gap: 6px; }
 
+/* White-card treatment for landing-page sections — matches .crm-panel /
+ * kanban / Gantt so sections read as cards on the paper background, not
+ * flat. Landing-page only (applied via the modifier, never the base). */
+.ins-section--card {
+  gap: var(--ins-gap);
+  padding: 16px;
+  border-radius: var(--ins-radius);
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #E8E5E0);
+}
+.ins-section--card .ins-section__head { margin-bottom: 0; }
+
 /* ── Summary card (completed-state report header) ─────────────────────── */
 
 .ins-summary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px 14px;
-  padding: 14px 16px;
-  border-radius: var(--ins-radius);
-  background: var(--paper, #fff);
-  border: 1px solid var(--line, #E8E5E0);
 }
 @media (min-width: 560px) {
   .ins-summary { grid-template-columns: repeat(3, 1fr); }
@@ -452,6 +471,44 @@
   color: #166534;
   border: 1px solid #bbf7d0;
 }
+
+/* ── Kit disclosure (in-progress reference utility, not a step) ────────── */
+
+.ins-kit-disclosure {
+  border-radius: var(--ins-radius);
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #E8E5E0);
+}
+.ins-kit-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft, #45484C);
+}
+.ins-kit-disclosure > summary::-webkit-details-marker { display: none; }
+.ins-kit-disclosure__count {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-soft, #45484C);
+}
+.ins-kit-disclosure__chev {
+  margin-left: auto;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--ink-soft, #45484C);
+  transition: transform 120ms;
+}
+.ins-kit-disclosure[open] .ins-kit-disclosure__chev { transform: rotate(90deg); }
+.ins-kit-disclosure__body { padding: 0 16px 16px; }
 
 /* ── Today's kit grid ─────────────────────────────────────────────────── */
 

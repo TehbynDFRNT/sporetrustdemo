@@ -63,6 +63,27 @@ export default function WrapUpPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey }),
   });
 
+  // Add a room from wrap-up — mirrors the landing's createLocation. The
+  // chained "Finish visit →" flow lands techs here, so when the Rooms list
+  // reveals a missing room they can add one without going back.
+  const createLocation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/sample-locations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inspection_id: Number(inspectionId), name: "Untitled location" }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || `Create → ${res.status}`);
+      return json;
+    },
+    onSuccess: (json) => {
+      qc.invalidateQueries({ queryKey });
+      const newId = json?.row?.sample_location_id;
+      if (newId) router.push(`/admin/inspections/${inspectionId}/locations/${newId}?step=1`);
+    },
+  });
+
   const complete = useMutation({
     mutationFn: async () => {
       const res = await fetch(`/api/admin/inspections/${inspectionId}`, {
@@ -123,12 +144,11 @@ export default function WrapUpPage() {
         </div>
         <h1 className="ins-title">Finish visit</h1>
         <p className="ins-subtitle">
-          {locations.length} location{locations.length === 1 ? "" : "s"} captured ·
-          {" "}{inspection.customers?.name || "—"} · {inspection.properties?.address_line || "—"}
+          {inspection.customers?.name || "—"} · {inspection.properties?.address_line || "—"}
         </p>
       </header>
 
-      <section className="ins-section">
+      <section className="ins-section ins-section--card">
         <div className="ins-section__head">
           <h2>Scope of works</h2>
           <span className="ins-section__count">{scope.length}</span>
@@ -164,9 +184,16 @@ export default function WrapUpPage() {
         ) : null}
       </section>
 
-      <ReadinessSection locations={locations} />
+      <RoomsSection
+        locations={locations}
+        inspectionId={inspectionId}
+        onAddRoom={() => createLocation.mutate()}
+        addingRoom={createLocation.isPending}
+        addError={createLocation.error}
+        alreadyCompleted={alreadyCompleted}
+      />
 
-      <section className="ins-section">
+      <section className="ins-section ins-section--card">
         <div className="ins-section__head">
           <h2>Complete</h2>
         </div>
@@ -213,11 +240,10 @@ function ScrollToHash({ deps }) {
   return null;
 }
 
-// Non-blocking readiness roll-up. One row per room with the same four checks
-// as the landing chips. Rooms fully covered show ✓; missing bits are listed.
-// This NEVER blocks completion — it's a warning surface only.
-const READY_LABELS = { photo: "visible photo", thermal: "ΔT", tier: "tier", note: "note" };
-
+// Non-blocking readiness per room, merged with the room list so a tech can
+// jump back into any room's wizard and add missing rooms from here. The four
+// presence chips (📷 / ΔT / tier / note) mirror the landing cards; a dim chip
+// = still missing. This NEVER blocks completion — it's a warning surface only.
 function roomReadiness(loc) {
   const captures = Array.isArray(loc.image_captures) ? loc.image_captures : [];
   const findings = Array.isArray(loc.location_findings) ? loc.location_findings : [];
@@ -229,37 +255,60 @@ function roomReadiness(loc) {
   };
 }
 
-function ReadinessSection({ locations }) {
-  const rooms = (locations || []).filter((l) => !l.is_outdoor_control);
-  if (rooms.length === 0) return null;
+function RoomsSection({ locations, inspectionId, onAddRoom, addingRoom, addError, alreadyCompleted }) {
+  const rooms = (locations || [])
+    .filter((l) => !l.is_outdoor_control)
+    .slice()
+    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   return (
-    <section className="ins-section">
+    <section className="ins-section ins-section--card">
       <div className="ins-section__head">
-        <h2>Readiness</h2>
+        <h2>Rooms</h2>
+        <span className="ins-section__count">{rooms.length}</span>
       </div>
       <p className="wrap-hint">
-        A quick check per room — nothing here blocks completion, it just flags what a room
-        is still missing before the report gets written.
+        Each room's chips show what it's still missing before the report gets written — nothing
+        here blocks completion. Tap a room to jump back into its wizard.
       </p>
-      <ul className="wrap-ready-list">
-        {rooms.map((loc) => {
-          const r = roomReadiness(loc);
-          const missing = Object.keys(READY_LABELS).filter((k) => !r[k]);
-          const ready = missing.length === 0;
-          return (
-            <li key={loc.sample_location_id} className="wrap-ready-row">
-              <span className="wrap-ready-row__name">{loc.name || "Untitled location"}</span>
-              {ready ? (
-                <span className="wrap-ready-row__ok">✓ ready</span>
-              ) : (
-                <span className="wrap-ready-row__missing">
-                  missing: {missing.map((k) => READY_LABELS[k]).join(", ")}
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+
+      {rooms.length === 0 ? (
+        <p className="ins-empty">No rooms captured yet.</p>
+      ) : (
+        <ul className="ins-loc-list">
+          {rooms.map((loc) => {
+            const r = roomReadiness(loc);
+            return (
+              <li key={loc.sample_location_id}>
+                <Link
+                  href={`/admin/inspections/${inspectionId}/locations/${loc.sample_location_id}`}
+                  className="ins-loc-card"
+                >
+                  <div className="ins-loc-card__name">{loc.name || "Untitled location"}</div>
+                  <div className="ins-ready" aria-label="Readiness">
+                    <span className={`ins-ready__chip ${r.photo ? "is-on" : "is-off"}`} title="Visible photo">📷</span>
+                    <span className={`ins-ready__chip ${r.thermal ? "is-on" : "is-off"}`} title="Thermal ΔT">ΔT</span>
+                    <span className={`ins-ready__chip ${r.tier ? "is-on" : "is-off"}`} title="Mould pressure tier">tier</span>
+                    <span className={`ins-ready__chip ${r.note ? "is-on" : "is-off"}`} title="Finding note">note</span>
+                  </div>
+                  <span className="ins-loc-card__chev">›</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {!alreadyCompleted ? (
+        <button
+          type="button"
+          className="ins-btn ins-btn--primary ins-btn--block"
+          onClick={onAddRoom}
+          disabled={addingRoom}
+        >
+          {addingRoom ? "Creating…" : "+ Add room"}
+        </button>
+      ) : null}
+      {addError ? <p className="ins-error">{String(addError?.message || addError)}</p> : null}
     </section>
   );
 }
