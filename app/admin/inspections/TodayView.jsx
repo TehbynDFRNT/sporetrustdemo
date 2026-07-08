@@ -588,6 +588,10 @@ function GanttBlock({
       }}
       title={title}
       aria-label={draggable ? `${title} — drag to reschedule or reassign` : undefined}
+      // Anchors are natively draggable — the browser's link-drag ghost would
+      // swallow our pointer events, so it must be switched off explicitly.
+      draggable={false}
+      onDragStart={(e) => e.preventDefault()}
       onPointerDown={draggable ? (e) => onPointerDown(e, r) : undefined}
       onPointerMove={draggable ? onPointerMove : undefined}
       onPointerUp={draggable ? onPointerUp : undefined}
