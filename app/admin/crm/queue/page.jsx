@@ -3,7 +3,17 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import CallButton from "../../../../components/admin/CallButton";
 import "../crm.css";
+
+const DISPOSITIONS = [
+  ["answered", "Answered"],
+  ["voicemail", "Left voicemail"],
+  ["no_answer", "No answer"],
+  ["busy", "Busy"],
+  ["callback_requested", "Callback requested"],
+  ["wrong_number", "Wrong number"],
+];
 
 /* Action queue — every pending touchpoint across every card, bucketed by
    what it needs: approval (drafts), due now (approved, due or unscheduled),
@@ -80,9 +90,14 @@ function QueueBucket({ title, hint, rows, onChanged, tone }) {
 function QueueItem({ tp, onChanged }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [disposition, setDisposition] = useState("");
   const customer = tp.crm_cards?.customers ?? {};
   const sendable = ["sms", "email"].includes(tp.channel);
+  const isCall = tp.channel === "call";
   const isStageMove = tp.template_key?.startsWith("stage:");
+  const pending = ["draft", "approved"].includes(tp.status);
+  const phone = tp.to_address || customer.phone || null;
+  const target = tp.channel === "email" ? tp.to_address || customer.email : phone;
 
   async function patch(patchBody) {
     setBusy(true);
@@ -111,6 +126,15 @@ function QueueItem({ tp, onChanged }) {
       setBusy(false);
       onChanged();
     }
+  }
+
+  async function logCall() {
+    if (!disposition) {
+      setErr("Pick a call outcome first.");
+      return;
+    }
+    setErr("");
+    await patch({ status: "logged", disposition });
   }
 
   async function applyStageMove() {
@@ -144,20 +168,40 @@ function QueueItem({ tp, onChanged }) {
         <span className={`crm-badge crm-badge--${tp.status}`}>{tp.status}</span>
         {tp.origin === "ai" ? <span className="crm-badge crm-badge--draft">AI</span> : null}
         {tp.schedule_at ? <span>due {fmtWhen(tp.schedule_at)}</span> : null}
+        {target ? <span className="crm-note">→ {target}</span> : null}
       </div>
       {tp.subject ? <p className="crm-tl__body crm-tl__subject">{tp.subject}</p> : null}
       {tp.body ? <p className="crm-tl__body">{tp.body}</p> : null}
       {tp.ai_reasoning ? <p className="crm-tl__body crm-tl__body--muted">AI: {tp.ai_reasoning}</p> : null}
       {tp.error ? <p className="crm-error">{tp.error}</p> : null}
       <div className="crm-tl__actions">
-        {isStageMove && ["draft", "approved"].includes(tp.status) ? (
+        {isCall && pending ? (
+          <>
+            <CallButton phone={phone} />
+            <select
+              value={disposition}
+              disabled={busy}
+              onChange={(e) => setDisposition(e.target.value)}
+              aria-label="Call outcome"
+            >
+              <option value="">Outcome…</option>
+              {DISPOSITIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+            <button type="button" className="crm-btn" disabled={busy || !disposition} onClick={() => void logCall()}>
+              {busy ? "Logging…" : "Log outcome"}
+            </button>
+          </>
+        ) : null}
+        {isStageMove && pending ? (
           <button type="button" className="crm-btn" disabled={busy} onClick={() => void applyStageMove()}>
-            Apply move
+            {busy ? "Applying…" : "Apply move"}
           </button>
         ) : null}
-        {sendable && ["draft", "approved"].includes(tp.status) ? (
+        {sendable && pending ? (
           <button type="button" className="crm-btn" disabled={busy} onClick={() => void sendNow()}>
-            Send now
+            {busy ? "Sending…" : tp.channel === "sms" ? "Send SMS now" : "Send email now"}
           </button>
         ) : null}
         {tp.status === "draft" && sendable ? (
@@ -170,7 +214,7 @@ function QueueItem({ tp, onChanged }) {
             Retry
           </button>
         ) : null}
-        {["draft", "approved"].includes(tp.status) ? (
+        {pending ? (
           <button type="button" className="crm-btn crm-btn--danger" disabled={busy} onClick={() => patch({ status: "cancelled" })}>
             Dismiss
           </button>

@@ -2,6 +2,7 @@
 
 import { use, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import CallButton from "../../../../components/admin/CallButton";
 import { STAGES } from "../../../../lib/crm/stages";
 import "../crm.css";
 
@@ -120,15 +121,17 @@ function ContextPanel({ card, customer, properties, inspections, onChanged }) {
     }
   }
 
-  const telHref = customer?.phone ? `tel:${customer.phone.replace(/\s+/g, "")}` : null;
-
   return (
     <section className="crm-panel">
       <h2>Customer</h2>
       <p className="crm-identity__name">{customer?.name ?? "Unknown"}</p>
       <div className="crm-identity__row">
         <span className="crm-identity__label">Phone</span>
-        {telHref ? <a href={telHref}>{customer.phone}</a> : <span>—</span>}
+        {customer?.phone ? (
+          <CallButton phone={customer.phone} className="">{customer.phone}</CallButton>
+        ) : (
+          <span>—</span>
+        )}
       </div>
       <div className="crm-identity__row">
         <span className="crm-identity__label">Email</span>
@@ -279,8 +282,6 @@ function Composer({ cardId, customer, onSaved }) {
     }
   }
 
-  const telHref = customer?.phone ? `tel:${customer.phone.replace(/\s+/g, "")}` : null;
-
   return (
     <section className="crm-panel">
       <h2>Log / compose</h2>
@@ -302,8 +303,8 @@ function Composer({ cardId, customer, onSaved }) {
       {tab === "call" ? (
         <div className="crm-composer__form">
           <div className="crm-composer__row">
-            {telHref ? (
-              <a className="crm-btn crm-btn--call" href={telHref}>Call {customer?.phone}</a>
+            {customer?.phone ? (
+              <CallButton phone={customer.phone} />
             ) : (
               <p className="crm-note">No phone on file.</p>
             )}
