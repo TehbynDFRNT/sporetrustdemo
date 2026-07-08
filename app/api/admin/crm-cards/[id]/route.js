@@ -10,7 +10,7 @@ const config = {
   slug: "crm-cards",
   rowKey: "card_id",
   embeds: ["customers(name, email, phone)"],
-  patchAllow: ["stage", "snoozed_until", "auto_mode"],
+  patchAllow: ["stage", "snoozed_until", "auto_mode", "primary_property_id"],
 };
 
 export async function GET(_req, ctx) {

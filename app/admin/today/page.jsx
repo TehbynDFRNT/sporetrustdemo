@@ -67,10 +67,15 @@ export default function TodayRunSheetPage() {
   });
 
   const inProgress = (r) => Boolean(r.started_at && !r.completed_at);
-  const rows = [...today].sort((a, b) => {
-    if (inProgress(a) !== inProgress(b)) return inProgress(a) ? -1 : 1;
-    return new Date(a.scheduled_at) - new Date(b.scheduled_at);
-  });
+  const byTime = (a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at);
+
+  // Three status-driven columns off the same "today" set.
+  const inProgressRows = today.filter(inProgress).sort(byTime);
+  const upNextRows = today
+    .filter((r) => !r.started_at && !r.completed_at)
+    .sort(byTime);
+  // Done = completed_at set AND scheduled today (already bounded by `today`).
+  const doneRows = today.filter((r) => r.completed_at).sort(byTime);
 
   const dateLabel = new Date().toLocaleDateString("en-AU", {
     timeZone: "Australia/Brisbane",
@@ -106,55 +111,90 @@ export default function TodayRunSheetPage() {
       ) : null}
 
       {!inspectionsQuery.isLoading && !inspectionsQuery.isError ? (
-        <section className="ins-section ins-section--tight insp-bucket">
-          <div className="ins-section__head">
-            <div className="insp-bucket__head">
-              <h2 className="insp-bucket__title">Scheduled today</h2>
-            </div>
-            <span className="ins-section__count">{rows.length}</span>
-          </div>
-          {rows.length === 0 ? (
-            <p className="ins-empty ins-empty--compact">
-              Nothing on the run-sheet{tech !== "all" ? " for this technician" : ""} today.
-            </p>
-          ) : (
-            <ul className="ins-row-list">
-              {rows.map((r) => (
-                <li key={r.inspection_id}>
-                  <RunSheetRow r={r} active={inProgress(r)} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <div className="insp-board">
+          <RunSheetColumn
+            title="In progress"
+            hint="Timer running — resume where you left off."
+            rows={inProgressRows}
+            emptyHint={`Nothing in progress${tech !== "all" ? " for this technician" : ""}.`}
+            tone="active"
+            variant="active"
+          />
+          <RunSheetColumn
+            title="Up next"
+            hint="Scheduled today, not started yet."
+            rows={upNextRows}
+            emptyHint={`Nothing queued${tech !== "all" ? " for this technician" : ""} today.`}
+            variant="upnext"
+          />
+          <RunSheetColumn
+            title="Done today"
+            hint="Field work completed today."
+            rows={doneRows}
+            emptyHint="Nothing completed yet today."
+            variant="done"
+            muted
+          />
+        </div>
       ) : null}
     </>
   );
 }
 
-function RunSheetRow({ r, active }) {
+function RunSheetColumn({ title, hint, rows, emptyHint, tone, variant, muted }) {
   return (
-    <Link href={`/admin/inspections/${r.inspection_id}`} className="ins-row ins-row--stack">
-      <div className="ins-row__head">
-        <span className="ins-row__name">
+    <section className={`insp-col ${muted ? "insp-col--muted" : ""}`}>
+      <div className="insp-col__head">
+        <h2 className={tone ? `insp-col__title insp-col__title--${tone}` : "insp-col__title"}>
+          {title}
+        </h2>
+        <span className="insp-col__count">{rows.length}</span>
+      </div>
+      {hint ? <p className="insp-col__hint">{hint}</p> : null}
+      <ul className="insp-col__cards">
+        {rows.length === 0 ? (
+          <li className="ins-empty ins-empty--compact">{emptyHint}</li>
+        ) : (
+          rows.map((r) => (
+            <li key={r.inspection_id}>
+              <RunSheetCard r={r} variant={variant} />
+            </li>
+          ))
+        )}
+      </ul>
+    </section>
+  );
+}
+
+function RunSheetCard({ r, variant }) {
+  const active = variant === "active";
+  const done = variant === "done";
+  return (
+    <Link
+      href={`/admin/inspections/${r.inspection_id}`}
+      className={`insp-card ${active ? "insp-card--active" : ""}`}
+    >
+      <div className="insp-card__name">
+        <span>
           {fmtTime(r.scheduled_at)}
           {" · "}
           {r.customers?.name || "Unknown customer"}
-          <span className="ins-muted ins-summary__sub"> · {r.inspection_type}</span>
         </span>
-        <span className="ins-row__meta">
-          {active ? <span className="insp-elapsed">in progress</span> : null}
-          <span className={`ins-badge ins-badge--${r.status}`}>{r.status}</span>
-          <span className="ins-muted">{active ? "Resume →" : "Start →"}</span>
-        </span>
-        <span className="ins-row__chev">›</span>
+        {active ? <span className="insp-elapsed">in progress</span> : null}
       </div>
-      <p className="ins-row__detail">
+      <div className="insp-card__badges">
+        <span className="insp-type-badge">{r.inspection_type}</span>
+        <span className={`ins-badge ins-badge--${r.status}`}>{r.status}</span>
+      </div>
+      <p className="insp-card__meta">
         {r.properties?.address_line || "—"}
         {r.properties?.postcode ? ` · ${r.properties.postcode}` : ""}
         {" · "}
         <span className="ins-muted">{r.technician?.name || "unassigned"}</span>
       </p>
+      {!done ? (
+        <span className="insp-card__hint">{active ? "Resume →" : "Start →"}</span>
+      ) : null}
     </Link>
   );
 }

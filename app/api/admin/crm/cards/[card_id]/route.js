@@ -17,7 +17,8 @@ export async function GET(_req, ctx) {
     .from("crm_cards")
     .select(
       "card_id, customer_id, stage, stage_changed_at, snoozed_until, auto_mode, created_at, updated_at, " +
-        "customers(customer_id, name, email, phone, address_line, postcode, state, customer_type, notes)",
+        "customers(customer_id, name, email, phone, address_line, postcode, state, customer_type, notes), " +
+        "primary_property:properties!crm_cards_primary_property_id_fkey(property_id, address_line, postcode)",
     )
     .eq("card_id", card_id)
     .maybeSingle();
@@ -59,6 +60,7 @@ export async function GET(_req, ctx) {
       snoozed_until: card.snoozed_until,
       auto_mode: card.auto_mode,
       created_at: card.created_at,
+      primary_property: card.primary_property ?? null,
     },
     customer: card.customers ?? null,
     leads: leadsRes.data ?? [],

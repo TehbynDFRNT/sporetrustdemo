@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminListHandler } from "../../../../lib/admin/handler";
 import { touchpoints } from "../../../../lib/admin/types/touchpoints";
+import { createRuleAction } from "../../../../lib/crm/rules";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -85,5 +86,22 @@ export async function POST(request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // RULE: a call dispositioned callback_requested → queue the callback.
+  // Fire-and-forget; never block the composer's response.
+  if (data.disposition === "callback_requested") {
+    try {
+      await createRuleAction(supabase, {
+        cardId: data.card_id,
+        channel: "call",
+        ruleKey: "callback_requested",
+        body: "Callback requested — schedule the call",
+        scheduleAt: null,
+      });
+    } catch (ruleErr) {
+      console.error("[api/admin/touchpoints] callback rule failed:", ruleErr?.message || ruleErr);
+    }
+  }
+
   return NextResponse.json({ row: data }, { status: 201 });
 }

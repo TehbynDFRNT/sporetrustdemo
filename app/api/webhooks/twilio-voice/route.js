@@ -2,6 +2,7 @@ import { verifyTwilioSignature } from "../../../../lib/twilio";
 import { isVoiceConfigured, VOICE_IDENTITY } from "../../../../lib/twilioVoice";
 import { normalizeAuPhone } from "../../../../lib/phone";
 import { ensureCrmCard } from "../../../../lib/crm/cards";
+import { createRuleAction } from "../../../../lib/crm/rules";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -109,6 +110,14 @@ export async function POST(request) {
           status: "logged",
           to_address: from,
           body: `Inbound call from ${from}${process.env.CALL_FORWARD_TO ? " (forwarded)" : " (played callback message)"}`,
+        });
+        // RULE: inbound call logged → queue a call back.
+        await createRuleAction(supabase, {
+          cardId: card.card_id,
+          channel: "call",
+          ruleKey: "return_missed_call",
+          body: `Return missed call from ${from}`,
+          toAddress: from,
         });
       }
     }

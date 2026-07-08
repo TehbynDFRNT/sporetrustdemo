@@ -2,6 +2,66 @@
  * palette (ins-* primitives are imported alongside) and adds the kanban
  * lane/card system + the workspace composer. */
 
+/* ── View switcher (Board | Actions) ──────────────────────────────────── */
+
+.crm-viewswitch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: #f0f0ee;
+  border: 1px solid #e4e4e0;
+  border-radius: 9px;
+}
+.crm-viewswitch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 7px;
+  color: var(--ink-faint, #82858a);
+  cursor: pointer;
+}
+.crm-viewswitch__btn.is-active {
+  background: #fff;
+  border-color: #e4e4e0;
+  color: var(--ink, #0f1112);
+  box-shadow: 0 1px 3px rgba(15, 17, 18, 0.06);
+}
+.crm-viewswitch__badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #854d0e;
+}
+
+/* ── Editable queue draft ─────────────────────────────────────────────── */
+
+.crm-queue-edit { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 0; }
+.crm-queue-edit__subject,
+.crm-queue-edit__body {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  border: 1px solid #d7d7d2;
+  border-radius: 7px;
+  background: #fff;
+  resize: vertical;
+}
+.crm-queue-edit__body { line-height: 1.45; }
+.crm-queue-edit__subject { font-weight: 600; }
+.crm-queue-edit input:disabled,
+.crm-queue-edit textarea:disabled { opacity: 0.6; }
+
 /* ── Kanban board ─────────────────────────────────────────────────────── */
 
 .crm-board {

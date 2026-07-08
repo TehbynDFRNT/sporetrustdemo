@@ -146,9 +146,11 @@ function ContextPanel({ card, customer, properties, inspections, onChanged }) {
       </div>
       {properties.length > 0 ? (
         <div className="crm-identity__row">
-          <span className="crm-identity__label">Props</span>
+          <span className="crm-identity__label">Properties</span>
           <span>
-            {properties.map((p) => `${p.address_line} (${p.relationship})`).join(" · ")}
+            {properties
+              .map((p) => `${isPrimaryProperty(card, p) ? "★ " : ""}${p.address_line} (${p.relationship})`)
+              .join(" · ")}
           </span>
         </div>
       ) : null}
@@ -562,6 +564,17 @@ function TimelineItem({ tp, onChanged }) {
 }
 
 /* ── helpers ───────────────────────────────────────────────────────────── */
+
+// Match a linked property against the card's primary_property (added by the
+// backend). Prefer property_id; fall back to address_line if the id is absent.
+function isPrimaryProperty(card, p) {
+  const primary = card?.primary_property;
+  if (!primary) return false;
+  if (primary.property_id != null && p.property_id != null) {
+    return primary.property_id === p.property_id;
+  }
+  return Boolean(primary.address_line) && primary.address_line === p.address_line;
+}
 
 function daysIn(iso) {
   if (!iso) return "";

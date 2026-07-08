@@ -62,91 +62,97 @@ export default function InspectionsIndexPage() {
       {isLoading ? <p className="ins-empty">Loading…</p> : null}
       {isError ? <p className="ins-error">{String(error?.message || error)}</p> : null}
 
-      <Pipeline
-        title="Active"
-        subtitle="Timer is running — tap to jump back in."
-        rows={active}
-        emptyHint="Nothing active right now."
-        tone="active"
-      />
-      <Pipeline
-        title="Upcoming"
-        subtitle="Scheduled, not yet started."
-        rows={upcoming}
-        emptyHint="No upcoming inspections."
-      />
-      <Pipeline
-        title="Awaiting sign-off"
-        subtitle="Field work complete, draft report — needs a qualified-tech review."
-        rows={awaitingSignoff}
-        emptyHint="Sign-off queue is clear."
-        tone="signoff"
-      />
-      <Pipeline
-        title="Recent"
-        subtitle="Last 10 completed and signed."
-        rows={recent}
-        emptyHint="No completed inspections yet."
-        muted
-      />
-      {dropped.length > 0 ? (
-        <Pipeline
-          title="Cancelled / no-show"
-          rows={dropped}
-          emptyHint=""
+      <div className="insp-board">
+        <PipelineColumn
+          title="Active"
+          hint="Timer is running — tap to jump back in."
+          rows={active}
+          emptyHint="Nothing active right now."
+          tone="active"
+        />
+        <PipelineColumn
+          title="Upcoming"
+          hint="Scheduled, not yet started."
+          rows={upcoming}
+          emptyHint="No upcoming inspections."
+        />
+        <PipelineColumn
+          title="Awaiting sign-off"
+          hint="Field work complete, draft report — needs a qualified-tech review."
+          rows={awaitingSignoff}
+          emptyHint="Sign-off queue is clear."
+          tone="signoff"
+        />
+        <PipelineColumn
+          title="Recent"
+          hint="Last 10 completed and signed."
+          rows={recent}
+          emptyHint="No completed inspections yet."
           muted
         />
-      ) : null}
+        {dropped.length > 0 ? (
+          <PipelineColumn
+            title="Cancelled / no-show"
+            hint="Dropped visits, surfaced last."
+            rows={dropped}
+            emptyHint=""
+            muted
+          />
+        ) : null}
+      </div>
     </>
   );
 }
 
-function Pipeline({ title, subtitle, rows, emptyHint, tone, muted }) {
+function PipelineColumn({ title, hint, rows, emptyHint, tone, muted }) {
   return (
-    <section className={`ins-section ins-section--tight insp-bucket ${muted ? "insp-bucket--muted" : ""}`}>
-      <div className="ins-section__head">
-        <div className="insp-bucket__head">
-          <h2 className={tone ? `insp-bucket__title insp-bucket__title--${tone}` : "insp-bucket__title"}>
-            {title}
-          </h2>
-          {subtitle ? <p className="insp-bucket__subtitle">{subtitle}</p> : null}
-        </div>
-        <span className="ins-section__count">{rows.length}</span>
+    <section className={`insp-col ${muted ? "insp-col--muted" : ""}`}>
+      <div className="insp-col__head">
+        <h2 className={tone ? `insp-col__title insp-col__title--${tone}` : "insp-col__title"}>
+          {title}
+        </h2>
+        <span className="insp-col__count">{rows.length}</span>
       </div>
-      {rows.length === 0 ? (
-        emptyHint ? <p className="ins-empty ins-empty--compact">{emptyHint}</p> : null
-      ) : (
-        <ul className="ins-row-list">
-          {rows.map((r) => <li key={r.inspection_id}><InspectionRow r={r} /></li>)}
-        </ul>
-      )}
+      {hint ? <p className="insp-col__hint">{hint}</p> : null}
+      <ul className="insp-col__cards">
+        {rows.length === 0 ? (
+          emptyHint ? <li className="ins-empty ins-empty--compact">{emptyHint}</li> : null
+        ) : (
+          rows.map((r) => (
+            <li key={r.inspection_id}>
+              <InspectionCard r={r} tone={tone} />
+            </li>
+          ))
+        )}
+      </ul>
     </section>
   );
 }
 
-function InspectionRow({ r }) {
+function InspectionCard({ r, tone }) {
   const elapsed = r.started_at && !r.completed_at
     ? elapsedSeconds(r.started_at, null)
     : null;
+  const when = r.completed_at || r.scheduled_at;
   return (
-    <Link href={`/admin/inspections/${r.inspection_id}`} className="ins-row ins-row--stack">
-      <div className="ins-row__head">
-        <span className="ins-row__name">
-          {r.customers?.name || "Unknown customer"}
-          <span className="ins-muted ins-summary__sub"> · {r.inspection_type}</span>
-        </span>
-        <span className="ins-row__meta">
-          <span className={`ins-badge ins-badge--${r.status}`}>{r.status}</span>
-          {elapsed != null ? <span className="insp-elapsed">{formatDuration(elapsed)}</span> : null}
-          {r.report_status && r.report_status !== "draft"
-            ? <span className={`ins-badge ins-badge--report-${r.report_status}`}>{r.report_status}</span>
-            : null}
-        </span>
-        <span className="ins-row__chev">›</span>
+    <Link
+      href={`/admin/inspections/${r.inspection_id}`}
+      className={`insp-card ${tone ? `insp-card--${tone}` : ""}`}
+    >
+      <div className="insp-card__name">
+        <span>{r.customers?.name || "Unknown customer"}</span>
+        {elapsed != null ? <span className="insp-elapsed">{formatDuration(elapsed)}</span> : null}
       </div>
-      <p className="ins-row__detail">
-        {fmtWhen(r.scheduled_at)}
-        {" · "}
+      <div className="insp-card__badges">
+        <span className="insp-type-badge">{r.inspection_type}</span>
+        <span className={`ins-badge ins-badge--${r.status}`}>{r.status}</span>
+        {r.report_status && r.report_status !== "draft"
+          ? <span className={`ins-badge ins-badge--report-${r.report_status}`}>{r.report_status}</span>
+          : null}
+      </div>
+      <p className="insp-card__meta">
+        {fmtWhen(when)}
+        <br />
         {r.properties?.address_line || "—"}
         {r.properties?.postcode ? ` · ${r.properties.postcode}` : ""}
         {" · "}

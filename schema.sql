@@ -313,11 +313,16 @@ CREATE TABLE crm_cards (
   stage_changed_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   snoozed_until     TIMESTAMPTZ,                       -- "wait" actions park the card here
   auto_mode         BOOLEAN NOT NULL DEFAULT FALSE,    -- AI sms/email may send without approval
+  -- Denormalised "the" property for this card. Fill-if-empty from the lead
+  -- API, unconditionally set by the booking flow (booking wins).
+  primary_property_id BIGINT REFERENCES properties(property_id) ON DELETE SET NULL,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX crm_cards_stage   ON crm_cards (stage);
 CREATE INDEX crm_cards_snoozed ON crm_cards (snoozed_until) WHERE snoozed_until IS NOT NULL;
+CREATE INDEX crm_cards_primary_property
+  ON crm_cards (primary_property_id) WHERE primary_property_id IS NOT NULL;
 CREATE TRIGGER crm_cards_updated_at
   BEFORE UPDATE ON crm_cards
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();

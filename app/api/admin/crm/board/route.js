@@ -18,7 +18,8 @@ export async function GET() {
       .from("crm_cards")
       .select(
         "card_id, customer_id, stage, stage_changed_at, snoozed_until, auto_mode, created_at, " +
-          "customers(name, email, phone, address_line, postcode, customer_type)",
+          "customers(name, email, phone, address_line, postcode, customer_type), " +
+          "primary_property:properties!crm_cards_primary_property_id_fkey(property_id, address_line, postcode)",
       )
       .limit(500),
     supabase
@@ -73,6 +74,7 @@ export async function GET() {
       auto_mode: card.auto_mode,
       created_at: card.created_at,
       customer: card.customers ?? null,
+      primary_property: card.primary_property ?? null,
       lead_count: custLeads.length,
       latest_lead: custLeads[0]
         ? {

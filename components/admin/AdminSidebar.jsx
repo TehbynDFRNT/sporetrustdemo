@@ -18,8 +18,7 @@ const NAV = [
     label: "Workspace",
     defaultOpen: true,
     items: [
-      { href: "/admin/crm/queue",     label: "Action queue" },
-      { href: "/admin/crm",           label: "CRM board" },
+      { href: "/admin/crm",           label: "CRM" },
       { href: "/admin/inspections",   label: "Inspections" },
       { href: "/admin/today",         label: "Today's run-sheet" },
       { href: "/admin/queue/signoff", label: "Sign-off queue" },

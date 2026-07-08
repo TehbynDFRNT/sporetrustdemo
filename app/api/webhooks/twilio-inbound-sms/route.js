@@ -1,6 +1,7 @@
 import { verifyTwilioSignature } from "../../../../lib/twilio";
 import { normalizeAuPhone } from "../../../../lib/phone";
 import { ensureCrmCard } from "../../../../lib/crm/cards";
+import { createRuleAction } from "../../../../lib/crm/rules";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -72,6 +73,14 @@ export async function POST(request) {
           body: body.slice(0, 2000),
           provider: PROVIDER,
           provider_message_id: messageSid,
+        });
+        // RULE: inbound reply → queue an outbound SMS (operator writes body).
+        await createRuleAction(supabase, {
+          cardId: card.card_id,
+          channel: "sms",
+          ruleKey: "reply_inbound_sms",
+          body: "",
+          toAddress: from,
         });
         logged = true;
       }

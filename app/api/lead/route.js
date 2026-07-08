@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { ensureCrmCard, logSystemTouchpoint } from "../../../lib/crm/cards";
+import { createRuleAction } from "../../../lib/crm/rules";
 import { notifyOwnerNewLead } from "../../../lib/crm/notify";
 import { ensureProperty, linkCustomerProperty } from "../../../lib/properties";
+import { normalizeAuPhone } from "../../../lib/phone";
 import { createServerSupabaseClient } from "../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -124,7 +126,25 @@ export async function POST(request) {
             : "resident",
           source: "lead",
         });
+        // Fill the card's primary property if it doesn't have one yet.
+        // Bookings (the stronger signal) overwrite this later.
+        await supabase
+          .from("crm_cards")
+          .update({ primary_property_id: propertyId })
+          .eq("card_id", card_id)
+          .is("primary_property_id", null);
       }
+      // RULE: new lead → queue a call. Dedupes against any pending action.
+      const normalizedPhone = phone ? normalizeAuPhone(phone) : null;
+      await createRuleAction(supabase, {
+        cardId: card_id,
+        channel: "call",
+        ruleKey: "new_lead_call",
+        body: `Call new ${audience} lead — ${
+          clean(body.detail || body.message, 200) ?? "no message"
+        }`,
+        toAddress: normalizedPhone,
+      });
       await logSystemTouchpoint(
         supabase,
         card_id,

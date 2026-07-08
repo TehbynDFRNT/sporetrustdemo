@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { STAGES } from "../../../lib/crm/stages";
+import ActionsView, { QUEUE_QUERY_KEY } from "./ActionsView";
 import "./crm.css";
 
 // Kanban board — one lane per stage (lib/crm/stages.js), one card per
@@ -11,7 +13,88 @@ import "./crm.css";
 // card_id (readable only in drop), lanes preventDefault on dragover or the
 // drop never fires, and the touch fallback is the stage <select> on the
 // card workspace page.
-export default function CrmBoardPage() {
+// useSearchParams() requires a Suspense boundary to satisfy the App Router.
+export default function CrmPage() {
+  return (
+    <Suspense fallback={<p className="ins-empty">Loading…</p>}>
+      <CrmPageInner />
+    </Suspense>
+  );
+}
+
+function CrmPageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view") === "actions" ? "actions" : "board";
+
+  function setView(next) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "actions") params.set("view", "actions");
+    else params.delete("view");
+    const qs = params.toString();
+    router.replace(qs ? `/admin/crm?${qs}` : "/admin/crm");
+  }
+
+  // Queue data lives at page level so the Actions tab badge and the Actions
+  // view share one request (queryKey ["admin-crm-queue"]). The badge always
+  // shows a live pending count, so the fetch runs regardless of active view.
+  const queue = useQuery({
+    queryKey: QUEUE_QUERY_KEY,
+    queryFn: async () => {
+      const res = await fetch("/api/admin/crm/queue", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Queue → ${res.status}`);
+      return res.json();
+    },
+  });
+  const pendingActions = (queue.data?.pending ?? []).filter(
+    (t) => t.status === "draft" || t.status === "approved",
+  ).length;
+
+  return (
+    <>
+      <div className="admin-page-head">
+        <div>
+          <h1>CRM</h1>
+          <p>One card per customer. Board = sales stages; Actions = the follow-up queue.</p>
+        </div>
+        <div className="crm-viewswitch" role="tablist" aria-label="CRM view">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === "board"}
+            className={`crm-viewswitch__btn${view === "board" ? " is-active" : ""}`}
+            onClick={() => setView("board")}
+          >
+            Board
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === "actions"}
+            className={`crm-viewswitch__btn${view === "actions" ? " is-active" : ""}`}
+            onClick={() => setView("actions")}
+          >
+            Actions
+            {pendingActions > 0 ? <span className="crm-viewswitch__badge">{pendingActions}</span> : null}
+          </button>
+        </div>
+      </div>
+
+      {view === "actions" ? (
+        <ActionsView
+          data={queue.data}
+          isLoading={queue.isLoading}
+          isError={queue.isError}
+          error={queue.error}
+        />
+      ) : (
+        <BoardView />
+      )}
+    </>
+  );
+}
+
+function BoardView() {
   const queryClient = useQueryClient();
   const [dragOverLane, setDragOverLane] = useState(null);
   const [draggingId, setDraggingId] = useState(null);
@@ -70,13 +153,6 @@ export default function CrmBoardPage() {
 
   return (
     <>
-      <div className="admin-page-head">
-        <div>
-          <h1>CRM board</h1>
-          <p>One card per customer — drag between stages. Raw tables live in Data → CRM cards / Touchpoints.</p>
-        </div>
-      </div>
-
       {isLoading ? <p className="ins-empty">Loading…</p> : null}
       {isError ? <p className="crm-error">{String(error?.message || error)}</p> : null}
       {data?.error ? <p className="crm-error">{data.error}</p> : null}
@@ -131,7 +207,10 @@ export default function CrmBoardPage() {
 }
 
 function BoardCard({ card, isDragging, onDragStart, onDragEnd }) {
-  const suburb = suburbFrom(card.customer);
+  // Prefer the linked primary property address when the backend provides it;
+  // fall back to parsing the customer's raw address into a suburb.
+  const primaryAddr = card.primary_property?.address_line;
+  const suburb = primaryAddr ? truncate(primaryAddr, 40) : suburbFrom(card.customer);
   const snoozed = card.snoozed_until && new Date(card.snoozed_until) > new Date();
   return (
     <Link
@@ -162,6 +241,11 @@ function BoardCard({ card, isDragging, onDragStart, onDragEnd }) {
       </div>
     </Link>
   );
+}
+
+function truncate(str, max) {
+  if (!str) return str;
+  return str.length > max ? `${str.slice(0, max - 1)}…` : str;
 }
 
 function daysIn(iso) {
