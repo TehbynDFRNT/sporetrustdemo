@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Today's run-sheet — a dispatcher's swimlane Gantt of the day. One lane per
 // active technician (visible free capacity even with zero jobs), plus an
@@ -27,6 +28,11 @@ const DEFAULT_END_HOUR = 19;
 const SUBROW_H = 46;
 const BLOCK_H = 38;
 const TRACK_PAD = 6;
+
+// Drag mechanics.
+const DRAG_THRESHOLD_PX = 6; // movement below this is a click, not a drag
+const TOUCH_HOLD_MS = 300; // long-press before a touch drag engages
+const SNAP_MIN = 15; // reschedule snaps to this many minutes
 
 // [startMs, endMs) of "today" in Brisbane regardless of browser timezone.
 // Exported so the Inspections page can compute the "Today" tab badge from the
@@ -59,6 +65,20 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
     setTech(value);
     window.localStorage.setItem(TECH_STORAGE_KEY, value);
   }
+
+  // ── Drag-to-dispatch ─────────────────────────────────────────────────────
+  // Pointer-driven (not HTML5 dnd — the time axis needs pixel maths). One
+  // block drags at a time. The mutable, per-gesture bookkeeping lives in a ref
+  // (no re-render on pointerdown / threshold checks); `drag` state exists only
+  // once a drag has actually engaged, to render the ghost + chip + lane
+  // highlight. `clickSuppress` swallows the Link navigation that would fire
+  // after a drag's pointerup.
+  const queryClient = useQueryClient();
+  const dragRef = useRef(null);
+  const holdTimerRef = useRef(null);
+  const clickSuppressRef = useRef(false);
+  const [drag, setDrag] = useState(null);
+  const [dragError, setDragError] = useState(null);
 
   const activeTechnicians = (technicians ?? []).filter((t) => t.active !== false);
 
@@ -168,6 +188,220 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
   const minTrackW = span * 64; // ~64px per hour so hours stay readable on phones
   const gridMinWidth = laneHeaderW + minTrackW;
 
+  // ── Drag maths + handlers ────────────────────────────────────────────────
+  // A block is draggable only when its inspection is still a plan (scheduled).
+  // In-progress / completed jobs are facts and keep pure Link behaviour.
+  const isDraggable = (r) => r.status === "scheduled";
+
+  const laneName = (key) =>
+    key === "unassigned" ? "Unassigned" : techById.get(key)?.name || "Unknown tech";
+
+  // Minutes-from-Brisbane-midnight → "10:15 am".
+  const fmtMins = (mins) =>
+    new Date(startMs + mins * 60_000).toLocaleTimeString("en-AU", {
+      timeZone: "Australia/Brisbane",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+  // Snap to 15-min, then clamp so the block sits fully inside the visible span
+  // (start not before the left edge, end not past the right edge).
+  const snapClampMins = (mins, duration) => {
+    let m = Math.round(mins / SNAP_MIN) * SNAP_MIN;
+    const lo = minHour * 60;
+    const hi = maxHour * 60 - duration;
+    if (m < lo) m = lo;
+    if (m > hi) m = hi;
+    return m;
+  };
+
+  function endDrag() {
+    const d = dragRef.current;
+    if (d?.el) {
+      try {
+        d.el.releasePointerCapture(d.pointerId);
+      } catch {}
+    }
+    if (holdTimerRef.current) {
+      window.clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    dragRef.current = null;
+    document.body.style.userSelect = "";
+    setDrag(null);
+  }
+
+  function handlePointerDown(e, r) {
+    if (!isDraggable(r)) return; // let the Link navigate normally
+    if (e.button != null && e.button !== 0) return; // primary button / touch only
+    const blockEl = e.currentTarget;
+    const grid = blockEl.closest(".insp-gantt__grid");
+    const trackEl = blockEl.parentElement;
+    if (!grid || !trackEl) return;
+    // Measure once — refs don't move mid-drag. Track width maps px↔time; lane
+    // rects map pointer clientY↔target lane.
+    const trackWidth = trackEl.clientWidth;
+    const laneRects = Array.from(grid.querySelectorAll(".insp-gantt__track")).map(
+      (el) => {
+        const rc = el.getBoundingClientRect();
+        return { key: el.dataset.laneKey, top: rc.top, bottom: rc.bottom };
+      },
+    );
+    const isTouch = e.pointerType === "touch";
+    const originStartMins = minsFromMidnight(r.scheduled_at);
+    const originLaneKey = r.technician_id ? String(r.technician_id) : "unassigned";
+    dragRef.current = {
+      id: r.inspection_id,
+      el: blockEl,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      originStartMins,
+      originTechId: r.technician_id ?? null,
+      originLaneKey,
+      duration: r.duration_minutes || 90,
+      trackWidth,
+      laneRects,
+      isTouch,
+      holdOk: !isTouch, // desktop can drag immediately; touch waits for hold
+      moved: false,
+      newStartMins: originStartMins,
+      targetLaneKey: originLaneKey,
+    };
+    try {
+      blockEl.setPointerCapture(e.pointerId);
+    } catch {}
+    if (isTouch) {
+      holdTimerRef.current = window.setTimeout(() => {
+        if (dragRef.current) dragRef.current.holdOk = true;
+      }, TOUCH_HOLD_MS);
+    }
+  }
+
+  function handlePointerMove(e) {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.pointerId) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    const dist = Math.hypot(dx, dy);
+    if (!d.moved) {
+      if (d.isTouch && !d.holdOk) {
+        // Moving before the hold elapses = the user is scrolling the pane.
+        if (dist > DRAG_THRESHOLD_PX) endDrag();
+        return;
+      }
+      if (dist <= DRAG_THRESHOLD_PX) return;
+      d.moved = true;
+      document.body.style.userSelect = "none";
+    }
+    e.preventDefault();
+    // Time: pointer deltaX → fraction of the visible span → minutes.
+    const deltaHours = (dx / d.trackWidth) * span;
+    const newStartMins = snapClampMins(d.originStartMins + deltaHours * 60, d.duration);
+    d.newStartMins = newStartMins;
+    // Lane: which row's box contains clientY (nearest if past the ends).
+    let target = d.laneRects.find((l) => e.clientY >= l.top && e.clientY <= l.bottom);
+    if (!target && d.laneRects.length) {
+      target = d.laneRects.reduce((best, l) => {
+        const dc = Math.abs((l.top + l.bottom) / 2 - e.clientY);
+        return !best || dc < best.dc ? { l, dc } : best;
+      }, null)?.l;
+    }
+    d.targetLaneKey = target ? target.key : d.originLaneKey;
+    // Snap X to the resolved time so the ghost steps in 15-min increments;
+    // Y follows the finger freely.
+    const snappedDx =
+      ((newStartMins - d.originStartMins) / 60 / span) * d.trackWidth;
+    setDrag({
+      id: d.id,
+      dx: snappedDx,
+      dy,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      newStartMins,
+      duration: d.duration,
+      targetLaneKey: d.targetLaneKey,
+    });
+  }
+
+  function handlePointerUp(e) {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.pointerId) return;
+    if (d.moved) {
+      clickSuppressRef.current = true; // swallow the Link click that follows
+      commitDrop(d);
+    }
+    endDrag();
+  }
+
+  function handlePointerCancel(e) {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.pointerId) return;
+    endDrag();
+  }
+
+  function handleBlockClick(e) {
+    if (clickSuppressRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      clickSuppressRef.current = false;
+    }
+  }
+
+  function commitDrop(d) {
+    const changed = {};
+    if (d.newStartMins !== d.originStartMins) {
+      changed.scheduled_at = new Date(startMs + d.newStartMins * 60_000).toISOString();
+    }
+    const targetTechId = d.targetLaneKey === "unassigned" ? null : Number(d.targetLaneKey);
+    if (targetTechId !== d.originTechId) changed.technician_id = targetTechId;
+    if (Object.keys(changed).length === 0) return; // no net change
+    patchInspection(d.id, changed);
+  }
+
+  async function patchInspection(id, changed) {
+    const key = ["admin-table", "inspections"];
+    const prev = queryClient.getQueryData(key);
+    setDragError(null);
+    // Optimistic: rewrite the cached row so lanes re-pack immediately.
+    queryClient.setQueryData(key, (old) => {
+      if (!old?.rows) return old;
+      const techRow =
+        changed.technician_id != null
+          ? (technicians ?? []).find((t) => t.technician_id === changed.technician_id)
+          : null;
+      return {
+        ...old,
+        rows: old.rows.map((row) => {
+          if (row.inspection_id !== id) return row;
+          const next = { ...row, ...changed };
+          if ("technician_id" in changed) {
+            next.technician =
+              changed.technician_id == null
+                ? null
+                : { name: techRow?.name ?? row.technician?.name ?? "", role: techRow?.role };
+          }
+          return next;
+        }),
+      };
+    });
+    try {
+      const res = await fetch(`/api/admin/inspections/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(changed),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `PATCH → ${res.status}`);
+      }
+      queryClient.invalidateQueries({ queryKey: key });
+    } catch (err) {
+      queryClient.setQueryData(key, prev); // roll back
+      setDragError(`Couldn't move that job: ${err.message}. Reverted.`);
+    }
+  }
+
   return (
     <>
       <div className="insp-toolbar">
@@ -188,6 +422,12 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
         </label>
       </div>
 
+      {dragError ? (
+        <p className="insp-gantt__error" role="status">
+          {dragError}
+        </p>
+      ) : null}
+
       {isLoading ? <p className="ins-empty">Loading…</p> : null}
       {isError ? <p className="ins-error">{String(error?.message || error)}</p> : null}
 
@@ -200,7 +440,7 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
           <div className="insp-gantt">
             <div className="insp-gantt__scroll">
               <div
-                className="insp-gantt__grid"
+                className={`insp-gantt__grid${drag ? " is-dragging" : ""}`}
                 style={{
                   minWidth: gridMinWidth,
                   gridTemplateColumns: `${laneHeaderW}px minmax(0, 1fr)`,
@@ -231,7 +471,13 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
                           {lane.jobs.length} {lane.jobs.length === 1 ? "job" : "jobs"}
                         </span>
                       </div>
-                      <div className="insp-gantt__track" style={{ height: trackH }}>
+                      <div
+                        className={`insp-gantt__track${
+                          drag && drag.targetLaneKey === lane.key ? " is-drop-target" : ""
+                        }`}
+                        data-lane-key={lane.key}
+                        style={{ height: trackH }}
+                      >
                         {ticks.map((t) => (
                           <span
                             key={t.h}
@@ -246,6 +492,13 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
                             left={pctLeft(minsFromMidnight(r.scheduled_at) / 60)}
                             width={pctWidth((r.duration_minutes || 90) / 60)}
                             top={subRow * SUBROW_H + TRACK_PAD / 2}
+                            draggable={isDraggable(r)}
+                            dragState={drag && drag.id === r.inspection_id ? drag : null}
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerCancel}
+                            onBlockClick={handleBlockClick}
                           />
                         ))}
                       </div>
@@ -275,11 +528,36 @@ export default function TodayView({ rows, technicians, isLoading, isError, error
           </div>
         )
       ) : null}
+
+      {/* Floating window chip — follows the pointer during a drag. */}
+      {drag ? (
+        <div
+          className="insp-gantt__chip"
+          style={{ left: drag.clientX + 16, top: drag.clientY - 14 }}
+        >
+          <span className="insp-gantt__chiptime">
+            {fmtMins(drag.newStartMins)} – {fmtMins(drag.newStartMins + drag.duration)}
+          </span>
+          <span className="insp-gantt__chiplane">{laneName(drag.targetLaneKey)}</span>
+        </div>
+      ) : null}
     </>
   );
 }
 
-function GanttBlock({ r, left, width, top }) {
+function GanttBlock({
+  r,
+  left,
+  width,
+  top,
+  draggable = false,
+  dragState = null,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  onBlockClick,
+}) {
   const done = Boolean(r.completed_at);
   const active = Boolean(r.started_at && !r.completed_at);
   const tone = done ? "done" : active ? "active" : "scheduled";
@@ -290,12 +568,31 @@ function GanttBlock({ r, left, width, top }) {
   const time = fmtTime(r.scheduled_at);
   const title = `${customer} · ${address} · ${techName} · ${time}`;
 
+  const dragging = Boolean(dragState);
+  const cls =
+    `insp-gantt__block insp-gantt__block--${tone}` +
+    (draggable ? " insp-gantt__block--draggable" : "") +
+    (dragging ? " insp-gantt__block--dragging" : "");
+
   return (
     <Link
       href={`/admin/inspections/${r.inspection_id}`}
-      className={`insp-gantt__block insp-gantt__block--${tone}`}
-      style={{ left: `${left}%`, width: `${width}%`, top, height: BLOCK_H }}
+      className={cls}
+      data-inspection-id={r.inspection_id}
+      style={{
+        left: `${left}%`,
+        width: `${width}%`,
+        top,
+        height: BLOCK_H,
+        transform: dragging ? `translate(${dragState.dx}px, ${dragState.dy}px)` : undefined,
+      }}
       title={title}
+      aria-label={draggable ? `${title} — drag to reschedule or reassign` : undefined}
+      onPointerDown={draggable ? (e) => onPointerDown(e, r) : undefined}
+      onPointerMove={draggable ? onPointerMove : undefined}
+      onPointerUp={draggable ? onPointerUp : undefined}
+      onPointerCancel={draggable ? onPointerCancel : undefined}
+      onClick={draggable ? onBlockClick : undefined}
     >
       <span className="insp-gantt__blocktime">{time}</span>
       <span className="insp-gantt__blockname">{customer}</span>

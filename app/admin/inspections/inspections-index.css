@@ -346,6 +346,64 @@
   box-shadow: 0 1px 4px rgba(15, 17, 18, 0.1);
   z-index: 4;
 }
+
+/* ── Drag-to-dispatch ────────────────────────────────────────────────────
+ * Scheduled blocks are draggable on both axes (X = reschedule, Y = reassign).
+ * touch-action pan-x pan-y keeps normal pane scrolling until a 300ms hold
+ * engages a touch drag. */
+.insp-gantt__block--draggable {
+  cursor: grab;
+  touch-action: pan-x pan-y;
+}
+.insp-gantt__block--dragging {
+  cursor: grabbing;
+  z-index: 20;
+  box-shadow: 0 8px 24px rgba(15, 17, 18, 0.24);
+  opacity: 0.96;
+}
+/* While a drag is live, let the ghost escape lane/pane clipping so it can
+ * cross onto another lane. Transient — only during the gesture. */
+.insp-gantt__grid.is-dragging .insp-gantt__track { overflow: visible; }
+.insp-gantt__scroll:has(.insp-gantt__grid.is-dragging) { overflow: visible; }
+/* Target lane highlight */
+.insp-gantt__track.is-drop-target { background: #eef4fb; box-shadow: inset 0 0 0 1px #c8d8ee; }
+
+/* Floating window chip that follows the pointer */
+.insp-gantt__chip {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--ink, #0f1112);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(15, 17, 18, 0.3);
+}
+.insp-gantt__chiptime {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.insp-gantt__chiplane {
+  font-size: 10.5px;
+  color: #c9ccd1;
+  white-space: nowrap;
+}
+
+/* Drag failure note near the toolbar */
+.insp-gantt__error {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fbeaea;
+  border: 1px solid #f0c8c8;
+  color: #a13030;
+  font-size: 12.5px;
+}
 .insp-gantt__block--scheduled { background: #e9f0fa; border-color: #c8d8ee; border-left-color: #2b4a78; color: #2b4a78; }
 .insp-gantt__block--active    { background: #fef3c7; border-color: #f0dfa0; border-left-color: #d9a441; color: #854d0e; }
 .insp-gantt__block--done      { background: #dcfce7; border-color: #bbe6c8; border-left-color: #166534; color: #166534; opacity: 0.85; }
