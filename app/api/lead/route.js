@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { ensureCrmCard, logSystemTouchpoint } from "../../../lib/crm/cards";
+import { ensureProperty, linkCustomerProperty } from "../../../lib/properties";
 import { createServerSupabaseClient } from "../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -107,6 +109,29 @@ export async function POST(request) {
       .select("lead_id")
       .single();
     if (leadErr) throw new Error(`Insert lead: ${leadErr.message}`);
+
+    // --- CRM plumbing: card + property + timeline event. Own try/catch —
+    //     lead capture must never fail because CRM bookkeeping did. ---
+    try {
+      const { card_id } = await ensureCrmCard(supabase, customerId);
+      if (hasAddress && addressFields.postcode) {
+        const propertyId = await ensureProperty(supabase, addressFields);
+        await linkCustomerProperty(supabase, customerId, propertyId, {
+          relationship:
+            audience === "property_manager" ? "manager"
+            : audience === "homeowner" ? "owner"
+            : "resident",
+          source: "lead",
+        });
+      }
+      await logSystemTouchpoint(
+        supabase,
+        card_id,
+        `New ${audience} lead via ${clean(body.form, 50) ?? "form"} — ${clean(body.landing_page || body.page) ?? "unknown page"}`,
+      );
+    } catch (crmErr) {
+      console.error("[api/lead] CRM plumbing failed:", crmErr?.message || crmErr);
+    }
 
     return NextResponse.json({ ok: true, lead_id: lead.lead_id, customer_id: customerId });
   } catch (error) {
