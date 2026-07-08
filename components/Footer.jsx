@@ -41,7 +41,7 @@ const CONTACT = [
 ];
 
 export default function Footer({
-  meta = "© 2026 Sporetrust Diagnostics · Brisbane & SEQ · ABN 00 000 000 000",
+  meta = "© 2026 Sporetrust Diagnostics · Brisbane & SEQ",
 }) {
   return (
     <footer>
