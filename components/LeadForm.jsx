@@ -9,19 +9,41 @@ import ArrowIcon from "./icons/ArrowIcon";
 /* Full lead-capture section — the catch-all conversion at the bottom of the
    paid-media form arm (the hero carries a compact twin for above-the-fold).
    Low commitment: no payment, no calendar — a contactable lead for same-day
-   phone follow-up. Submission plumbing lives in lib/leadSubmit.js. */
+   phone follow-up. Submission plumbing lives in lib/leadSubmit.js. Copy is
+   selected by `variant`: "tenant" (default) or "homeowner". */
 
-const STEPS = [
-  ["We call you today", "We confirm the details and fixed price, around your schedule."],
-  ["We inspect — 45 minutes", "Thermal, moisture and air sampling, fully documented on-site."],
-  ["Report in 48 hours", "Landlord, agent and QCAT-ready evidence in plain English."],
-];
+const VARIANTS = {
+  tenant: {
+    steps: [
+      ["We call you today", "We confirm the details and fixed price, around your schedule."],
+      ["We inspect — 45 minutes", "Thermal, moisture and air sampling, fully documented on-site."],
+      ["Report in 48 hours", "Landlord, agent and QCAT-ready evidence in plain English."],
+    ],
+    addressPlaceholder: "Start typing the rental's address…",
+    detailPlaceholder: "Visible mould, a smell, a leak, a landlord who's stopped responding…",
+    formNote:
+      "Fixed price confirmed on the call. If the building's at fault, the cost can be claimed back from your landlord.",
+    defaultAudience: "tenant",
+  },
+  homeowner: {
+    steps: [
+      ["We call you today", "We confirm the details and fixed price, around your schedule."],
+      ["We inspect — 45 minutes", "Thermal, moisture and air sampling, fully documented on-site."],
+      ["Report in 48 hours", "Cause, extent and fix scope — insurer- and trade-ready."],
+    ],
+    addressPlaceholder: "Start typing your address…",
+    detailPlaceholder: "Visible mould, a musty smell, a leak, a repair you're not sure held up…",
+    formNote: "Fixed price confirmed on the call. No callout fee, no treatment upsell.",
+    defaultAudience: "homeowner",
+  },
+};
 
 // Visual order of the enquire form's fields — first invalid one gets focus.
 const FIELD_IDS = { firstName: "lf-firstName", phone: "lf-phone", email: "lf-email", address: "lf-address" };
 const FIELD_ORDER = ["firstName", "phone", "email", "address"];
 
-export default function LeadForm() {
+export default function LeadForm({ variant = "tenant" }) {
+  const content = VARIANTS[variant] ?? VARIANTS.tenant;
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -68,7 +90,7 @@ export default function LeadForm() {
     setSubmitting(true);
     const result = await submitLead(
       {
-        audience: String(data.get("audience") || "tenant"),
+        audience: String(data.get("audience") || content.defaultAudience),
         ...values,
         detail: String(data.get("detail") || "").trim(),
         ...(addressRef.current || {}),
@@ -102,7 +124,7 @@ export default function LeadForm() {
             inspector calls back the same business day with a fixed price and your earliest visit.
           </p>
           <ol className="lead-form__steps">
-            {STEPS.map(([title, copy], i) => (
+            {content.steps.map(([title, copy], i) => (
               <li className="lead-form__step" key={title}>
                 <span className="lead-form__step-num">{i + 1}</span>
                 <div>
@@ -134,11 +156,21 @@ export default function LeadForm() {
                 <span className="lead-form__label" id="lf-audience-label">I am a:</span>
                 <div className="lead-form__split" role="radiogroup" aria-labelledby="lf-audience-label">
                   <label className="lead-form__split-opt">
-                    <input type="radio" name="audience" value="tenant" defaultChecked />
+                    <input
+                      type="radio"
+                      name="audience"
+                      value="tenant"
+                      defaultChecked={content.defaultAudience === "tenant"}
+                    />
                     <span>Tenant</span>
                   </label>
                   <label className="lead-form__split-opt">
-                    <input type="radio" name="audience" value="homeowner" />
+                    <input
+                      type="radio"
+                      name="audience"
+                      value="homeowner"
+                      defaultChecked={content.defaultAudience === "homeowner"}
+                    />
                     <span>Homeowner</span>
                   </label>
                 </div>
@@ -195,7 +227,7 @@ export default function LeadForm() {
                 <AddressAutocomplete
                   id="lf-address"
                   name="address"
-                  placeholder="Start typing the rental's address…"
+                  placeholder={content.addressPlaceholder}
                   required
                   aria-invalid={errors.address ? true : undefined}
                   aria-describedby={errors.address ? "lf-address-error" : undefined}
@@ -216,7 +248,7 @@ export default function LeadForm() {
                   id="lf-detail"
                   name="detail"
                   rows={3}
-                  placeholder="Visible mould, a smell, a leak, a landlord who's stopped responding…"
+                  placeholder={content.detailPlaceholder}
                 />
               </div>
               <button type="submit" className="lead-form__submit" disabled={submitting}>
@@ -226,10 +258,7 @@ export default function LeadForm() {
               {submitError ? (
                 <p className="lead-form__error" role="alert">{submitError}</p>
               ) : null}
-              <p className="lead-form__note">
-                Fixed price confirmed on the call. If the building&rsquo;s at fault, the cost can
-                be claimed back from your landlord.
-              </p>
+              <p className="lead-form__note">{content.formNote}</p>
               <p className="lead-form__note">
                 We&rsquo;ll never share your details. Same-business-day reply.
               </p>

@@ -13,6 +13,7 @@ import * as pixel from "../lib/meta-pixel";
 // Pages that fire ViewContent (intent step up from a raw PageView) → label.
 const VIEW_CONTENT_PAGES = {
   "/renting-mould-assessment": "Renting mould assessment",
+  "/homeowner-mould-inspection": "Homeowner mould inspection",
   "/sporetrust-sentinel": "Sporetrust Sentinel (subscription)",
   "/suspected-mould": "Suspected mould",
   "/visible-mould": "Visible mould",

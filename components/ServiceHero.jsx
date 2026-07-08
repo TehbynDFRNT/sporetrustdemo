@@ -10,14 +10,43 @@ import ArrowIcon from "./icons/ArrowIcon";
    column carries the lead-capture card (form above the fold) rather than a
    photo: this page's only job is the form, so the form gets the hero slot.
    Deliberately NOT the ecom product-card treatment (no price block) to avoid
-   price-scare on cold lead-gen traffic. Content is the tenant template
-   (evidence angle) — hardcoded, no props; the homeowner page gets its own. */
+   price-scare on cold lead-gen traffic. Copy is selected by `variant`:
+   "tenant" (evidence/leverage engine, the default) or "homeowner"
+   (stewardship/escalation engine — no landlord adversary). */
 
-const POINTS = [
-  "Proof it's the building, not you",
-  "Independent of your landlord and agent",
-  "A report your agent or QCAT will act on",
-];
+const VARIANTS = {
+  tenant: {
+    eyebrow: "[ for renters · mould & damp evidence ]",
+    title:
+      "Mould complaints ignored? Get lab-backed proof for your landlord or agent in 48 hours.",
+    lede:
+      "An independent inspection that proves what caused your mould — in a plain-English report your landlord, agent or QCAT will act on. In your hands within 48 hours.",
+    points: [
+      "Proof it's the building, not you",
+      "Independent of your landlord and agent",
+      "A report your agent or QCAT will act on",
+    ],
+    addressPlaceholder: "Start typing the rental's address…",
+    formNote:
+      "Fixed price confirmed on the call. If the building's at fault, the cost can be claimed back from your landlord.",
+    defaultAudience: "tenant",
+  },
+  homeowner: {
+    eyebrow: "[ for homeowners · mould & moisture diagnostics ]",
+    title:
+      "Mould keeps coming back? Find the moisture feeding it — before it gets expensive.",
+    lede:
+      "An independent inspection that finds the source, maps the extent and scopes the fix — in a plain-English, lab-backed report within 48 hours.",
+    points: [
+      "Find the source, not just the surface",
+      "Independent — we never sell the cleanup",
+      "A measured scope before any trade quotes",
+    ],
+    addressPlaceholder: "Start typing your address…",
+    formNote: "Fixed price confirmed on the call. No callout fee, no treatment upsell.",
+    defaultAudience: "homeowner",
+  },
+};
 
 function CheckGlyph() {
   return (
@@ -37,7 +66,8 @@ function CheckGlyph() {
 const FIELD_IDS = { firstName: "shf-firstName", phone: "shf-phone", address: "shf-address", email: "shf-email" };
 const FIELD_ORDER = ["firstName", "phone", "address", "email"];
 
-export default function ServiceHero() {
+export default function ServiceHero({ variant = "tenant" }) {
+  const content = VARIANTS[variant] ?? VARIANTS.tenant;
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -84,7 +114,7 @@ export default function ServiceHero() {
     setSubmitting(true);
     const result = await submitLead(
       {
-        audience: String(data.get("audience") || "tenant"),
+        audience: String(data.get("audience") || content.defaultAudience),
         ...values,
         ...(addressRef.current || {}),
       },
@@ -120,18 +150,15 @@ export default function ServiceHero() {
       <div className="wrap service-hero__wrap">
         <div className="service-hero__content">
           {/* OFFER */}
-          <span className="service-hero__eyebrow">[ for renters · mould &amp; damp evidence ]</span>
+          <span className="service-hero__eyebrow">{content.eyebrow}</span>
           <h1 className="service-hero__title" id="service-hero-title">
-            Mould complaints ignored? Get lab-backed proof for your landlord or agent in 48 hours.
+            {content.title}
           </h1>
-          <p className="service-hero__lede">
-            An independent inspection that proves what caused your mould — in a plain-English
-            report your landlord, agent or QCAT will act on. In your hands within 48 hours.
-          </p>
+          <p className="service-hero__lede">{content.lede}</p>
 
           {/* PERSUASION */}
           <ul className="service-hero__points" role="list">
-            {POINTS.map((item) => (
+            {content.points.map((item) => (
               <li className="service-hero__point" key={item}>
                 <CheckGlyph />
                 <span>{item}</span>
@@ -171,11 +198,21 @@ export default function ServiceHero() {
                   <span className="lead-form__label" id="shf-audience-label">I am a:</span>
                   <div className="lead-form__split" role="radiogroup" aria-labelledby="shf-audience-label">
                     <label className="lead-form__split-opt">
-                      <input type="radio" name="audience" value="tenant" defaultChecked />
+                      <input
+                        type="radio"
+                        name="audience"
+                        value="tenant"
+                        defaultChecked={content.defaultAudience === "tenant"}
+                      />
                       <span>Tenant</span>
                     </label>
                     <label className="lead-form__split-opt">
-                      <input type="radio" name="audience" value="homeowner" />
+                      <input
+                        type="radio"
+                        name="audience"
+                        value="homeowner"
+                        defaultChecked={content.defaultAudience === "homeowner"}
+                      />
                       <span>Homeowner</span>
                     </label>
                   </div>
@@ -216,7 +253,7 @@ export default function ServiceHero() {
                   <AddressAutocomplete
                     id="shf-address"
                     name="address"
-                    placeholder="Start typing the rental's address…"
+                    placeholder={content.addressPlaceholder}
                     required
                     aria-invalid={errors.address ? true : undefined}
                     aria-describedby={errors.address ? "shf-address-error" : undefined}
@@ -251,10 +288,7 @@ export default function ServiceHero() {
                 {submitError ? (
                   <p className="lead-form__error" role="alert">{submitError}</p>
                 ) : null}
-                <p className="lead-form__note">
-                  Fixed price confirmed on the call. If the building&rsquo;s at fault, the cost can
-                  be claimed back from your landlord.
-                </p>
+                <p className="lead-form__note">{content.formNote}</p>
                 <p className="lead-form__note">We&rsquo;ll never share your details.</p>
               </form>
             </>
