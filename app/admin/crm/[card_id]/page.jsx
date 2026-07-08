@@ -473,9 +473,31 @@ function TimelineItem({ tp, onChanged }) {
     }
   }
 
+  // One-click retry: reclaim the failed row as a draft, then fire it. The send
+  // endpoint claims status IN ('draft','approved'), so PATCH→send is valid.
+  async function retrySend() {
+    setBusy(true);
+    setErr("");
+    try {
+      await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "draft" }),
+      });
+      const res = await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}/send`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || `Send → ${res.status}`);
+    } catch (e) {
+      setErr(String(e?.message || e));
+    } finally {
+      setBusy(false);
+      onChanged();
+    }
+  }
+
   // Stage moves must APPLY (patch the card's stage), not just flip to
-  // "approved" — nothing downstream ever processes an approved system
-  // touchpoint, so a bare approve strands it. Mirrors the queue page.
+  // "logged" — nothing downstream ever processes a stranded system
+  // touchpoint. Mirrors the queue page.
   async function applyStageMove() {
     const stage = tp.template_key.slice("stage:".length);
     setBusy(true);
@@ -541,14 +563,9 @@ function TimelineItem({ tp, onChanged }) {
               Mark done
             </button>
           ) : null}
-          {tp.status === "draft" && sendable ? (
-            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
-              Approve (scheduled)
-            </button>
-          ) : null}
           {tp.status === "failed" ? (
-            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
-              Retry
+            <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => void retrySend()}>
+              {busy ? "Retrying…" : "Retry send"}
             </button>
           ) : null}
           {pending ? (

@@ -17,10 +17,14 @@ const DISPOSITIONS = [
 export const QUEUE_QUERY_KEY = ["admin-crm-queue"];
 
 /* Action queue view — every pending touchpoint across every card, bucketed by
-   what it needs: approval (drafts), due now (approved, due or unscheduled),
-   scheduled (approved, future), recent failures. Inline approve/send/dismiss
-   so a whole morning's follow-ups can be worked from one screen. Rendered
-   inside the CRM page's "Actions" tab; the /queue route redirects here.
+   whether it's live now or queued for later. There is NO approval step: an
+   action is worked (call + log outcome, or send now) or dismissed. Buckets:
+   "To action" (all pending — draft or approved — that's due or unscheduled),
+   "Scheduled" (pending with a future send window), and recent failures.
+   The 'approved' status still exists internally (cron auto-mode inserts and
+   dispatches approved rows) but no human-facing button sets it. Inline
+   call/send/dismiss so a whole morning's follow-ups can be worked from one
+   screen. Rendered inside the CRM page's "Actions" tab; /queue redirects here.
 
    Data is fetched once at page level (queryKey ["admin-crm-queue"]) and passed
    down so the tab badge and the view share a single request. */
@@ -33,11 +37,15 @@ export default function ActionsView({ data, isLoading, isError, error }) {
   const failed = data?.failed ?? [];
   const now = new Date().toISOString();
 
-  const needsApproval = pending.filter((t) => t.status === "draft");
-  const dueNow = pending.filter(
-    (t) => t.status === "approved" && (!t.schedule_at || t.schedule_at <= now),
-  );
-  const scheduled = pending.filter((t) => t.status === "approved" && t.schedule_at > now);
+  // Live now: any pending item (draft or approved) with no future window.
+  // Oldest-first so the longest-waiting follow-ups surface at the top.
+  const toAction = pending
+    .filter((t) => !t.schedule_at || t.schedule_at <= now)
+    .sort((a, b) => (a.created_at ?? "").localeCompare(b.created_at ?? ""));
+  // Queued: pending items with a future window, soonest-first.
+  const scheduled = pending
+    .filter((t) => t.schedule_at && t.schedule_at > now)
+    .sort((a, b) => (a.schedule_at ?? "").localeCompare(b.schedule_at ?? ""));
 
   return (
     <>
@@ -45,9 +53,8 @@ export default function ActionsView({ data, isLoading, isError, error }) {
       {isError ? <p className="crm-error">{String(error?.message || error)}</p> : null}
       {data?.error ? <p className="crm-error">{data.error}</p> : null}
 
-      <QueueBucket title="Needs approval" hint="Drafts waiting on a human decision." rows={needsApproval} onChanged={refresh} tone="draft" />
-      <QueueBucket title="Due now" hint="Approved and ready to fire." rows={dueNow} onChanged={refresh} tone="due" />
-      <QueueBucket title="Scheduled" hint="Approved, waiting for their send window." rows={scheduled} onChanged={refresh} />
+      <QueueBucket title="To action" hint="Call, send, or dismiss — actions are live, no approval step." rows={toAction} onChanged={refresh} tone="due" />
+      <QueueBucket title="Scheduled" hint="Queued for later — sends fire in their window (auto-mode) or when you hit send." rows={scheduled} onChanged={refresh} />
       <QueueBucket title="Recent failures" hint="Failed sends from the last 7 days — retry or dismiss." rows={failed} onChanged={refresh} tone="failed" />
     </>
   );
@@ -88,9 +95,10 @@ function QueueItem({ tp, onChanged }) {
   const pending = ["draft", "approved"].includes(tp.status);
   const phone = tp.to_address || customer.phone || null;
   const target = tp.channel === "email" ? tp.to_address || customer.email : phone;
-  // Drafts on sms/email are editable inline so rule-generated empty drafts
-  // can be filled in and fired without opening the card workspace.
-  const editable = sendable && tp.status === "draft";
+  // Pending sms/email (draft or approved) is editable inline so rule- or
+  // auto-mode-generated drafts can be filled in and fired without opening the
+  // card workspace. Approved rows stay editable up until they actually send.
+  const editable = sendable && pending;
 
   async function patch(patchBody) {
     setBusy(true);
@@ -142,6 +150,28 @@ function QueueItem({ tp, onChanged }) {
     setBusy(true);
     setErr("");
     try {
+      const res = await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}/send`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || `Send → ${res.status}`);
+    } catch (e) {
+      setErr(String(e?.message || e));
+    } finally {
+      setBusy(false);
+      onChanged();
+    }
+  }
+
+  // One-click retry: reclaim the failed row as a draft, then fire it. The send
+  // endpoint claims status IN ('draft','approved'), so PATCH→send is valid.
+  async function retrySend() {
+    setBusy(true);
+    setErr("");
+    try {
+      await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "draft" }),
+      });
       const res = await fetch(`/api/admin/touchpoints/${tp.touchpoint_id}/send`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || `Send → ${res.status}`);
@@ -263,14 +293,9 @@ function QueueItem({ tp, onChanged }) {
             {busy ? "Sending…" : tp.channel === "sms" ? "Send SMS now" : "Send email now"}
           </button>
         ) : null}
-        {tp.status === "draft" && sendable ? (
-          <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
-            Approve (scheduled)
-          </button>
-        ) : null}
         {tp.status === "failed" ? (
-          <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => patch({ status: "approved" })}>
-            Retry
+          <button type="button" className="crm-btn crm-btn--ghost" disabled={busy} onClick={() => void retrySend()}>
+            {busy ? "Retrying…" : "Retry send"}
           </button>
         ) : null}
         {pending ? (
