@@ -231,6 +231,182 @@
   color: var(--ink-soft, #45484c);
 }
 
+/* ── Today swimlane Gantt ──────────────────────────────────────────────────
+ * A dispatcher's day view: Y axis = one lane per assignee (+ Unassigned when
+ * needed), X axis = the working day in Brisbane hours. Blocks are positioned
+ * as a % of the visible time range so they scale with container width; the
+ * pane scrolls horizontally on phones where a min track width keeps the hours
+ * readable. Lane headers stay pinned via position: sticky; left: 0. */
+
+.insp-gantt {
+  margin-bottom: 8px;
+}
+.insp-gantt__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 12px;
+  border: 1px solid #e4e4e0;
+  border-radius: 10px;
+  background: #fff;
+}
+.insp-gantt__grid {
+  display: grid;
+  position: relative;
+  align-items: stretch;
+}
+
+/* Axis header row */
+.insp-gantt__corner {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #f4f4f2;
+  border-bottom: 1px solid #e4e4e0;
+  border-right: 1px solid #e4e4e0;
+}
+.insp-gantt__axis {
+  position: relative;
+  height: 30px;
+  background: #f4f4f2;
+  border-bottom: 1px solid #e4e4e0;
+}
+.insp-gantt__tick {
+  position: absolute;
+  top: 8px;
+  transform: translateX(-1px);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-faint, #82858a);
+  white-space: nowrap;
+  padding-left: 5px;
+  border-left: 1px solid #e4e4e0;
+  line-height: 1;
+}
+
+/* Lane header (sticky-left) */
+.insp-gantt__lanehead {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 12px;
+  background: #f4f4f2;
+  border-right: 1px solid #e4e4e0;
+  border-bottom: 1px solid #ececea;
+}
+.insp-gantt__lanename {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink, #0f1112);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.insp-gantt__lanecount {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-faint, #82858a);
+}
+
+/* Lane track — where blocks live */
+.insp-gantt__track {
+  position: relative;
+  border-bottom: 1px solid #ececea;
+  overflow: hidden;
+}
+.insp-gantt__gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #f0f0ee;
+  pointer-events: none;
+}
+
+.insp-gantt__block {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 44px;
+  padding: 0 8px;
+  border-radius: 7px;
+  border: 1px solid #e4e4e0;
+  border-left-width: 3px;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: box-shadow 120ms ease, border-color 120ms ease;
+}
+.insp-gantt__block:hover {
+  box-shadow: 0 1px 4px rgba(15, 17, 18, 0.1);
+  z-index: 4;
+}
+.insp-gantt__block--scheduled { background: #e9f0fa; border-color: #c8d8ee; border-left-color: #2b4a78; color: #2b4a78; }
+.insp-gantt__block--active    { background: #fef3c7; border-color: #f0dfa0; border-left-color: #d9a441; color: #854d0e; }
+.insp-gantt__block--done      { background: #dcfce7; border-color: #bbe6c8; border-left-color: #166534; color: #166534; opacity: 0.85; }
+
+.insp-gantt__blocktime {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.insp-gantt__blockname {
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.insp-gantt__blockpulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d9a441;
+  flex: 0 0 auto;
+  margin-left: auto;
+  animation: insp-gantt-pulse 1.6s ease-in-out infinite;
+}
+@keyframes insp-gantt-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* Now line — one element spanning all lanes */
+.insp-gantt__nowline {
+  position: relative;
+  pointer-events: none;
+  z-index: 3;
+}
+.insp-gantt__nowbar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px solid #c0392b;
+}
+.insp-gantt__nowtick {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -1px);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #c0392b;
+  padding: 1px 4px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
 /* ── Sign-off → publish form ──────────────────────────────────────────────
  * Each queue card expands into this review form: severity + executive
  * summary. One primary action publishes the report in a single PATCH. */
