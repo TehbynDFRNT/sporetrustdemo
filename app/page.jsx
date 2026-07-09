@@ -770,7 +770,7 @@ export default function Home() {
           <div className="wrap">
             <span className="eyebrow">[ fixed pricing ]</span>
             <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>No hourly rates. No surprises.</h2>
-            <div className={pricingTiers.length === 1 ? "price-grid price-grid--single" : "price-grid"}>
+            <div className="price-duo">
               {pricingTiers.map((tier) => (
                 <div key={tier.title} className={tier.featured ? "tier featured" : "tier"}>
                   {tier.featured ? <span className="badge">Most booked</span> : null}
@@ -788,9 +788,9 @@ export default function Home() {
                   </a>
                 </div>
               ))}
-            </div>
 
-            <SentinelCard />
+              <SentinelCard />
+            </div>
 
             <TrustBadge
               className="pricing-proof"
