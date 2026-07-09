@@ -1717,9 +1717,26 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
   grid-template-columns: 0.82fr 1.18fr;
   gap: 22px;
   margin-top: 48px;
-  align-items: start;
+  align-items: stretch;
 }
-.price-duo .sentinel-card { margin-top: 0; }
+/* Equal-height cards: each fills the shared row height and anchors its
+   CTA to the floor, so the two read as one matched pair whatever the
+   content wraps to. */
+.price-duo .tier {
+  display: flex;
+  flex-direction: column;
+}
+.price-duo .tier ul { flex: 1 0 auto; }
+.price-duo .tier .btn { align-self: flex-start; }
+.price-duo .reveal { display: flex; }
+.price-duo .sentinel-card {
+  margin-top: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.price-duo .sentinel-card__inclusions { flex: 1 0 auto; }
+.price-duo .sentinel-card__foot { margin-top: auto; }
 
 @media (max-width: 960px) {
   .price-duo { grid-template-columns: 1fr; }
