@@ -5,6 +5,7 @@ import { buildCardContext } from "../../../../lib/crm/context";
 import { sendTouchpoint } from "../../../../lib/crm/send";
 import { STAGE_SLUGS } from "../../../../lib/crm/stages";
 import { getTemplate } from "../../../../lib/crm/templates";
+import { fireLifecycle } from "../../../../lib/crm/lifecycle";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -56,7 +57,7 @@ export async function GET(request) {
     return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
   }
 
-  const summary = { sent: 0, send_failures: 0, unsnoozed: 0, suggested: 0, auto_approved: 0, skipped: [], errors: [] };
+  const summary = { sent: 0, send_failures: 0, unsnoozed: 0, reminders_sent: 0, suggested: 0, auto_approved: 0, skipped: [], errors: [] };
   const nowIso = new Date().toISOString();
 
   // ── 1. Dispatch due approved sms/email ────────────────────────────────
@@ -96,7 +97,48 @@ export async function GET(request) {
     summary.errors.push(`unsnooze: ${err.message}`);
   }
 
-  // ── 3. AI suggestions for stale cards ─────────────────────────────────
+  // ── 3. Booking reminders (tomorrow's Brisbane visits) ─────────────────
+  // Fire a "your visit is tomorrow" SMS for every scheduled inspection whose
+  // scheduled_at falls inside tomorrow's Brisbane calendar day. Deduped in
+  // fireLifecycle by (inspection, date) so hourly cron runs send exactly once.
+  try {
+    const OFFSET_MS = 10 * 3_600_000; // Brisbane is UTC+10 year-round (no DST)
+    const nowBris = new Date(Date.now() + OFFSET_MS); // UTC fields now read as Brisbane wall time
+    const y = nowBris.getUTCFullYear();
+    const mo = nowBris.getUTCMonth();
+    const d = nowBris.getUTCDate();
+    // Tomorrow's Brisbane day bounds, expressed back in real UTC.
+    const startUtc = new Date(Date.UTC(y, mo, d + 1, 0, 0, 0) - OFFSET_MS).toISOString();
+    const endUtc = new Date(Date.UTC(y, mo, d + 2, 0, 0, 0) - OFFSET_MS).toISOString();
+    const tomorrow = new Date(Date.UTC(y, mo, d + 1));
+    const dateKey = tomorrow.toISOString().slice(0, 10); // yyyy-mm-dd (Brisbane calendar date)
+
+    const { data: due, error } = await supabase
+      .from("inspections")
+      .select("inspection_id, customer_id, scheduled_at")
+      .eq("status", "scheduled")
+      .gte("scheduled_at", startUtc)
+      .lt("scheduled_at", endUtc)
+      .order("scheduled_at", { ascending: true })
+      .limit(20);
+    if (error) throw new Error(error.message);
+    for (const ins of due ?? []) {
+      if (!ins.customer_id) continue;
+      const result = await fireLifecycle(supabase, {
+        trigger: "booking_reminder",
+        customerId: ins.customer_id,
+        data: {
+          scheduledAt: ins.scheduled_at,
+          dedupeKey: `${ins.inspection_id}:${dateKey}`,
+        },
+      });
+      if (result?.ok && (result.sent?.length ?? 0) > 0) summary.reminders_sent += 1;
+    }
+  } catch (err) {
+    summary.errors.push(`reminders: ${err.message}`);
+  }
+
+  // ── 4. AI suggestions for stale cards ─────────────────────────────────
   try {
     if (!isAnthropicConfigured()) {
       summary.skipped.push("suggest: ANTHROPIC_API_KEY not configured");

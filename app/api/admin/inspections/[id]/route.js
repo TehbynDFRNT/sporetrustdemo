@@ -1,4 +1,6 @@
 import { adminRowGet, adminRowPatch } from "../../../../../lib/admin/row-handler";
+import { fireLifecycle } from "../../../../../lib/crm/lifecycle";
+import { createServerSupabaseClient } from "../../../../../lib/supabase";
 
 export const runtime = "nodejs";
 
@@ -31,5 +33,45 @@ export async function GET(_req, ctx) {
 export async function PATCH(req, ctx) {
   const { id } = await ctx.params;
   const patch = await req.json();
-  return adminRowPatch(config, id, patch);
+  const wantsPublish = patch?.report_status === "published";
+
+  // Snapshot pre-patch report_status so the report-ready comm fires only on
+  // the transition INTO published, never on a re-save of an already-published
+  // report. The generic PATCH handler stays generic — this is the sole
+  // bespoke hook, scoped to this route.
+  let wasPublished = false;
+  if (wantsPublish) {
+    const supabase = createServerSupabaseClient();
+    if (supabase) {
+      const { data: prev } = await supabase
+        .from("inspections")
+        .select("report_status")
+        .eq("inspection_id", id)
+        .maybeSingle();
+      wasPublished = prev?.report_status === "published";
+    }
+  }
+
+  const res = await adminRowPatch(config, id, patch);
+
+  if (wantsPublish && !wasPublished && res.ok) {
+    try {
+      const body = await res.clone().json();
+      const row = body?.row;
+      const supabase = createServerSupabaseClient();
+      if (supabase && row?.customer_id && row?.report_slug) {
+        // LIFECYCLE: report ready. Deduped per inspection so a later re-publish
+        // (or a raced double PATCH) can't re-send. Best-effort.
+        await fireLifecycle(supabase, {
+          trigger: "report_published",
+          customerId: row.customer_id,
+          data: { reportSlug: row.report_slug, dedupeKey: String(row.inspection_id) },
+        });
+      }
+    } catch (hookErr) {
+      console.error("[inspections PATCH] report_published lifecycle failed:", hookErr?.message || hookErr);
+    }
+  }
+
+  return res;
 }

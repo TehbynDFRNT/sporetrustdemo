@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureCrmCard, logSystemTouchpoint } from "../../../lib/crm/cards";
 import { createRuleAction } from "../../../lib/crm/rules";
+import { fireLifecycle } from "../../../lib/crm/lifecycle";
 import { notifyOwnerNewLead } from "../../../lib/crm/notify";
 import { ensureProperty, linkCustomerProperty } from "../../../lib/properties";
 import { normalizeAuPhone } from "../../../lib/phone";
@@ -164,6 +165,9 @@ export async function POST(request) {
       if (notified) {
         await logSystemTouchpoint(supabase, card_id, "Owner notified by email");
       }
+      // LIFECYCLE: welcome the enquirer. 24h dedupe inside fireLifecycle means
+      // a double submit or a second quiz run won't double-text.
+      await fireLifecycle(supabase, { trigger: "lead_received", customerId });
     } catch (crmErr) {
       console.error("[api/lead] CRM plumbing failed:", crmErr?.message || crmErr);
     }

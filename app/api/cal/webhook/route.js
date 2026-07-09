@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { ensureInspectionFromBooking } from "../../../../lib/inspectionsFromBooking";
+import { fireLifecycle } from "../../../../lib/crm/lifecycle";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 
 export const runtime = "nodejs";
@@ -149,12 +150,12 @@ export async function POST(request) {
   return NextResponse.json({ status: "ok" });
 }
 
-async function handleBookingCreated(_supabase, payload) {
+async function handleBookingCreated(supabase, payload) {
   const data = payload?.payload || {};
   const attendee = (data.attendees || [])[0] || {};
   const metadata = data.metadata || {};
 
-  await ensureInspectionFromBooking({
+  const inspection = await ensureInspectionFromBooking({
     cal_booking_id: data.uid,
     start: data.startTime || data.start,
     duration_minutes: data.length || data.lengthInMinutes || 90,
@@ -168,6 +169,18 @@ async function handleBookingCreated(_supabase, payload) {
     placeId: metadata.placeId || null,
     lat: metadata.lat || null,
     lng: metadata.lng || null,
+  });
+
+  // LIFECYCLE: confirm the booking (SMS + email). Deduped per inspection so a
+  // second BOOKING_CREATED delivery can't re-confirm. Best-effort.
+  await fireLifecycle(supabase, {
+    trigger: "booking_confirmed",
+    customerId: inspection.customer_id,
+    data: {
+      scheduledAt: data.startTime || data.start,
+      address: metadata.address || "",
+      dedupeKey: String(inspection.inspection_id),
+    },
   });
 }
 
@@ -192,16 +205,32 @@ async function handleBookingRescheduled(supabase, payload) {
   // old isn't on the payload — that's the case when Cal preserves the
   // same uid across a reschedule.
   const matchUid = oldUid || newUid;
-  const { error } = await supabase
+  const newStartIso = newStart ? new Date(newStart).toISOString() : null;
+  const { data: updated, error } = await supabase
     .from("inspections")
     .update({
       cal_booking_id: newUid,
-      scheduled_at: newStart ? new Date(newStart).toISOString() : null,
+      scheduled_at: newStartIso,
       status: "scheduled",
       updated_at: new Date().toISOString(),
     })
-    .eq("cal_booking_id", matchUid);
+    .eq("cal_booking_id", matchUid)
+    .select("inspection_id, customer_id, scheduled_at")
+    .maybeSingle();
   if (error) throw new Error(`Update on RESCHEDULED: ${error.message}`);
+
+  // LIFECYCLE: tell the customer the new time. Deduped per (inspection, time)
+  // so a further reschedule to a different slot fires again. Best-effort.
+  if (updated?.customer_id) {
+    await fireLifecycle(supabase, {
+      trigger: "booking_rescheduled",
+      customerId: updated.customer_id,
+      data: {
+        scheduledAt: updated.scheduled_at,
+        dedupeKey: `${updated.inspection_id}:${updated.scheduled_at}`,
+      },
+    });
+  }
 }
 
 async function handleBookingCancelled(supabase, payload) {
@@ -209,12 +238,24 @@ async function handleBookingCancelled(supabase, payload) {
   const uid = data.uid || data.bookingUid;
   if (!uid) throw new Error("CANCELLED payload missing uid");
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("inspections")
     .update({
       status: "cancelled",
       updated_at: new Date().toISOString(),
     })
-    .eq("cal_booking_id", uid);
+    .eq("cal_booking_id", uid)
+    .select("inspection_id, customer_id")
+    .maybeSingle();
   if (error) throw new Error(`Update on CANCELLED: ${error.message}`);
+
+  // LIFECYCLE: acknowledge the cancellation + offer an easy rebook.
+  // Best-effort.
+  if (updated?.customer_id) {
+    await fireLifecycle(supabase, {
+      trigger: "booking_cancelled",
+      customerId: updated.customer_id,
+      data: { dedupeKey: String(updated.inspection_id) },
+    });
+  }
 }
