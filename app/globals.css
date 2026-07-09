@@ -1707,67 +1707,19 @@ h4 { font-size: 19px; font-weight: 600; letter-spacing: -0.012em; }
 @media (max-width: 760px) { .price-grid { grid-template-columns: 1fr; } }
 .price-grid--single { grid-template-columns: 1fr; max-width: 560px; margin-left: auto; margin-right: auto; }
 
-/* Duo layout: the once-off diagnostic (primary) beside the Sentinel
-   subscription (secondary). Top-aligned so each card is its natural
-   height — no equal-height stretch void under the shorter card. The
-   primary is the dark hero with a green accent; Sentinel recedes to a
-   lighter surface so the eye lands on "book the $995 inspection" first. */
+/* Duo layout: the once-off diagnostic beside the Sentinel subscription.
+   Sentinel is the wider, richer card — the extra width lets its content
+   (2×2 inclusions, header) lay out horizontally instead of stacking, so
+   it doesn't grow tall. Top-aligned so neither card stretches to match
+   the other's height. Both keep their native dark surfaces. */
 .price-duo {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
+  grid-template-columns: 0.82fr 1.18fr;
   gap: 22px;
   margin-top: 48px;
   align-items: start;
 }
-.price-duo .reveal { display: grid; }
-
-/* Primary — the pick. Roomier padding + bullet rhythm so the hero card
-   reads substantial next to the taller subscription card. */
-.price-duo .tier.featured {
-  border: 1.5px solid var(--green);
-  box-shadow: var(--elev-3);
-  padding: 40px 36px 36px;
-}
-.price-duo .tier.featured ul { margin-bottom: 40px; }
-.price-duo .tier.featured ul li { padding-top: 16px; padding-bottom: 16px; }
-
-/* Sentinel head: stack the price under the heading in the narrow column.
-   Keep inclusions as a 2×2 grid so the card stays compact and roughly
-   level with the primary rather than towering over it. */
 .price-duo .sentinel-card { margin-top: 0; }
-.price-duo .sentinel-card__inclusions { grid-template-columns: 1fr 1fr; gap: var(--space-5) var(--space-6); }
-.price-duo .sentinel-card__inclusion p { max-width: none; }
-.price-duo .sentinel-card__head { flex-direction: column; align-items: flex-start; }
-.price-duo .sentinel-card__head .sentinel-card__price {
-  margin-left: 0;
-  text-align: left;
-  align-items: flex-start;
-}
-
-/* Sentinel = secondary surface: light, quieter, lower elevation */
-.price-duo .sentinel-card {
-  background: var(--white);
-  color: var(--ink);
-  box-shadow: var(--elev-1);
-  border: 1px solid var(--line);
-}
-.price-duo .sentinel-card::before { display: none; }
-.price-duo .sentinel-card__supertext { color: var(--green); }
-.price-duo .sentinel-card__title { color: var(--ink); }
-.price-duo .sentinel-card__tagline { color: var(--ink-soft); }
-.price-duo .sentinel-card__head { border-bottom-color: var(--line); }
-.price-duo .sentinel-card__price-figure { color: var(--ink); }
-.price-duo .sentinel-card__price-meta { color: var(--ink-faint); }
-.price-duo .sentinel-card__inclusion-index { color: var(--ink-faint); }
-.price-duo .sentinel-card__inclusion strong { color: var(--ink); }
-.price-duo .sentinel-card__inclusion p { color: var(--ink-soft); }
-.price-duo .sentinel-card__foot { border-top-color: var(--line); }
-.price-duo .sentinel-card__cta {
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-.price-duo .sentinel-card__cta:hover { background: var(--paper); }
 
 @media (max-width: 960px) {
   .price-duo { grid-template-columns: 1fr; }
