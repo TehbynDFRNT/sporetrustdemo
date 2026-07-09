@@ -422,35 +422,20 @@ const trustBadges = [
 
 const pricingTiers = [
   {
-    title: "Rapid Inspection",
-    tag: "For most homes & apartments",
-    price: "$695",
-    sub: "ONCE-OFF - GST INC",
-    featured: false,
-    button: "Book Standard",
-    bullets: [
-      "On-site thermal, moisture & humidity testing",
-      "Up to 3 areas of concern + whole-of-home walkthrough",
-      "Severity rating & likely cause per area",
-      "Damage extent & affected materials, quantified",
-      "Defensible repair cost range per area + total",
-      "48-hour digital report, sharable PDF",
-    ],
-  },
-  {
     title: "Lab-Backed Diagnostic",
-    tag: "When you need defensible evidence",
-    price: "$945",
+    tag: "One thorough inspection — everything included",
+    price: "$995",
     sub: "ONCE-OFF - GST INC",
     featured: true,
-    button: "Book Lab-Backed",
+    button: "Book your inspection",
     bullets: [
-      "Everything in the Rapid Inspection",
-      "Indoor air sample (room of your choice)",
-      "Outdoor control sample for comparison",
-      "Lab-analysed spore count & species",
-      "Health risk indicator from air results",
+      "Whole-of-home thermal, moisture & humidity walkthrough",
+      "Up to 3 areas of concern investigated in depth — severity & likely cause per area",
+      "Damage extent & affected materials, quantified",
+      "Defensible repair cost range per area + total",
+      "Indoor air sample + outdoor control, lab-analysed spore count & species",
       "Suitable for insurance & tribunal submissions",
+      "48-hour digital report, sharable PDF",
     ],
   },
 ];
@@ -470,7 +455,7 @@ const faqs = [
   ],
   [
     "When do I get the report?",
-    "Rapid Inspection reports are delivered to your portal within 48 hours of the on-site visit. Lab-Backed Diagnostic reports include the lab analysis appendix, which arrives 5-7 days after sampling depending on lab turnaround.",
+    "Your digital report lands in your portal within 48 hours of the on-site visit. The lab analysis appendix — spore count and species — arrives 5-7 days after sampling, depending on lab turnaround.",
   ],
   [
     "What if you don't find anything serious?",
@@ -785,7 +770,7 @@ export default function Home() {
           <div className="wrap">
             <span className="eyebrow">[ fixed pricing ]</span>
             <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>No hourly rates. No surprises.</h2>
-            <div className="price-grid">
+            <div className={pricingTiers.length === 1 ? "price-grid price-grid--single" : "price-grid"}>
               {pricingTiers.map((tier) => (
                 <div key={tier.title} className={tier.featured ? "tier featured" : "tier"}>
                   {tier.featured ? <span className="badge">Most booked</span> : null}

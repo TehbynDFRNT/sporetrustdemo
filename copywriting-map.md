@@ -721,34 +721,9 @@ section.pricing.h2:
   "No hourly rates. No surprises."
 ```
 
-### Pricing Tier 01
+### Pricing (single offer)
 
-```txt
-tier.title:
-  "Standard Diagnostic"
-
-tier.tag:
-  "For most homes & apartments"
-
-tier.price:
-  "$695"
-
-tier.sub:
-  "ONCE-OFF - GST INC"
-
-tier.button:
-  "Book Standard"
-
-tier.bullets:
-  - "On-site thermal, moisture & humidity testing"
-  - "Up to 3 areas of concern + whole-of-home walkthrough"
-  - "Severity rating & likely cause per area"
-  - "Damage extent & affected materials, quantified"
-  - "Defensible repair cost range per area + total"
-  - "48-hour digital report, sharable PDF"
-```
-
-### Pricing Tier 02
+There is one offer — the Lab-Backed Diagnostic at $995. No cheaper tier; every inspection is lab-backed.
 
 ```txt
 tier.badge:
@@ -758,24 +733,25 @@ tier.title:
   "Lab-Backed Diagnostic"
 
 tier.tag:
-  "When you need defensible evidence"
+  "One thorough inspection — everything included"
 
 tier.price:
-  "$945"
+  "$995"
 
 tier.sub:
   "ONCE-OFF - GST INC"
 
 tier.button:
-  "Book Lab-Backed"
+  "Book your inspection"
 
 tier.bullets:
-  - "Everything in the Standard Diagnostic"
-  - "Indoor air sample (room of your choice)"
-  - "Outdoor control sample for comparison"
-  - "Lab-analysed spore count & species"
-  - "Health risk indicator from air results"
+  - "Whole-of-home thermal, moisture & humidity walkthrough"
+  - "Up to 3 areas of concern investigated in depth — severity & likely cause per area"
+  - "Damage extent & affected materials, quantified"
+  - "Defensible repair cost range per area + total"
+  - "Indoor air sample + outdoor control, lab-analysed spore count & species"
   - "Suitable for insurance & tribunal submissions"
+  - "48-hour digital report, sharable PDF"
 ```
 
 ### Pricing Trust Badge / Footnote
@@ -842,7 +818,7 @@ faq.03.answer:
 faq.04.question:
   "When do I get the report?"
 faq.04.answer:
-  "Standard Diagnostic reports are delivered to your portal within 48 hours of the on-site visit. Lab-Backed addendums arrive 5-7 days after sampling, depending on lab turnaround."
+  "Your digital report lands in your portal within 48 hours of the on-site visit. The lab analysis appendix — spore count and species — arrives 5-7 days after sampling, depending on lab turnaround."
 
 faq.05.question:
   "What if you don't find anything serious?"

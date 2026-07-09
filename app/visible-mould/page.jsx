@@ -208,8 +208,8 @@ export default function VisibleMouldPage() {
             title="Stop guessing what's behind the wall."
             stats={[
               {
-                figure: "$695",
-                label: "Rapid Inspection — 45-minute on-site, 48-hour report. Fixed price, GST inc.",
+                figure: "$995",
+                label: "Lab-Backed Diagnostic — 45-minute on-site, 48-hour report. One fixed price, GST inc.",
               },
               {
                 figure: "48 hours",

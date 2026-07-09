@@ -46,7 +46,7 @@ const sentinelInclusions = [
   {
     title: "Two annual on-site diagnostics",
     copy:
-      "A full thermal, moisture and humidity sweep of your home, twice a year, scheduled in advance. Same Sporetrust protocol as a one-off Rapid Inspection, included in your subscription.",
+      "A full thermal, moisture and humidity sweep of your home, twice a year, scheduled in advance. Same Sporetrust protocol as a one-off Lab-Backed Diagnostic, included in your subscription.",
     value: "Twice yearly",
   },
   {
@@ -195,10 +195,10 @@ const sentinelReportItems = [
 ];
 
 const compareRows = [
-  { label: "Cost", standard: "$695 once", sentinel: "$22.95 / week" },
+  { label: "Cost", standard: "$995 once", sentinel: "$22.95 / week" },
   { label: "On-site visits", standard: "1", sentinel: "2 per year" },
   { label: "Diagnostic report", standard: "Standalone", sentinel: "Year-on-year, stacked" },
-  { label: "Re-inspection rate", standard: "$695 each", sentinel: "$549.50 (member rate)" },
+  { label: "Re-inspection rate", standard: "$995 each", sentinel: "$549.50 (member rate)" },
   { label: "Booking priority", standard: "Standard queue", sentinel: "Subscriber priority" },
   { label: "Term", standard: "One-off", sentinel: "12-month minimum" },
   { label: "Best for", standard: "One-time concern", sentinel: "Ongoing peace of mind" },
@@ -215,7 +215,7 @@ const sentinelFaqs = [
   ],
   [
     "Does the annual inspection cover the whole home?",
-    "Yes. Same protocol as a Rapid Inspection — thermal, moisture, humidity and ventilation across the home, plus the rooms you flag at re-engagement.",
+    "Yes. Same protocol as the Lab-Backed Diagnostic — thermal, moisture, humidity and ventilation across the home, plus the rooms you flag at re-engagement.",
   ],
   [
     "What if mould appears between annual visits?",
@@ -371,13 +371,13 @@ export default function SporetrustSentinelPage() {
                 title="When Sentinel makes more sense."
                 titleMax="36ch"
                 ledeMax="64ch"
-                lede="If you only ever expect one diagnostic, a once-off Rapid Inspection is the right call. If you want a moving record, reserved capacity and reduced re-check rates, Sentinel does the math."
+                lede="If you only ever expect one diagnostic, a once-off Lab-Backed Diagnostic is the right call. If you want a moving record, reserved capacity and reduced re-check rates, Sentinel does the math."
               />
             </Reveal>
             <div className="compare-table">
               <div className="compare-row compare-row--head">
                 <div className="compare-cell compare-cell--label"></div>
-                <div className="compare-cell">Rapid Inspection</div>
+                <div className="compare-cell">Once-off diagnostic</div>
                 <div className="compare-cell compare-cell--ours">Sentinel</div>
               </div>
               {compareRows.map((row) => (
@@ -432,7 +432,7 @@ export default function SporetrustSentinelPage() {
                 },
               ]}
               primaryCta={{ label: "Join Sentinel", href: "#book" }}
-              secondaryCta={{ label: "Compare to Rapid Inspection", href: "#methodology" }}
+              secondaryCta={{ label: "Compare to once-off diagnostic", href: "#methodology" }}
               footnote="Cancel anytime before your first scheduled inspection — or after your 12-month term."
               image="/images/hero-mould-prevention.jpg"
               imageAlt="Queenslander interior under year-round Sentinel prevention"

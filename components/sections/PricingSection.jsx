@@ -7,7 +7,7 @@ export default function PricingSection({ tiers, trustBadge }) {
       <div className="wrap">
         <span className="eyebrow">[ fixed pricing ]</span>
         <h2 style={{ marginTop: 28, maxWidth: "28ch" }}>No hourly rates. No surprises.</h2>
-        <div className="price-grid">
+        <div className={tiers.length === 1 ? "price-grid price-grid--single" : "price-grid"}>
           {tiers.map((tier) => (
             <div key={tier.title} className={tier.featured ? "tier featured" : "tier"}>
               {tier.featured ? <span className="badge">Most booked</span> : null}

@@ -38,7 +38,7 @@ function CheckGlyph() {
 export default function DiagnosticHero({
   inclusions = DEFAULT_INCLUSIONS,
   pricing = {
-    figure: "$945",
+    figure: "$995",
     meta: "Lab-Backed Diagnostic · GST inc",
     sub: "On-site protocol + AIHA-lab analysis (ISO/IEC 17025). Plain-English digital report within 48 hours.",
     pill: "Most booked",

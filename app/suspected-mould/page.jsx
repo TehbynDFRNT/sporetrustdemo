@@ -246,8 +246,8 @@ const suspectedFaqs = [
     "That's still a useful answer, and you'll get it documented. A low-risk report with prevention guidance is valuable to have on file, especially as a tenant, owner or buyer.",
   ],
   [
-    "Should I get lab-backed sampling?",
-    "Lab-Backed Diagnostic is the default for claim-ready or tribunal-ready evidence — and for any case where spore count, species profile or air analysis matters. If you only need on-site readings without lab analysis, Rapid Inspection covers the same protocol at a lower rate.",
+    "Is lab analysis included?",
+    "Yes. Every diagnostic is lab-backed — an indoor air sample plus an outdoor control, analysed for spore count and species. That's what makes the report claim-ready and tribunal-ready, and it's built into the single price.",
   ],
   [
     "Can you tell if the smell is mould?",
